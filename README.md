@@ -1,2 +1,2 @@
 # bam-graphicssdk
-BuildAMation graphics SDK package repository
+[BuildAMation](https://github.com/markfinal/BuildAMation) graphics SDK package repository
