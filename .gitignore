@@ -1,2 +1,3 @@
 PackageDebug
 tests/*/build
+*.pyc
