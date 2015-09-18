@@ -33,16 +33,6 @@ namespace glew
     sealed class GLEWStatic :
         C.StaticLibrary
     {
-        private Bam.Core.Module.PublicPatchDelegate exported = (settings, appliedTo) =>
-            {
-                var compiler = settings as C.ICommonCompilerSettings;
-                if (null != compiler)
-                {
-                    compiler.PreprocessorDefines.Add("GLEW_STATIC");
-                    compiler.IncludePaths.Add(Bam.Core.TokenizedString.Create("$(packagedir)/include", appliedTo));
-                }
-            };
-
         protected override void
         Init(
             Bam.Core.Module parent)
@@ -60,9 +50,15 @@ namespace glew
             }
 
             var source = this.CreateCSourceContainer("$(packagedir)/src/glew.c");
-            source.PrivatePatch(settings => this.exported(settings, this));
-
-            this.PublicPatch((settings, appliedTo) => this.exported(settings, this));
+            this.PublicPatch((settings, appliedTo) =>
+                {
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    if (null != compiler)
+                    {
+                        compiler.PreprocessorDefines.Add("GLEW_STATIC");
+                        compiler.IncludePaths.Add(Bam.Core.TokenizedString.Create("$(packagedir)/include", this));
+                    }
+                });
 
             this.CompileAgainst<OpenGLSDK.OpenGL>(source);
             if (this.Librarian is VisualCCommon.Librarian)
