@@ -1,3 +1,4 @@
 PackageDebug
 tests/*/build
+tests/Logs
 *.pyc
