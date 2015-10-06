@@ -27,46 +27,21 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using System.Linq;
 namespace DirectXSDK
 {
-    public static class Direct3D9Location
-    {
-        static Direct3D9Location()
-        {
-            if (!Bam.Core.OSUtilities.IsWindowsHosting)
-            {
-                throw new Bam.Core.Exception("DirectX package only valid on Windows");
-            }
-
-            const string registryPath = @"Microsoft\DirectX\Microsoft DirectX SDK (June 2010)";
-            using (var dxInstallLocation = Bam.Core.Win32RegistryUtilities.Open32BitLMSoftwareKey(registryPath))
-            {
-                if (null == dxInstallLocation)
-                {
-                    throw new Bam.Core.Exception("DirectX SDK has not been installed on this machine");
-                }
-
-                InstallPath = dxInstallLocation.GetValue("InstallPath") as string;
-            }
-        }
-
-        public static string InstallPath
-        {
-            get;
-            set;
-        }
-    }
-
     sealed class Direct3D9 :
         C.CSDKModule
     {
         public Direct3D9()
         {
-            var installPath = Direct3D9Location.InstallPath;
-
-            this.Macros.Add("InstallPath", installPath);
-            this.Macros.Add("IncludePath", Bam.Core.TokenizedString.Create("$(InstallPath)/include", this));
-            this.Macros.Add("LibraryPath", Bam.Core.TokenizedString.Create("$(InstallPath)/lib", this));
+            var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
+            if (!meta.UseWindowsSDK)
+            {
+                this.Macros.Add("InstallPath", Bam.Core.TokenizedString.Create(this.PackageDefinition.MetaData["InstallPath"] as string, null, verbatim: true));
+                this.Macros.Add("IncludePath", Bam.Core.TokenizedString.Create("$(InstallPath)/include", this));
+                this.Macros.Add("LibraryPath", Bam.Core.TokenizedString.Create("$(InstallPath)/lib", this));
+            }
         }
 
         protected override void
@@ -75,27 +50,37 @@ namespace DirectXSDK
         {
             base.Init(parent);
 
-            this.PublicPatch((settings, appliedTo) =>
-                {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    if (null != compiler)
+            var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
+            if (meta.UseWindowsSDK)
+            {
+                var winSDKModule = Bam.Core.Graph.Instance.FindReferencedModule<WindowsSDK.WindowsSDK>();
+                this.Requires(winSDKModule);
+                this.UsePublicPatches(winSDKModule);
+            }
+            else
+            {
+                this.PublicPatch((settings, appliedTo) =>
                     {
-                        compiler.IncludePaths.Add(this.Macros["IncludePath"]);
-                    }
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        if (null != compiler)
+                        {
+                            compiler.IncludePaths.Add(this.Macros["IncludePath"]);
+                        }
 
-                    var linker = settings as C.ICommonLinkerSettings;
-                    if (null != linker)
-                    {
-                        if ((appliedTo as C.CModule).BitDepth == C.EBit.ThirtyTwo)
+                        var linker = settings as C.ICommonLinkerSettings;
+                        if (null != linker)
                         {
-                            linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x86", this));
+                            if ((appliedTo as C.CModule).BitDepth == C.EBit.ThirtyTwo)
+                            {
+                                linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x86", this));
+                            }
+                            else
+                            {
+                                linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x64", this));
+                            }
                         }
-                        else
-                        {
-                            linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x64", this));
-                        }
-                    }
-                });
+                    });
+            }
         }
 
         public override void

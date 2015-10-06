@@ -27,6 +27,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using System.Linq;
 namespace Direct3DTriangle
 {
     [Bam.Core.PlatformFilter(Bam.Core.EPlatform.Windows)]
@@ -59,15 +60,23 @@ namespace Direct3DTriangle
                     var linker = settings as C.ICommonLinkerSettings;
                     linker.Libraries.Add("USER32.lib");
                     linker.Libraries.Add("d3d9.lib");
-                    linker.Libraries.Add("dxerr.lib");
 
-                    if (this.BuildEnvironment.Configuration == Bam.Core.EConfiguration.Debug)
+                    var dxMeta = Bam.Core.Graph.Instance.Packages.Where(item => item.Name == "DirectXSDK").First().MetaData as DirectXSDK.IDirectXSDKInstallMeta;
+                    if (dxMeta.UseWindowsSDK)
                     {
-                        linker.Libraries.Add("d3dx9d.lib");
+                        linker.Libraries.Add("d3dcompiler.lib");
                     }
                     else
                     {
-                        linker.Libraries.Add("d3dx9.lib");
+                        linker.Libraries.Add("dxerr.lib");
+                        if (this.BuildEnvironment.Configuration == Bam.Core.EConfiguration.Debug)
+                        {
+                            linker.Libraries.Add("d3dx9d.lib");
+                        }
+                        else
+                        {
+                            linker.Libraries.Add("d3dx9.lib");
+                        }
                     }
                 });
         }
