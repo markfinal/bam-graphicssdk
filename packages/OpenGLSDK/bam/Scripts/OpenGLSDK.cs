@@ -56,7 +56,7 @@ namespace OpenGLSDK
                     var osxLinker = settings as C.ILinkerSettingsOSX;
                     if (null != osxLinker)
                     {
-                        osxLinker.Frameworks.AddUnique(Bam.Core.TokenizedString.Create("OpenGL", null, verbatim: true));
+                        osxLinker.Frameworks.AddUnique(Bam.Core.TokenizedString.CreateVerbatim("OpenGL"));
                     }
                 });
         }

@@ -38,7 +38,7 @@ namespace DirectXSDK
             var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
             if (!meta.UseWindowsSDK)
             {
-                this.Macros.Add("InstallPath", Bam.Core.TokenizedString.Create(this.PackageDefinition.MetaData["InstallPath"] as string, null, verbatim: true));
+                this.Macros.Add("InstallPath", Bam.Core.TokenizedString.CreateVerbatim(this.PackageDefinition.MetaData["InstallPath"] as string));
                 this.Macros.Add("IncludePath", Bam.Core.TokenizedString.Create("$(InstallPath)/include", this));
                 this.Macros.Add("LibraryPath", Bam.Core.TokenizedString.Create("$(InstallPath)/lib", this));
             }
