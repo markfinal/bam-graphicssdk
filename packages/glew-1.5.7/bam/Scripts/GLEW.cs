@@ -56,7 +56,7 @@ namespace glew
                     if (null != compiler)
                     {
                         compiler.PreprocessorDefines.Add("GLEW_STATIC");
-                        compiler.IncludePaths.Add(Bam.Core.TokenizedString.Create("$(packagedir)/include", this));
+                        compiler.IncludePaths.Add(this.CreateTokenizedString("$(packagedir)/include"));
                     }
                 });
 

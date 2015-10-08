@@ -39,8 +39,8 @@ namespace DirectXSDK
             if (!meta.UseWindowsSDK)
             {
                 this.Macros.Add("InstallPath", Bam.Core.TokenizedString.CreateVerbatim(this.PackageDefinition.MetaData["InstallPath"] as string));
-                this.Macros.Add("IncludePath", Bam.Core.TokenizedString.Create("$(InstallPath)/include", this));
-                this.Macros.Add("LibraryPath", Bam.Core.TokenizedString.Create("$(InstallPath)/lib", this));
+                this.Macros.Add("IncludePath", this.CreateTokenizedString("$(InstallPath)/include"));
+                this.Macros.Add("LibraryPath", this.CreateTokenizedString("$(InstallPath)/lib"));
             }
         }
 
@@ -72,11 +72,11 @@ namespace DirectXSDK
                         {
                             if ((appliedTo as C.CModule).BitDepth == C.EBit.ThirtyTwo)
                             {
-                                linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x86", this));
+                                linker.LibraryPaths.Add(this.CreateTokenizedString("$(LibraryPath)/x86"));
                             }
                             else
                             {
-                                linker.LibraryPaths.Add(Bam.Core.TokenizedString.Create("$(LibraryPath)/x64", this));
+                                linker.LibraryPaths.Add(this.CreateTokenizedString("$(LibraryPath)/x64"));
                             }
                         }
                     });
