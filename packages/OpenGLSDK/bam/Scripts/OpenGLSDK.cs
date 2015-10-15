@@ -53,10 +53,10 @@ namespace OpenGLSDK
                             linker.Libraries.Add("-lopengl32");
                         }
                     }
-                    var osxLinker = settings as C.ILinkerSettingsOSX;
+                    var osxLinker = settings as C.ICommonLinkerSettingsOSX;
                     if (null != osxLinker)
                     {
-                        osxLinker.Frameworks.AddUnique(Bam.Core.TokenizedString.CreateVerbatim("OpenGL"));
+                        osxLinker.Frameworks.AddUnique("OpenGL");
                     }
                 });
         }
