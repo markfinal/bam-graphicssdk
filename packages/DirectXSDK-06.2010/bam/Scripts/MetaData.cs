@@ -48,7 +48,7 @@ namespace DirectXSDK
     }
 
     public class MetaData :
-        Bam.Core.IPackageMetaData,
+        Bam.Core.PackageMetaData,
         IDirectXSDKInstallMeta
     {
         private System.Collections.Generic.Dictionary<string, object> Meta = new System.Collections.Generic.Dictionary<string,object>();
@@ -89,7 +89,7 @@ namespace DirectXSDK
             }
         }
 
-        object Bam.Core.IPackageMetaData.this[string index]
+        public override object this[string index]
         {
             get
             {
@@ -97,7 +97,8 @@ namespace DirectXSDK
             }
         }
 
-        bool Bam.Core.IPackageMetaData.Contains(
+        public override bool
+        Contains(
             string index)
         {
             return this.Meta.ContainsKey(index);
