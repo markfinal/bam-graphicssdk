@@ -81,4 +81,18 @@ namespace Direct3DTriangle
                 });
         }
     }
+
+    sealed class TriangleTestRuntime :
+        Publisher.Collation
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var app = this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key, EPublishingType.WindowedApplication);
+            this.Include<DirectXSDK.Direct3D9ShaderCompiler>(C.DynamicLibrary.Key, ".", app);
+        }
+    }
 }
