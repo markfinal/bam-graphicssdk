@@ -27,6 +27,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using Bam.Core;
 namespace OpenGLSDK
 {
     // TODO: this is pretty pointless at the moment
@@ -41,22 +42,35 @@ namespace OpenGLSDK
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    var linker = settings as C.ICommonLinkerSettings;
-                    if (null != linker)
+                    if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
                     {
-                        if (linker is VisualC.LinkerSettings)
+                        var osxLinker = settings as C.ICommonLinkerSettingsOSX;
+                        if (null != osxLinker)
                         {
-                            linker.Libraries.Add("OPENGL32.lib");
-                        }
-                        else if (linker is Mingw.LinkerSettings)
-                        {
-                            linker.Libraries.Add("-lopengl32");
+                            osxLinker.Frameworks.AddUnique("OpenGL");
                         }
                     }
-                    var osxLinker = settings as C.ICommonLinkerSettingsOSX;
-                    if (null != osxLinker)
+                    else
                     {
-                        osxLinker.Frameworks.AddUnique("OpenGL");
+                        var linker = settings as C.ICommonLinkerSettings;
+                        if (null != linker)
+                        {
+                            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+                            {
+                                if (linker is VisualC.LinkerSettings)
+                                {
+                                    linker.Libraries.Add("OPENGL32.lib");
+                                }
+                                else if (linker is Mingw.LinkerSettings)
+                                {
+                                    linker.Libraries.Add("-lopengl32");
+                                }
+                            }
+                            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+                            {
+                                linker.Libraries.Add("-lGL");
+                            }
+                        }
                     }
                 });
         }
