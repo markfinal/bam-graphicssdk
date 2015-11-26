@@ -17,6 +17,7 @@ namespace glew
         {
             base.Init(parent);
 
+            this.CreateHeaderContainer("$(packagedir)/include/GL/*.h");
             var source = this.CreateCSourceContainer();
             source.AddFile("$(packagedir)/src/glew.c");
             this.PublicPatch((settings, appliedTo) =>
