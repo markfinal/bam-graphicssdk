@@ -7,7 +7,7 @@
 using Bam.Core;
 namespace glew
 {
-    [Bam.Core.ModuleGroup("Thirdparty")]
+    [Bam.Core.ModuleGroup("Thirdparty/GLEW")]
     sealed class GLEWStatic :
         C.StaticLibrary
     {
