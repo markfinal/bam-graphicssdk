@@ -10,15 +10,16 @@ WinMain(
 {
     auto createInstanceFn = reinterpret_cast<PFN_vkCreateInstance>(vkGetInstanceProcAddr(nullptr, "vkCreateInstance"));
     ::VkInstanceCreateInfo createInfo;
-    ::VkAllocationCallbacks allocCbs;
+    //::VkAllocationCallbacks allocCbs;
     ::VkInstance instance;
     memset(&createInfo, 0, sizeof(createInfo));
-    memset(&allocCbs, 0, sizeof(allocCbs));
-    auto result = createInstanceFn(&createInfo, &allocCbs, &instance);
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
+    //memset(&allocCbs, 0, sizeof(allocCbs));
+    auto result = createInstanceFn(&createInfo, nullptr, &instance);
     if (VK_SUCCESS == result)
     {
         auto destroyInstanceFn = reinterpret_cast<PFN_vkDestroyInstance>(vkGetInstanceProcAddr(instance, "vkDestroyInstance"));
-        destroyInstanceFn(instance, &allocCbs);
+        destroyInstanceFn(instance, nullptr);
     }
     return 0;
 }
