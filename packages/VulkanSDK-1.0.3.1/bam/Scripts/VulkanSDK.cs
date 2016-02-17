@@ -30,7 +30,6 @@
 using Bam.Core;
 namespace VulkanSDK
 {
-    // write modules here ...
     [C.Prebuilt]
     public class Vulkan :
         C.DynamicLibrary
@@ -42,28 +41,35 @@ namespace VulkanSDK
             base.Init(parent);
 
             // TODO: windows only
-            var installDir = Bam.Core.TokenizedString.CreateVerbatim(@"c:\VulkanSDK\1.0.3.1");
-            var libDir = this.CreateTokenizedString("$(0)/Source/lib", installDir); // Note, 64-bit
+            this.Macros["packagedir"].Aliased(Bam.Core.TokenizedString.CreateVerbatim(@"c:\VulkanSDK\1.0.3.1"));
+
+            this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/lib"); // note, 64-bit
 
             this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
-            this.GeneratedPaths[Key] = this.CreateTokenizedString("$(0)/$(dynamicprefix)$(OutputName)$(dynamicext)", libDir);
+            this.GeneratedPaths[Key] = this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)"); // note: 64-bit
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
-                this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(0)/$(libprefix)$(OutputName)$(libext)", libDir);
+                this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)");
             }
 
-            // TODO: why can't I do this?
-            //var headers = this.CreateHeaderContainer(this.CreateTokenizedString("$(0)/Include/vulkan/*.h", installDir));
-            //headers.AddFiles(this.CreateTokenizedString("$(0)/Include/vulkan/*.hpp", installDir));
-            var headers = this.CreateHeaderContainer(System.String.Format("{0}/Include/vulkan/*.h", installDir.Parse()));
-            headers.AddFile(System.String.Format("{0}/Include/vulkan/*.hpp", installDir.Parse()));
+            var headers = this.CreateHeaderContainer("$(packagedir)/Include/vulkan/*.h");
+            headers.AddFile("$(packagedir)/Include/vulkan/*.hpp");
 
             this.PublicPatch((settings, appliedTo) =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
                     if (null != compiler)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(0)/Include", installDir));
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
+
+                        if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+                        {
+                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
+                        }
+                        else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+                        {
+                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
+                        }
                     }
                 });
         }

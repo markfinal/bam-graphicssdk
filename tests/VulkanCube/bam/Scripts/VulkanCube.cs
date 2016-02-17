@@ -41,6 +41,11 @@ namespace VulkanCube
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
             this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+
+            if (this.Linker is VisualCCommon.LinkerBase)
+            {
+                this.CompilePubliclyAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
+            }
         }
     }
 }
