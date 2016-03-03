@@ -53,15 +53,36 @@ WinMain(
         getPhysDeviceFeaturesFn(device, &features);
     }
 
+    const auto pDevice = physicalDevices[0];
+
+    // query the family of queues available
+    auto getPDeviceQueueFamilyPropsFn = GETIFN(instance, vkGetPhysicalDeviceQueueFamilyProperties);
+    uint32_t numQueueFamilyProperties = 0;
+    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
+    auto queueFamilyProperties = new VkQueueFamilyProperties[numQueueFamilyProperties];
+    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties);
+    // assume that the first queue family is capable of graphics
+    if (0 == (queueFamilyProperties[0].queueFlags & VK_QUEUE_GRAPHICS_BIT))
+    {
+        return -1;
+    }
+
+    // logical devices need a queue
+    VkDeviceQueueCreateInfo queue_info;
+    memset(&queue_info, 0, sizeof(queue_info));
+    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_info.queueFamilyIndex = 0;
+    queue_info.queueCount = 1;
+
     // create a logical device
     auto createDeviceFn = GETIFN(instance, vkCreateDevice);
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = &queue_info;
     VkDevice device;
-    // TODO: going by the simpler examples, this needs at least one queue
-    // perhaps that is why the nvidia driver crashes here as-is
-    auto createDeviceRes = createDeviceFn(physicalDevices[0], &deviceCreateInfo, nullptr, &device);
+    auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
     if (VK_SUCCESS != createDeviceRes)
     {
         return -1;
@@ -71,6 +92,7 @@ WinMain(
     auto destroyDeviceFn = GETIFN(instance, vkDestroyDevice);
     destroyDeviceFn(device, nullptr);
 
+    delete[] queueFamilyProperties;
     delete[] physicalDevices;
 
     auto destroyInstanceFn = GETIFN(instance, vkDestroyInstance);
