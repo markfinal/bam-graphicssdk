@@ -40,8 +40,8 @@ namespace VulkanSDK
         {
             base.Init(parent);
 
-            // TODO: windows only
-            this.Macros["packagedir"].Aliased(Bam.Core.TokenizedString.CreateVerbatim(@"c:\VulkanSDK\1.0.3.1"));
+            // TODO: is this compatible with the Linux installer?
+            this.Macros["packagedir"].Aliased(Bam.Core.TokenizedString.Create("$(VK_SDK_PATH)", null));
 
             this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/lib"); // note, 64-bit
 
