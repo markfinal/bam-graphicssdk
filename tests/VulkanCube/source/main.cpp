@@ -54,6 +54,8 @@ WinMain(
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     VkDevice device;
+    // TODO: going by the simpler examples, this needs at least one queue
+    // perhaps that is why the nvidia driver crashes here as-is
     auto createDeviceRes = createDeviceFn(physicalDevices[0], &deviceCreateInfo, nullptr, &device);
     if (VK_SUCCESS != createDeviceRes)
     {
