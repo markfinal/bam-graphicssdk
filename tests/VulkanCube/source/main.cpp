@@ -1,6 +1,11 @@
 #include "vulkan/vulkan.h"
 #include <Windows.h>
 
+// these macros avoid repetition between stating the name of the function and the PFN_* type
+#define GETPFN(_name) PFN_##_name
+#define GETFN(_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(nullptr, #_name))
+#define GETIFN(_instance,_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(_instance, #_name))
+
 int CALLBACK
 WinMain(
     HINSTANCE hInstance,
@@ -8,7 +13,7 @@ WinMain(
     LPSTR lpCmdLine,
     int nCmdShow)
 {
-    auto createInstanceFn = reinterpret_cast<PFN_vkCreateInstance>(vkGetInstanceProcAddr(nullptr, "vkCreateInstance"));
+    auto createInstanceFn = GETFN(vkCreateInstance);
     ::VkInstanceCreateInfo createInfo;
     //::VkAllocationCallbacks allocCbs;
     ::VkInstance instance;
@@ -22,7 +27,7 @@ WinMain(
     }
 
     // enumerate physical devices
-    auto enumPhysDevicesFn = reinterpret_cast<PFN_vkEnumeratePhysicalDevices>(vkGetInstanceProcAddr(instance, "vkEnumeratePhysicalDevices"));
+    auto enumPhysDevicesFn = GETIFN(instance, vkEnumeratePhysicalDevices);
     uint32_t numPhysicalDevices = 0;
 
     // get number of physical devices
@@ -40,7 +45,7 @@ WinMain(
         return -1;
     }
 
-    auto getPhysDeviceFeaturesFn = reinterpret_cast<PFN_vkGetPhysicalDeviceFeatures>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFeatures"));
+    auto getPhysDeviceFeaturesFn = GETIFN(instance, vkGetPhysicalDeviceFeatures);
     for (auto i = 0; i < numPhysicalDevices; ++i)
     {
         auto device = physicalDevices[i];
@@ -49,7 +54,7 @@ WinMain(
     }
 
     // create a logical device
-    auto createDeviceFn = reinterpret_cast<PFN_vkCreateDevice>(vkGetInstanceProcAddr(instance, "vkCreateDevice"));
+    auto createDeviceFn = GETIFN(instance, vkCreateDevice);
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -63,12 +68,12 @@ WinMain(
     }
 
     // destroy the logical device
-    auto destroyDeviceFn = reinterpret_cast<PFN_vkDestroyDevice>(vkGetInstanceProcAddr(instance, "vkDestroyDevice"));
+    auto destroyDeviceFn = GETIFN(instance, vkDestroyDevice);
     destroyDeviceFn(device, nullptr);
 
     delete[] physicalDevices;
 
-    auto destroyInstanceFn = reinterpret_cast<PFN_vkDestroyInstance>(vkGetInstanceProcAddr(instance, "vkDestroyInstance"));
+    auto destroyInstanceFn = GETIFN(instance, vkDestroyInstance);
     destroyInstanceFn(instance, nullptr);
     return 0;
 }
