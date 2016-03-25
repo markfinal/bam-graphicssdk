@@ -51,8 +51,8 @@ namespace Direct3DTriangle
 
             if (this.Linker is VisualCCommon.LinkerBase)
             {
-                this.CompilePubliclyAndLinkAgainst<DirectXSDK.Direct3D9>(source);
-                this.CompilePubliclyAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
+                this.CompileAndLinkAgainst<DirectXSDK.Direct3D9>(source);
+                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
             }
 
             this.PrivatePatch(settings =>
