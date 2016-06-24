@@ -43,13 +43,26 @@ namespace DirectXSDK
             if (meta.UseWindowsSDK)
             {
                 var windowsSDKMeta = Bam.Core.Graph.Instance.PackageMetaData<Bam.Core.PackageMetaData>("WindowsSDK");
+                Bam.Core.TokenizedString windowsSDKInstallDir = null;
+                if (windowsSDKMeta.Contains("InstallDir"))
+                {
+                    windowsSDKInstallDir = windowsSDKMeta["InstallDir"] as Bam.Core.TokenizedString;
+                }
+                else if (windowsSDKMeta.Contains("InstallDirWinSDK81"))
+                {
+                    windowsSDKInstallDir = windowsSDKMeta["InstallDirWinSDK81"] as Bam.Core.TokenizedString;
+                }
+                else
+                {
+                    throw new Bam.Core.Exception("Unable to determine WindowsSDK installation directory");
+                }
                 if (this.BitDepth == C.EBit.SixtyFour)
                 {
-                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", windowsSDKMeta["InstallDir"] as Bam.Core.TokenizedString);
+                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", windowsSDKInstallDir);
                 }
                 else if (this.BitDepth == C.EBit.ThirtyTwo)
                 {
-                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", windowsSDKMeta["InstallDir"] as Bam.Core.TokenizedString);
+                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", windowsSDKInstallDir);
                 }
             }
             else
