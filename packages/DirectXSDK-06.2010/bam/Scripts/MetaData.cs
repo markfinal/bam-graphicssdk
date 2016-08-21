@@ -81,7 +81,7 @@ namespace DirectXSDK
             }
             catch (DX9SDKNotInstalledException)
             {
-                var winSDK = Bam.Core.Graph.Instance.Packages.Where(item => item.Name == "WindowsSDK").FirstOrDefault();
+                var winSDK = Bam.Core.Graph.Instance.Packages.FirstOrDefault(item => item.Name == "WindowsSDK");
                 if (null == winSDK)
                 {
                     throw;
