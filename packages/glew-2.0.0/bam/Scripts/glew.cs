@@ -113,6 +113,15 @@ namespace glew
                 var source = this.CreateCSourceContainer("$(packagedir)/src/glewinfo.c");
                 this.CompileAndLinkAgainst<GLEWStatic>(source);
                 this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
+
+                if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+                {
+                    this.PrivatePatch(settings =>
+                    {
+                        var linker = settings as C.ICommonLinkerSettings;
+                        linker.Libraries.AddUnique("-lX11");
+                    });
+                }
             }
         }
     }
