@@ -4,6 +4,7 @@ This repository contains packages for
 
 * DirectXSDK - prebuilt versions from both the June 2010 standalone SDK and Windows 8 SDK version
 * glew - source builds, [download](http://glew.sourceforge.net/)
+  * v2.0.0
   * v1.13.0
   * v1.5.7
 * OpenGLSDK - wrapper around each platforms headers and libraries/frameworks
