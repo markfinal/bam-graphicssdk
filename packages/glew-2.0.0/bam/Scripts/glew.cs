@@ -53,6 +53,8 @@ namespace glew
                     if (null != visualCCompiler)
                     {
                         visualCCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        compiler.DisableWarnings.AddUnique("4456"); // glew-2.0.0\src\glew.c(13538): warning C4456: declaration of 'n' hides previous local declaration
                     }
 
                     var mingwCompiler = settings as MingwCommon.ICommonCompilerSettings;
@@ -91,7 +93,7 @@ namespace glew
                     }
                 });
 
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            if (source.Compiler is VisualCCommon.CompilerBase)
             {
                 this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
             }
@@ -117,10 +119,20 @@ namespace glew
                 if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
                 {
                     this.PrivatePatch(settings =>
-                    {
-                        var linker = settings as C.ICommonLinkerSettings;
-                        linker.Libraries.AddUnique("-lX11");
-                    });
+                        {
+                            var linker = settings as C.ICommonLinkerSettings;
+                            linker.Libraries.AddUnique("-lX11");
+                        });
+                }
+                else if (this.Linker is VisualCCommon.LinkerBase)
+                {
+                    this.LinkAgainst<WindowsSDK.WindowsSDK>();
+                    this.PrivatePatch(settings =>
+                        {
+                            var linker = settings as C.ICommonLinkerSettings;
+                            linker.Libraries.AddUnique("USER32.lib");
+                            linker.Libraries.AddUnique("GDI32.lib");
+                        });
                 }
             }
         }
