@@ -67,7 +67,7 @@ namespace DirectXSDK
             }
             else
             {
-                throw new Bam.Core.Exception("Unsupported how to find the DXSDK d3d compiler DLL");
+                throw new Bam.Core.Exception("DXSDK shader compiler is part of the redist");
             }
         }
     }
