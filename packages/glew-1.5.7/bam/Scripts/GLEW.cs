@@ -61,7 +61,7 @@ namespace glew
                 });
 
             this.CompileAgainst<OpenGLSDK.OpenGL>(source);
-            if (this.Librarian is VisualCCommon.Librarian)
+            if (source.Compiler is VisualCCommon.CompilerBase)
             {
                 this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
             }

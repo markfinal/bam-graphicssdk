@@ -131,8 +131,13 @@ namespace RenderTextureAndProcessor
         {
             base.Init(parent);
 
+#if D_NEW_PUBLISHING
+            this.SetDefaultMacros(EPublishingType.WindowedApplication);
+            this.Include<RenderTexture>(C.GUIApplication.Key);
+#else
             var app = this.Include<RenderTexture>(C.GUIApplication.Key, EPublishingType.WindowedApplication);
             this.Include<TextureProcessor>(C.ConsoleApplication.Key, ".", app);
+#endif
         }
     }
 }
