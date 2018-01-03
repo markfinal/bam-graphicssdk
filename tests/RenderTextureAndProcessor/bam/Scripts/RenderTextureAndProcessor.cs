@@ -132,7 +132,7 @@ namespace RenderTextureAndProcessor
             base.Init(parent);
 
 #if D_NEW_PUBLISHING
-            this.SetDefaultMacros(EPublishingType.WindowedApplication);
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
             this.Include<RenderTexture>(C.GUIApplication.Key);
 #else
             var app = this.Include<RenderTexture>(C.GUIApplication.Key, EPublishingType.WindowedApplication);
