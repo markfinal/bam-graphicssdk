@@ -103,7 +103,7 @@ namespace glew
     namespace tests
     {
         [Bam.Core.ModuleGroup("Thirdparty/GLEW/tests")]
-        sealed class GLEWInfo :
+        class GLEWInfo :
             C.ConsoleApplication
         {
             protected override void
@@ -134,6 +134,23 @@ namespace glew
                             linker.Libraries.AddUnique("GDI32.lib");
                         });
                 }
+            }
+        }
+
+        sealed class TestRuntime :
+            Publisher.Collation
+        {
+            protected override void
+            Init(
+                Bam.Core.Module parent)
+            {
+                base.Init(parent);
+
+#if D_NEW_PUBLISHING
+                this.SetDefaultMacrosAndMappings(EPublishingType.ConsoleApplication);
+                this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.Key);
+#else
+#endif
             }
         }
     }

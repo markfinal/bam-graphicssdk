@@ -15,6 +15,7 @@
     <Package name="Mingw" version="4.8.1" />
     <Package name="NativeBuilder" />
     <Package name="OpenGLSDK" />
+    <Package name="Publisher" />
     <Package name="VisualC" version="12.0" />
     <Package name="VisualC" version="14.0" default="true" />
     <Package name="VSSolutionBuilder" />
