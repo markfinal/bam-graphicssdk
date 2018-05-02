@@ -5,6 +5,8 @@
     <Package name="C" />
     <Package name="NativeBuilder" />
     <Package name="VisualC" version="12.0" />
+    <Package name="VisualC" version="14.0" default="true" />
+    <Package name="VisualC" version="15.0" />
     <Package name="VSSolutionBuilder" />
     <Package name="VulkanSDK" version="1.0.3.1" />
   </Dependents>
