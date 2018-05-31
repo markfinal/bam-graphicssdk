@@ -92,11 +92,6 @@ namespace glew
                         compiler.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
                 });
-
-            if (source.Compiler is VisualCCommon.CompilerBase)
-            {
-                this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
-            }
         }
     }
 }

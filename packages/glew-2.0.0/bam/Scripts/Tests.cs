@@ -56,7 +56,6 @@ namespace glew
                 }
                 else if (this.Linker is VisualCCommon.LinkerBase)
                 {
-                    this.LinkAgainst<WindowsSDK.WindowsSDK>();
                     this.PrivatePatch(settings =>
                         {
                             var linker = settings as C.ICommonLinkerSettings;

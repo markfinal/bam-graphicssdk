@@ -50,13 +50,7 @@ namespace DirectXSDK
             base.Init(parent);
 
             var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
-            if (meta.UseWindowsSDK)
-            {
-                var winSDKModule = Bam.Core.Graph.Instance.FindReferencedModule<WindowsSDK.WindowsSDK>();
-                this.Requires(winSDKModule);
-                this.UsePublicPatches(winSDKModule);
-            }
-            else
+            if (!meta.UseWindowsSDK)
             {
                 this.PublicPatch((settings, appliedTo) =>
                     {
