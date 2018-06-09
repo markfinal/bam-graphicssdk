@@ -74,16 +74,15 @@ namespace VulkanSDK
                 System.Diagnostics.Debug.Assert(latest_version_path.StartsWith("1.0"));
             }
             Bam.Core.Log.Info("Using VulkanSDK installed at {0}", latest_version_path);
-            // TODO: would like to 'Set' packagedir here, but child modules (e.g. header container) do not detect the packagedir redirect
-            this.Macros.AddVerbatim("vulkansdkdir", latest_version_path);
+            this.Macros["packagedir"].Set(latest_version_path, null);
 
             if (Bam.Core.OSUtilities.Is64Bit(this.BuildEnvironment.Platform))
             {
-                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(vulkansdkdir)/Source/Lib");
+                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/Lib");
             }
             else
             {
-                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(vulkansdkdir)/Source/Lib32");
+                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/Lib32");
             }
 
             this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
@@ -93,7 +92,9 @@ namespace VulkanSDK
                 this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)");
             }
 
-            var headers = this.CreateHeaderContainer("$(vulkansdkdir)/Include/vulkan/*.h", macroModuleOverride: this); // TODO: note the macro module override to pick up vulkansdkdir
+            var headers = this.CreateHeaderContainer();
+            headers.Macros["packagedir"].Set(latest_version_path, null);
+            headers.AddFile("$(packagedir)/Include/vulkan/*.h");
             headers.AddFile("$(packagedir)/Include/vulkan/*.hpp");
 
             this.PublicPatch((settings, appliedTo) =>
@@ -101,7 +102,7 @@ namespace VulkanSDK
                     var compiler = settings as C.ICommonCompilerSettings;
                     if (null != compiler)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(vulkansdkdir)/Include"));
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
 
                         if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
                         {
