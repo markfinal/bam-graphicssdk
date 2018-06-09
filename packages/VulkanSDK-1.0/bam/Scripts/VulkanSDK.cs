@@ -93,7 +93,7 @@ namespace VulkanSDK
             }
 
             var headers = this.CreateHeaderContainer();
-            headers.Macros["packagedir"].Set(latest_version_path, null);
+            headers.Macros["packagedir"].Set(latest_version_path, null); // must set this as well as on this, since it doesn't inherit
             headers.AddFile("$(packagedir)/Include/vulkan/*.h");
             headers.AddFile("$(packagedir)/Include/vulkan/*.hpp");
 
