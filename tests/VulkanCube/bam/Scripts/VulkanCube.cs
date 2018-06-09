@@ -27,7 +27,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace VulkanCube
 {
     sealed class Cube :
@@ -41,11 +40,6 @@ namespace VulkanCube
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
             this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
-
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
         }
     }
 }

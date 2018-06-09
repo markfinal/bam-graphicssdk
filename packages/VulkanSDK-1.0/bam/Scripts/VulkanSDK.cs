@@ -28,6 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
 using Bam.Core;
+using System.Linq;
 namespace VulkanSDK
 {
     [C.Prebuilt]
@@ -40,10 +41,50 @@ namespace VulkanSDK
         {
             base.Init(parent);
 
-            // TODO: is this compatible with the Linux installer?
-            this.Macros["packagedir"].Set("$(VK_SDK_PATH)", null);
+            var latest_version_path = System.String.Empty;
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                using (var key = Bam.Core.Win32RegistryUtilities.OpenLMSoftwareKey(@"LunarG\VulkanSDK"))
+                {
+                    if (null == key)
+                    {
+                        throw new Bam.Core.Exception("Unable to locate any Vulkan SDK installations");
+                    }
+                    var linearised_paths = key.GetValue("VK_SDK_PATHs") as string;
+                    var paths = new Bam.Core.StringArray(linearised_paths.Split(new[] { ';' }, System.StringSplitOptions.RemoveEmptyEntries));
+                    System.Diagnostics.Debug.Assert(paths.Count > 0);
+                    var applicable_paths = new System.Collections.Generic.SortedDictionary<string, string>();
+                    foreach (var path in paths)
+                    {
+                        var dir_split = path.Split(new[] { System.IO.Path.DirectorySeparatorChar }, System.StringSplitOptions.RemoveEmptyEntries);
+                        var version = dir_split[dir_split.Length - 1];
+                        if (version.StartsWith("1.0"))
+                        {
+                            applicable_paths.Add(version, path);
+                        }
+                    }
+                    System.Diagnostics.Debug.Assert(applicable_paths.Count > 0);
+                    latest_version_path = applicable_paths.First().Value;
+                }
+            }
+            else
+            {
+                // TODO: is this compatible with the Linux installer?
+                latest_version_path = System.Environment.ExpandEnvironmentVariables("VK_SDK_PATH");
+                System.Diagnostics.Debug.Assert(latest_version_path.StartsWith("1.0"));
+            }
+            Bam.Core.Log.Info("Using VulkanSDK installed at {0}", latest_version_path);
+            // TODO: would like to 'Set' packagedir here, but child modules (e.g. header container) do not detect the packagedir redirect
+            this.Macros.AddVerbatim("vulkansdkdir", latest_version_path);
 
-            this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/lib"); // note, 64-bit
+            if (Bam.Core.OSUtilities.Is64Bit(this.BuildEnvironment.Platform))
+            {
+                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(vulkansdkdir)/Source/Lib");
+            }
+            else
+            {
+                this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(vulkansdkdir)/Source/Lib32");
+            }
 
             this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
             this.GeneratedPaths[Key] = this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)"); // note: 64-bit
@@ -52,7 +93,7 @@ namespace VulkanSDK
                 this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)");
             }
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/Include/vulkan/*.h");
+            var headers = this.CreateHeaderContainer("$(vulkansdkdir)/Include/vulkan/*.h", macroModuleOverride: this); // TODO: note the macro module override to pick up vulkansdkdir
             headers.AddFile("$(packagedir)/Include/vulkan/*.hpp");
 
             this.PublicPatch((settings, appliedTo) =>
@@ -60,7 +101,7 @@ namespace VulkanSDK
                     var compiler = settings as C.ICommonCompilerSettings;
                     if (null != compiler)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(vulkansdkdir)/Include"));
 
                         if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
                         {
