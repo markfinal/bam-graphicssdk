@@ -5,6 +5,7 @@
 #include "vulkan/vulkan.h"
 
 #include <vector>
+#include <memory>
 
 // these macros avoid repetition between stating the name of the function and the PFN_* type
 #define GETPFN(_name) PFN_##_name
@@ -13,10 +14,15 @@
 
 struct Renderer::Impl
 {
-    ::VkInstance                    _instance;
+    std::unique_ptr<::VkInstance_T, void(*)(::VkInstance)> _instance;
     std::vector<::VkPhysicalDevice> _physical_devices;
     size_t                          _physical_device_index = -1;
     ::VkDevice                      _logical_device;
+
+    Impl()
+        :
+        _instance(nullptr, nullptr)
+    {}
 
     void
     clean_up();

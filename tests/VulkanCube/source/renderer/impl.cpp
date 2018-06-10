@@ -1,15 +1,24 @@
 #include "impl.h"
 #include "exception.h"
 
+namespace
+{
+    void
+    destroy_instance(
+        ::VkInstance inInstance)
+    {
+        auto destroyInstanceFn = GETIFN(inInstance, vkDestroyInstance);
+        destroyInstanceFn(inInstance, nullptr);
+    }
+
+} // anonymous namespace
+
 void
 Renderer::Impl::clean_up()
 {
     // destroy the logical device
-    auto destroyDeviceFn = GETIFN(this->_instance, vkDestroyDevice);
+    auto destroyDeviceFn = GETIFN(this->_instance.get(), vkDestroyDevice);
     destroyDeviceFn(this->_logical_device, nullptr);
-
-    auto destroyInstanceFn = GETIFN(this->_instance, vkDestroyInstance);
-    destroyInstanceFn(this->_instance, nullptr);
 }
 
 void
@@ -21,34 +30,36 @@ Renderer::Impl::create_instance()
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     //memset(&allocCbs, 0, sizeof(allocCbs));
-    auto createInstanceRes = createInstanceFn(&createInfo, nullptr, &this->_instance);
+    ::VkInstance instance;
+    auto createInstanceRes = createInstanceFn(&createInfo, nullptr, &instance);
     if (VK_SUCCESS != createInstanceRes)
     {
         throw Exception("Unable to create instance");
     }
+    this->_instance = std::move(decltype(this->_instance)(instance, destroy_instance));
 }
 
 void
 Renderer::Impl::enumerate_physics_devices()
 {
     // enumerate physical devices
-    auto enumPhysDevicesFn = GETIFN(this->_instance, vkEnumeratePhysicalDevices);
+    auto enumPhysDevicesFn = GETIFN(this->_instance.get(), vkEnumeratePhysicalDevices);
     uint32_t numPhysicalDevices = 0;
 
     // get number of physical devices
-    auto enumPhysDevicesRes = enumPhysDevicesFn(this->_instance, &numPhysicalDevices, nullptr);
+    auto enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, nullptr);
     if (VK_SUCCESS != enumPhysDevicesRes)
     {
         throw Exception("Unable to count physics devices");
     }
     this->_physical_devices.resize(numPhysicalDevices);
-    enumPhysDevicesRes = enumPhysDevicesFn(this->_instance, &numPhysicalDevices, this->_physical_devices.data());
+    enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, this->_physical_devices.data());
     if (VK_SUCCESS != enumPhysDevicesRes)
     {
         throw Exception("Unable to enumerate physics devices");
     }
 
-    auto getPhysDeviceFeaturesFn = GETIFN(this->_instance, vkGetPhysicalDeviceFeatures);
+    auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
     for (auto i = 0; i < numPhysicalDevices; ++i)
     {
         auto device = this->_physical_devices[i];
@@ -66,7 +77,7 @@ Renderer::Impl::create_logical_device()
     auto pDevice = this->_physical_devices[this->_physical_device_index];
 
     // query the family of queues available
-    auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance, vkGetPhysicalDeviceQueueFamilyProperties);
+    auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceQueueFamilyProperties);
     uint32_t numQueueFamilyProperties = 0;
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
 
@@ -86,7 +97,7 @@ Renderer::Impl::create_logical_device()
     queue_info.queueCount = 1;
 
     // create a logical device
-    auto createDeviceFn = GETIFN(this->_instance, vkCreateDevice);
+    auto createDeviceFn = GETIFN(this->_instance.get(), vkCreateDevice);
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
