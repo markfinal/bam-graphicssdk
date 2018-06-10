@@ -1,24 +1,39 @@
 #include "impl.h"
 #include "exception.h"
 
-namespace
-{
-    void
-    destroy_instance(
-        ::VkInstance inInstance)
-    {
-        auto destroyInstanceFn = GETIFN(inInstance, vkDestroyInstance);
-        destroyInstanceFn(inInstance, nullptr);
-    }
+#include <functional>
 
-} // anonymous namespace
+Renderer::Impl::Impl()
+    :
+    _instance(nullptr, nullptr),
+    _logical_device(nullptr, nullptr)
+{}
+
+Renderer::Impl::~Impl() = default;
+
+PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
+PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 
 void
-Renderer::Impl::clean_up()
+Renderer::Impl::VkFunctionTable::get_instance_functions(
+    ::VkInstance inInstance)
 {
-    // destroy the logical device
-    auto destroyDeviceFn = GETIFN(this->_instance.get(), vkDestroyDevice);
-    destroyDeviceFn(this->_logical_device, nullptr);
+    _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
+    _destroy_device = GETIFN(inInstance, vkDestroyDevice);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_instance_wrapper(
+    ::VkInstance inInstance)
+{
+    _destroy_instance(inInstance, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
+    ::VkDevice inDevice)
+{
+    _destroy_device(inDevice, nullptr);
 }
 
 void
@@ -36,7 +51,8 @@ Renderer::Impl::create_instance()
     {
         throw Exception("Unable to create instance");
     }
-    this->_instance = std::move(decltype(this->_instance)(instance, destroy_instance));
+    this->_function_table.get_instance_functions(instance);
+    this->_instance = std::move(decltype(this->_instance)(instance, this->_function_table.destroy_instance_wrapper));
 }
 
 void
@@ -103,9 +119,11 @@ Renderer::Impl::create_logical_device()
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queue_info;
-    auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &this->_logical_device);
+    ::VkDevice device;
+    auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
     if (VK_SUCCESS != createDeviceRes)
     {
         throw Exception("Unable to find create logical device");
     }
+    this->_logical_device = std::move(decltype(this->_logical_device)(device, this->_function_table.destroy_device_wrapper));
 }

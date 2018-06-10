@@ -15,17 +15,33 @@
 struct Renderer::Impl
 {
     std::unique_ptr<::VkInstance_T, void(*)(::VkInstance)> _instance;
-    std::vector<::VkPhysicalDevice> _physical_devices;
-    size_t                          _physical_device_index = -1;
-    ::VkDevice                      _logical_device;
+    std::vector<::VkPhysicalDevice>                        _physical_devices;
+    size_t                                                 _physical_device_index = -1;
+    std::unique_ptr<::VkDevice_T, void(*)(::VkDevice)>     _logical_device;
 
-    Impl()
-        :
-        _instance(nullptr, nullptr)
-    {}
+    class VkFunctionTable
+    {
+    private:
+        static PFN_vkDestroyInstance _destroy_instance;
+        static PFN_vkDestroyDevice   _destroy_device;
 
-    void
-    clean_up();
+    public:
+        static void
+        get_instance_functions(
+            ::VkInstance inInstance);
+
+        static void
+        destroy_instance_wrapper(
+            ::VkInstance inInstance);
+
+        static void
+        destroy_device_wrapper(
+            ::VkDevice inInstance);
+    };
+    VkFunctionTable                                        _function_table;
+
+    Impl();
+    ~Impl();
 
     void
     create_instance();

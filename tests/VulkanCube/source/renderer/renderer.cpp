@@ -6,11 +6,7 @@ Renderer::Renderer()
     _impl(new Impl)
 {}
 
-Renderer::~Renderer()
-{
-    auto impl = this->_impl.get();
-    impl->clean_up();
-}
+Renderer::~Renderer() = default;
 
 void
 Renderer::init()
