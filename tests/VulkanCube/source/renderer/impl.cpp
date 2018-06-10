@@ -1,5 +1,6 @@
 #include "impl.h"
 #include "exception.h"
+#include "log.h"
 
 #include <functional>
 
@@ -48,11 +49,32 @@ Renderer::Impl::create_instance()
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
+    // query extensions
+    auto query_extensions = GETFN(vkEnumerateInstanceExtensionProperties);
+    uint32_t num_extensions;
+    auto ext_query_res = query_extensions(
+        nullptr,
+        &num_extensions,
+        nullptr
+    );
+    std::vector<::VkExtensionProperties> extensions(num_extensions);
+    ext_query_res = query_extensions(
+        nullptr,
+        &num_extensions,
+        extensions.data()
+    );
+    for (const auto &ext : extensions)
+    {
+        Log().get() << "Extension: " << ext.extensionName << ", v" << ext.specVersion << std::endl;
+    }
+
     ::VkInstanceCreateInfo createInfo;
     //::VkAllocationCallbacks allocCbs;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     createInfo.pApplicationInfo = &appInfo;
+    createInfo.enabledLayerCount = 0;
+    createInfo.enabledExtensionCount = 0;
     //memset(&allocCbs, 0, sizeof(allocCbs));
     ::VkInstance instance;
     auto createInstanceFn = GETFN(vkCreateInstance);

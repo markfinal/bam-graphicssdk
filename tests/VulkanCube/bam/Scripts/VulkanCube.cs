@@ -48,6 +48,9 @@ namespace VulkanCube
                 {
                     var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
         }
     }
