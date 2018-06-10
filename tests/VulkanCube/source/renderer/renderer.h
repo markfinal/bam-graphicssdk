@@ -9,6 +9,9 @@ public:
     Renderer();
     ~Renderer();
 
+    void
+    init();
+
 private:
     struct Impl;
     std::unique_ptr<Impl> _impl;

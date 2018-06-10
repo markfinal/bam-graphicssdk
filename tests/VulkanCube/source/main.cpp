@@ -16,6 +16,7 @@ WinMain(
     try
     {
         std::unique_ptr<Renderer> renderer(new Renderer);
+        renderer->init();
     }
     catch (const std::exception &inEx)
     {

@@ -1,103 +1,22 @@
-#include "renderer.h"
+#include "impl.h"
 #include "exception.h"
 
-#include "vulkan/vulkan.h"
-
-// these macros avoid repetition between stating the name of the function and the PFN_* type
-#define GETPFN(_name) PFN_##_name
-#define GETFN(_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(nullptr, #_name))
-#define GETIFN(_instance,_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(_instance, #_name))
-
-struct Renderer::Impl
-{
-};
-
 Renderer::Renderer()
-{
-    auto createInstanceFn = GETFN(vkCreateInstance);
-    ::VkInstanceCreateInfo createInfo;
-    //::VkAllocationCallbacks allocCbs;
-    ::VkInstance instance;
-    memset(&createInfo, 0, sizeof(createInfo));
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
-                                                               //memset(&allocCbs, 0, sizeof(allocCbs));
-    auto createInstanceRes = createInstanceFn(&createInfo, nullptr, &instance);
-    if (VK_SUCCESS != createInstanceRes)
-    {
-        throw Exception("Unable to create instance");
-    }
-
-    // enumerate physical devices
-    auto enumPhysDevicesFn = GETIFN(instance, vkEnumeratePhysicalDevices);
-    uint32_t numPhysicalDevices = 0;
-
-    // get number of physical devices
-    auto enumPhysDevicesRes = enumPhysDevicesFn(instance, &numPhysicalDevices, nullptr);
-    if (VK_SUCCESS != enumPhysDevicesRes)
-    {
-        throw Exception("Unable to count physics devices");
-    }
-    auto physicalDevices = new VkPhysicalDevice[numPhysicalDevices];
-    enumPhysDevicesRes = enumPhysDevicesFn(instance, &numPhysicalDevices, physicalDevices);
-    if (VK_SUCCESS != enumPhysDevicesRes)
-    {
-        throw Exception("Unable to enumerate physics devices");
-    }
-
-    auto getPhysDeviceFeaturesFn = GETIFN(instance, vkGetPhysicalDeviceFeatures);
-    for (auto i = 0; i < numPhysicalDevices; ++i)
-    {
-        auto device = physicalDevices[i];
-        VkPhysicalDeviceFeatures features;
-        getPhysDeviceFeaturesFn(device, &features);
-    }
-
-    const auto pDevice = physicalDevices[0];
-
-    // query the family of queues available
-    auto getPDeviceQueueFamilyPropsFn = GETIFN(instance, vkGetPhysicalDeviceQueueFamilyProperties);
-    uint32_t numQueueFamilyProperties = 0;
-    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
-    auto queueFamilyProperties = new VkQueueFamilyProperties[numQueueFamilyProperties];
-    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties);
-    // assume that the first queue family is capable of graphics
-    if (0 == (queueFamilyProperties[0].queueFlags & VK_QUEUE_GRAPHICS_BIT))
-    {
-        throw Exception("Unable to find queue family with graphics support");
-    }
-
-    // logical devices need a queue
-    VkDeviceQueueCreateInfo queue_info;
-    memset(&queue_info, 0, sizeof(queue_info));
-    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_info.queueFamilyIndex = 0;
-    queue_info.queueCount = 1;
-
-    // create a logical device
-    auto createDeviceFn = GETIFN(instance, vkCreateDevice);
-    VkDeviceCreateInfo deviceCreateInfo;
-    memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
-    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.queueCreateInfoCount = 1;
-    deviceCreateInfo.pQueueCreateInfos = &queue_info;
-    VkDevice device;
-    auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
-    if (VK_SUCCESS != createDeviceRes)
-    {
-        throw Exception("Unable to find create logical device");
-    }
-
-    // destroy the logical device
-    auto destroyDeviceFn = GETIFN(instance, vkDestroyDevice);
-    destroyDeviceFn(device, nullptr);
-
-    delete[] queueFamilyProperties;
-    delete[] physicalDevices;
-
-    auto destroyInstanceFn = GETIFN(instance, vkDestroyInstance);
-    destroyInstanceFn(instance, nullptr);
-}
+    :
+    _impl(new Impl)
+{}
 
 Renderer::~Renderer()
 {
+    auto impl = this->_impl.get();
+    impl->clean_up();
+}
+
+void
+Renderer::init()
+{
+    auto impl = this->_impl.get();
+    impl->create_instance();
+    impl->enumerate_physics_devices();
+    impl->create_logical_device();
 }
