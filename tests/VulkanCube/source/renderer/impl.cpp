@@ -39,13 +39,23 @@ Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
 void
 Renderer::Impl::create_instance()
 {
-    auto createInstanceFn = GETFN(vkCreateInstance);
+    ::VkApplicationInfo appInfo;
+    memset(&appInfo, 0, sizeof(appInfo));
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "Cube";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
     ::VkInstanceCreateInfo createInfo;
     //::VkAllocationCallbacks allocCbs;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
+    createInfo.pApplicationInfo = &appInfo;
     //memset(&allocCbs, 0, sizeof(allocCbs));
     ::VkInstance instance;
+    auto createInstanceFn = GETFN(vkCreateInstance);
     auto createInstanceRes = createInstanceFn(&createInfo, nullptr, &instance);
     if (VK_SUCCESS != createInstanceRes)
     {
