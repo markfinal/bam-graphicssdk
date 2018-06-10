@@ -38,8 +38,17 @@ namespace VulkanCube
         {
             base.Init(parent);
 
+            this.CreateHeaderContainer("$(packagedir)/source/**.h");
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            source.AddFiles("$(packagedir)/source/renderer/*.cpp");
+
             this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+
+            source.PrivatePatch(settings =>
+                {
+                    var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
+                    cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                });
         }
     }
 }
