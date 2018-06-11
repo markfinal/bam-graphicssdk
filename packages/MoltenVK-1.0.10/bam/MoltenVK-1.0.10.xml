@@ -8,6 +8,7 @@
     <Package name="NativeBuilder" />
     <Package name="Publisher" />
     <Package name="SPIRVCross" />
+    <Package name="SPIRVTools" version="v2018.3" />
     <Package name="VulkanHeaders" />
     <Package name="XcodeBuilder" />
   </Dependents>

@@ -39,10 +39,14 @@ namespace MoltenVK
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Loader/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.mm");
+            objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Vulkan/*.mm");
+            objcxx_source.AddFiles("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/*.mm");
 
             this.CompileAgainst<VulkanHeaders.VkHeaders>(cxx_source, objcxx_source);
-            this.CompileAgainst<SPIRVCross.SPIRVCross>(cxx_source, objcxx_source);
             this.CompileAgainst<cereal.cereal>(objcxx_source);
+
+            this.CompileAndLinkAgainst<SPIRVTools.SPIRVTools>(cxx_source);
+            this.CompileAndLinkAgainst<SPIRVCross.SPIRVCross>(cxx_source, objcxx_source);
 
             objcxx_source.PrivatePatch(settings =>
             {
@@ -56,6 +60,7 @@ namespace MoltenVK
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVKShaderConverter"));
 
                 compiler.DisableWarnings.AddUnique("unguarded-availability-new"); // MoltenVK-1.0.10/MoltenVK/MoltenVK/Commands/MVKCmdTransfer.mm:582:19: error: 'dispatchThreads:threadsPerThreadgroup:' is only available on macOS 10_13 or newer [-Werror,-Wunguarded-availability-new]
+                compiler.DisableWarnings.AddUnique("nonportable-include-path"); // MoltenVK-1.0.10/MoltenVK/MoltenVK/Vulkan/vulkan.mm:33:10: error: non-portable path to file '"MVKRenderPass.h"'; specified path differs in case from file name on disk [-Werror,-Wnonportable-include-path]
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
