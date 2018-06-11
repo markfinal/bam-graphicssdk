@@ -20,15 +20,31 @@ namespace MoltenVK
         {
             base.Init(parent);
 
-            var cxx_source = this.CreateObjectiveCxxSourceContainer();
-            cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
-            cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
-            cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.mm");
-
-            this.CompileAgainst<VulkanHeaders.VkHeaders>(cxx_source);
-            this.CompileAgainst<SPIRVCross.SPIRVCross>(cxx_source);
+            var cxx_source = this.CreateCxxSourceContainer();
+            cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.cpp");
+            cxx_source.AddFiles("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/*.cpp");
 
             cxx_source.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Common"));
+
+                var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
+                cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+            });
+
+            var objcxx_source = this.CreateObjectiveCxxSourceContainer();
+            objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
+            objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
+            objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Loader/*.mm");
+            objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.mm");
+
+            this.CompileAgainst<VulkanHeaders.VkHeaders>(cxx_source, objcxx_source);
+            this.CompileAgainst<SPIRVCross.SPIRVCross>(cxx_source, objcxx_source);
+            this.CompileAgainst<cereal.cereal>(objcxx_source);
+
+            objcxx_source.PrivatePatch(settings =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Common"));
@@ -42,6 +58,7 @@ namespace MoltenVK
                 compiler.DisableWarnings.AddUnique("unguarded-availability-new"); // MoltenVK-1.0.10/MoltenVK/MoltenVK/Commands/MVKCmdTransfer.mm:582:19: error: 'dispatchThreads:threadsPerThreadgroup:' is only available on macOS 10_13 or newer [-Werror,-Wunguarded-availability-new]
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
+                cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                 cxx_compiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
             });
@@ -52,6 +69,8 @@ namespace MoltenVK
                 macos_linker.Frameworks.AddUnique("Metal");
                 macos_linker.Frameworks.AddUnique("Foundation");
                 macos_linker.Frameworks.AddUnique("IOKit");
+                macos_linker.Frameworks.AddUnique("IOSurface");
+                macos_linker.Frameworks.AddUnique("QuartzCore");
             });
         }
     }

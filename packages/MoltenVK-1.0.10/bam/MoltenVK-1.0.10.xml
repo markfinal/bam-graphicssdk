@@ -4,6 +4,7 @@
   <Dependents>
     <Package name="C" />
     <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="cereal" version="1.2.2" />
     <Package name="NativeBuilder" />
     <Package name="Publisher" />
     <Package name="SPIRVCross" />
