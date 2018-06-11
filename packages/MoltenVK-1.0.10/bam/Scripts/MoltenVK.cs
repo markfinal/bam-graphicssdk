@@ -30,6 +30,7 @@ namespace MoltenVK
                 var compiler = settings as C.ICommonCompilerSettings;
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Common"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/API"));
+                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/Commands"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/GPUObjects"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/Loader"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/Utility"));
