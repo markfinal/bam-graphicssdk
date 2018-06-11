@@ -9,15 +9,15 @@ namespace SPIRVCross
         {
             base.Init(parent);
 
-            var header = this.CreateHeaderContainer("$(packagedir)/include/**.h");
-            header.AddFiles("$(packagedir)/include/**.hpp");
+            var header = this.CreateHeaderContainer("$(packagedir)/**.h");
+            header.AddFiles("$(packagedir)/**.hpp");
 
             this.PublicPatch((Settings, appliedTo) =>
             {
                 var compiler = Settings as C.ICommonCompilerSettings;
                 if (null != compiler)
                 {
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)"));
                 }
             });
         }
