@@ -35,6 +35,7 @@ namespace MoltenVK
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/Loader"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/MoltenVK/Utility"));
                 compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVKShaderConverter"));
+                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter"));
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;

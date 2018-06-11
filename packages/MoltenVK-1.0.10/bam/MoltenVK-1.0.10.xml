@@ -3,8 +3,7 @@
   <Description>MoltenVK, Vulkan layer 0 over Metal for macOS, version 1.0.10</Description>
   <Dependents>
     <Package name="C" />
-    <Package name="Clang" version="Xcode8" default="true" />
-    <Package name="Clang" version="Xcode9" />
+    <Package name="Clang" version="Xcode9" default="true" />
     <Package name="NativeBuilder" />
     <Package name="Publisher" />
     <Package name="VulkanHeaders" />
