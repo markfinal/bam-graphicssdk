@@ -196,6 +196,54 @@ namespace SPIRVTools
         }
     }
 
+    class OpenCLTables : C.ProceduralHeaderFile
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
+            this.DependsOn(spirvheaders);
+
+            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
+            this.Macros.Add("Version", "unified1");
+            this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/extinst.opencl.std.100.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
+
+            var arguments = new System.Text.StringBuilder();
+            arguments.Append("$(PyScript) ");
+            arguments.Append("--extinst-opencl-grammar=$(GrammarJsonFile) ");
+            arguments.Append("--opencl-insts-output=$(0) ");
+            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
+        }
+
+        protected override Bam.Core.TokenizedString OutputPath
+        {
+            get
+            {
+                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/opencl.std.insts.inc");
+            }
+        }
+
+        protected override string Contents
+        {
+            get
+            {
+                var output = Bam.Core.OSUtilities.RunExecutable(
+                    "python",
+                    this.Macros["Arguments"].ToString()
+                );
+                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
+                if (!System.String.IsNullOrEmpty(output))
+                {
+                    Bam.Core.Log.MessageAll("\t{0}", output);
+                }
+                return null;
+            }
+        }
+    }
+
     class SPIRVTools : C.StaticLibrary
     {
         protected override void
@@ -225,6 +273,10 @@ namespace SPIRVTools
             var glslTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<GLSLTables>();
             source.DependsOn(glslTablesInc);
             source.UsePublicPatches(glslTablesInc);
+
+            var openclTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<OpenCLTables>();
+            source.DependsOn(openclTablesInc);
+            source.UsePublicPatches(openclTablesInc);
 
             source.PrivatePatch(settings =>
             {
