@@ -1,17 +1,6 @@
 using Bam.Core;
 namespace MoltenVK
 {
-    public sealed class MoltenVKConfigureOSX :
-        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>
-    {
-        void
-        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>.Configure(
-            Clang.MetaData instance)
-        {
-            instance.MinimumVersionSupported = "macosx10.9";
-        }
-    }
-
     sealed class MoltenVK : C.Cxx.DynamicLibrary
     {
         protected override void
