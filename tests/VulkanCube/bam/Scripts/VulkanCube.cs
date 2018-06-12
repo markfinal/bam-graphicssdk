@@ -27,8 +27,20 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using Bam.Core;
 namespace VulkanCube
 {
+    sealed class ConfigureOSX :
+        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>
+    {
+        void
+        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>.Configure(
+            Clang.MetaData instance)
+        {
+            instance.MinimumVersionSupported = "macosx10.9";
+        }
+    }
+
     sealed class Cube :
         C.Cxx.GUIApplication
     {
@@ -42,7 +54,15 @@ namespace VulkanCube
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
             source.AddFiles("$(packagedir)/source/renderer/*.cpp");
 
-            this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                this.CompileAndLinkAgainst<MoltenVK.MoltenVK>(source);
+                this.CompileAgainst<VulkanHeaders.VkHeaders>(source);
+            }
+            else
+            {
+                this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+            }
 
             source.PrivatePatch(settings =>
                 {

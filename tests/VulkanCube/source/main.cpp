@@ -1,16 +1,24 @@
 #include "renderer/renderer.h"
 #include "log.h"
 
+#ifdef D_BAM_PLATFORM_WINDOWS
 #include <Windows.h>
+#else
+#endif
 
 #include <memory>
 
+#ifdef D_BAM_PLATFORM_WINDOWS
 int CALLBACK
 WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow)
+#else
+int
+main()
+#endif
 {
     Log().get() << "Vulkan cube test starting up..." << std::endl;
     try

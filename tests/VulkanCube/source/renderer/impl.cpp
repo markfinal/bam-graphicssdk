@@ -57,7 +57,7 @@ Renderer::Impl::create_instance()
         &num_extensions,
         nullptr
     );
-    std::vector<::VkExtensionProperties> extensions(num_extensions);
+    std::vector< ::VkExtensionProperties> extensions(num_extensions);
     ext_query_res = query_extensions(
         nullptr,
         &num_extensions,
@@ -84,7 +84,8 @@ Renderer::Impl::create_instance()
         throw Exception("Unable to create instance");
     }
     this->_function_table.get_instance_functions(instance);
-    this->_instance = std::move(decltype(this->_instance)(instance, this->_function_table.destroy_instance_wrapper));
+    decltype(this->_instance) temp(instance, this->_function_table.destroy_instance_wrapper);
+    this->_instance = std::move(temp);
 }
 
 void
@@ -157,5 +158,6 @@ Renderer::Impl::create_logical_device()
     {
         throw Exception("Unable to find create logical device");
     }
-    this->_logical_device = std::move(decltype(this->_logical_device)(device, this->_function_table.destroy_device_wrapper));
+    decltype(this->_logical_device) temp(device, this->_function_table.destroy_device_wrapper);
+    this->_logical_device = std::move(temp);
 }

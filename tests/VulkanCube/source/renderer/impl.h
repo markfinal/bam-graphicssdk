@@ -14,10 +14,10 @@
 
 struct Renderer::Impl
 {
-    std::unique_ptr<::VkInstance_T, void(*)(::VkInstance)> _instance;
-    std::vector<::VkPhysicalDevice>                        _physical_devices;
+    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)> _instance;
+    std::vector< ::VkPhysicalDevice>                        _physical_devices;
     size_t                                                 _physical_device_index = -1;
-    std::unique_ptr<::VkDevice_T, void(*)(::VkDevice)>     _logical_device;
+    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>     _logical_device;
 
     class VkFunctionTable
     {
