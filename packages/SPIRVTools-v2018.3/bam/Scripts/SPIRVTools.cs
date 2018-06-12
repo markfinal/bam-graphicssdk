@@ -409,6 +409,8 @@ namespace SPIRVTools
             header.AddFiles("$(packagedir)/include/**.hpp");
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            source.AddFiles("$(packagedir)/source/util/*.cpp");
+
             this.CompileAgainst<SPIRVHeaders.SPIRVHeaders>(source);
 
             var extensionEnumInc = Bam.Core.Graph.Instance.FindReferencedModule<ExtensionEnumInc>();
