@@ -99,13 +99,17 @@ Renderer::Impl::enumerate_physics_devices()
     auto enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, nullptr);
     if (VK_SUCCESS != enumPhysDevicesRes)
     {
-        throw Exception("Unable to count physics devices");
+        throw Exception("Unable to count physical devices");
+    }
+    if (0 == numPhysicalDevices)
+    {
+        throw Exception("There are no physical devices available on this hardware");
     }
     this->_physical_devices.resize(numPhysicalDevices);
     enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, this->_physical_devices.data());
     if (VK_SUCCESS != enumPhysDevicesRes)
     {
-        throw Exception("Unable to enumerate physics devices");
+        throw Exception("Unable to enumerate physical devices");
     }
 
     auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
