@@ -458,13 +458,16 @@ namespace SPIRVTools
 
             source.PrivatePatch(settings =>
             {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
             });
 
-            this.PublicPatch((Settings, appliedTo) =>
+            this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = Settings as C.ICommonCompilerSettings;
+                var compiler = settings as C.ICommonCompilerSettings;
                 if (null != compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
