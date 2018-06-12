@@ -101,53 +101,6 @@ namespace SPIRVTools
         }
     }
 
-    class DebugInfoVendorTables : C.ProceduralHeaderFile
-    {
-        protected override void
-        Init(
-            Bam.Core.Module parent)
-        {
-            base.Init(parent);
-
-            var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
-            this.DependsOn(spirvheaders);
-
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
-            this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.debuginfo.grammar.json");
-
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--extinst-vendor-grammar=$(packagedir)/source/extinst.debuginfo.grammar.json ");
-            arguments.Append("--vendor-insts-output=$(0) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
-        }
-
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/debuginfo.insts.inc");
-            }
-        }
-
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
-        }
-    }
-
     class GLSLTables : C.ProceduralHeaderFile
     {
         protected override void
@@ -244,6 +197,61 @@ namespace SPIRVTools
         }
     }
 
+    class GenerateVendorTables : C.ProceduralHeaderFile
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
+            this.DependsOn(spirvheaders);
+
+            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
+            this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.$(TableName).grammar.json");
+
+            var arguments = new System.Text.StringBuilder();
+            arguments.Append("$(PyScript) ");
+            arguments.Append("--extinst-vendor-grammar=$(packagedir)/source/extinst.$(TableName).grammar.json ");
+            arguments.Append("--vendor-insts-output=$(0) ");
+            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
+        }
+
+        public string TableName
+        {
+            set
+            {
+                this.Macros.AddVerbatim("TableName", value);
+            }
+        }
+
+        protected override Bam.Core.TokenizedString OutputPath
+        {
+            get
+            {
+                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/$(TableName).insts.inc");
+            }
+        }
+
+        protected override string Contents
+        {
+            get
+            {
+                var output = Bam.Core.OSUtilities.RunExecutable(
+                    "python",
+                    this.Macros["Arguments"].ToString()
+                );
+                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
+                if (!System.String.IsNullOrEmpty(output))
+                {
+                    Bam.Core.Log.MessageAll("\t{0}", output);
+                }
+                return null;
+            }
+        }
+    }
+
     class SPIRVTools : C.StaticLibrary
     {
         protected override void
@@ -266,10 +274,6 @@ namespace SPIRVTools
             source.DependsOn(debugInfoHeader);
             source.UsePublicPatches(debugInfoHeader);
 
-            var debugInfoVendorTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<DebugInfoVendorTables>();
-            source.DependsOn(debugInfoVendorTablesInc);
-            source.UsePublicPatches(debugInfoVendorTablesInc);
-
             var glslTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<GLSLTables>();
             source.DependsOn(glslTablesInc);
             source.UsePublicPatches(glslTablesInc);
@@ -277,6 +281,23 @@ namespace SPIRVTools
             var openclTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<OpenCLTables>();
             source.DependsOn(openclTablesInc);
             source.UsePublicPatches(openclTablesInc);
+
+            var vendorTables = new Bam.Core.StringArray(
+                "debuginfo",
+                "spv-amd-gcn-shader",
+                "spv-amd-shader-ballot",
+                "spv-amd-shader-explicit-vertex-parameter",
+                "spv-amd-shader-trinary-minmax"
+            );
+            foreach (var vt in vendorTables)
+            {
+                var vendorTablesInc = Bam.Core.Module.Create<GenerateVendorTables>(preInitCallback: module =>
+                {
+                    module.TableName = vt;
+                });
+                source.DependsOn(vendorTablesInc);
+                source.UsePublicPatches(vendorTablesInc);
+            }
 
             source.PrivatePatch(settings =>
             {
