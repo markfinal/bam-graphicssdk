@@ -12,8 +12,8 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("Version", "unified1");
             this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
+            this.Macros.Add("Version", "unified1");
             this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/spirv.core.grammar.json", new []{spirvheaders.Macros["IncludeDir"]}));
             this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.debuginfo.grammar.json");
             this.Macros.Add("GrammarEnumStringMappingIncFile", "$(packagebuilddir)/$(moduleoutputdir)/enum_string_mapping.inc");
@@ -148,6 +148,54 @@ namespace SPIRVTools
         }
     }
 
+    class GLSLTables : C.ProceduralHeaderFile
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
+            this.DependsOn(spirvheaders);
+
+            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
+            this.Macros.Add("Version", "unified1");
+            this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/extinst.glsl.std.450.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
+
+            var arguments = new System.Text.StringBuilder();
+            arguments.Append("$(PyScript) ");
+            arguments.Append("--extinst-glsl-grammar=$(GrammarJsonFile) ");
+            arguments.Append("--glsl-insts-output=$(0) ");
+            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
+        }
+
+        protected override Bam.Core.TokenizedString OutputPath
+        {
+            get
+            {
+                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/glsl.std.450.insts.inc");
+            }
+        }
+
+        protected override string Contents
+        {
+            get
+            {
+                var output = Bam.Core.OSUtilities.RunExecutable(
+                    "python",
+                    this.Macros["Arguments"].ToString()
+                );
+                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
+                if (!System.String.IsNullOrEmpty(output))
+                {
+                    Bam.Core.Log.MessageAll("\t{0}", output);
+                }
+                return null;
+            }
+        }
+    }
+
     class SPIRVTools : C.StaticLibrary
     {
         protected override void
@@ -173,6 +221,10 @@ namespace SPIRVTools
             var debugInfoVendorTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<DebugInfoVendorTables>();
             source.DependsOn(debugInfoVendorTablesInc);
             source.UsePublicPatches(debugInfoVendorTablesInc);
+
+            var glslTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<GLSLTables>();
+            source.DependsOn(glslTablesInc);
+            source.UsePublicPatches(glslTablesInc);
 
             source.PrivatePatch(settings =>
             {
