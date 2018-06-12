@@ -20,6 +20,8 @@ namespace MoltenVK
         {
             base.Init(parent);
 
+            this.SetSemanticVersion(1, 0, 10);
+
             var cxx_source = this.CreateCxxSourceContainer();
             cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.cpp");
             cxx_source.AddFiles("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/*.cpp");
