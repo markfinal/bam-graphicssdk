@@ -1,7 +1,7 @@
 using Bam.Core;
 namespace MoltenVK
 {
-    sealed class MoltenVK : C.Cxx.DynamicLibrary
+    class MoltenVK : C.Cxx.DynamicLibrary
     {
         protected override void
         Init(
