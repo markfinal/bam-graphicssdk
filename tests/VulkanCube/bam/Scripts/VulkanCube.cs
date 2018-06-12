@@ -41,7 +41,7 @@ namespace VulkanCube
         }
     }
 
-    sealed class Cube :
+    class Cube :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -68,10 +68,35 @@ namespace VulkanCube
                 {
                     var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                    cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
                     var compiler = settings as C.ICommonCompilerSettings;
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
+
+            this.PrivatePatch(settings =>
+            {
+                var clang_linker = settings as ClangCommon.ICommonLinkerSettings;
+                if (null != clang_linker)
+                {
+                    clang_linker.RPath.AddUnique(@"@executable_path/../Frameworks");
+                }
+            });
+        }
+    }
+
+    sealed class RuntimePackage :
+        Publisher.Collation
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+
+            this.Include<Cube>(C.Cxx.GUIApplication.Key);
         }
     }
 }
