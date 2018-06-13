@@ -465,6 +465,14 @@ namespace SPIRVTools
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
+                {
+                    clang_compiler.AllWarnings = true;
+                    clang_compiler.ExtraWarnings = true;
+                    clang_compiler.Pedantic = true;
+                }
             });
 
             this.PublicPatch((settings, appliedTo) =>

@@ -113,7 +113,7 @@ Renderer::Impl::enumerate_physics_devices()
     }
 
     auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
-    for (auto i = 0; i < numPhysicalDevices; ++i)
+    for (auto i = 0u; i < numPhysicalDevices; ++i)
     {
         auto device = this->_physical_devices[i];
         VkPhysicalDeviceFeatures features;

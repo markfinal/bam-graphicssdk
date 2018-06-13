@@ -72,6 +72,14 @@ namespace VulkanCube
 
                     var compiler = settings as C.ICommonCompilerSettings;
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+
+                    var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                    if (null != clang_compiler)
+                    {
+                        clang_compiler.AllWarnings = true;
+                        clang_compiler.ExtraWarnings = true;
+                        clang_compiler.Pedantic = true;
+                    }
                 });
 
             this.PrivatePatch(settings =>

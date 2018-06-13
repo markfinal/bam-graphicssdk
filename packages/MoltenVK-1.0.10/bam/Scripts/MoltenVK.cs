@@ -23,7 +23,35 @@ namespace MoltenVK
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
+                {
+                    clang_compiler.AllWarnings = true;
+                    clang_compiler.ExtraWarnings = true;
+                    clang_compiler.Pedantic = true;
+                }
             });
+
+            cxx_source["Utility/MVKBaseObject.cpp"].ForEach(item => item.PrivatePatch(settings =>
+            {
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
+                {
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.DisableWarnings.AddUnique("missing-braces");
+                }
+            }));
+
+            cxx_source["MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/SPIRVToMSLConverter.cpp"].ForEach(item => item.PrivatePatch(settings =>
+            {
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
+                {
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.DisableWarnings.AddUnique("import-preprocessor-directive-pedantic");
+                }
+            }));
 
             var objcxx_source = this.CreateObjectiveCxxSourceContainer();
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
@@ -57,6 +85,14 @@ namespace MoltenVK
                 cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                 cxx_compiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
+                {
+                    clang_compiler.AllWarnings = false;
+                    clang_compiler.ExtraWarnings = false;
+                    clang_compiler.Pedantic = false;
+                }
             });
 
             this.PrivatePatch(settings =>
