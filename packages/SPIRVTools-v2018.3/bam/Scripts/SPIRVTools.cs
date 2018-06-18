@@ -223,7 +223,8 @@ namespace SPIRVTools
         }
     }
 
-    class BuildVersion : C.ProceduralHeaderFile
+    class BuildVersion :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -234,38 +235,15 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/update_build_version.py");
+            this.Macros.Add("BuildVersionInc", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/build-version.inc"));
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("$(packagedir) ");
-            arguments.Append("$(0) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
-        }
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
 
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/build-version.inc");
-            }
-        }
+            this.ExpectedOutputFiles.Add(this.Macros["BuildVersionInc"]);
 
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/update_build_version.py"));
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)"));
+            this.Arguments.Add(this.CreateTokenizedString("$(BuildVersionInc)"));
         }
     }
 
@@ -326,11 +304,9 @@ namespace SPIRVTools
             source.DependsOn(generators);
             source.UsePublicPatches(generators);
 
-            /*
             var buildVersion = Bam.Core.Graph.Instance.FindReferencedModule<BuildVersion>();
             source.DependsOn(buildVersion);
             source.UsePublicPatches(buildVersion);
-            */
 
             source.PrivatePatch(settings =>
             {
