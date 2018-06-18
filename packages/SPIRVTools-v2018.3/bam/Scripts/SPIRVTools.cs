@@ -1,7 +1,31 @@
 using Bam.Core;
+using System.Linq;
 namespace SPIRVTools
 {
-    class ExtensionEnumInc : C.ProceduralHeaderFile
+    class PythonSourceGenerator :
+        C.ExternalSourceGenerator
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            this.Executable = Bam.Core.TokenizedString.CreateVerbatim(Bam.Core.OSUtilities.GetInstallLocation("python").FirstOrDefault());
+
+            this.PublicPatch((settings, appliedTo) =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                if (null != compiler)
+                {
+                    compiler.IncludePaths.AddUnique(this.OutputDirectory);
+                }
+            });
+        }
+    }
+
+    class ExtensionEnumInc :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -12,44 +36,19 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
-            this.Macros.Add("Version", "unified1");
-            this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/spirv.core.grammar.json", new []{spirvheaders.Macros["IncludeDir"]}));
+            this.Macros.Add("GrammarExtensionEnumIncFile", "$(packagebuilddir)/$(moduleoutputdir)/extension_enum.inc");
+            this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/spirv.core.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
             this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.debuginfo.grammar.json");
             this.Macros.Add("GrammarEnumStringMappingIncFile", "$(packagebuilddir)/$(moduleoutputdir)/enum_string_mapping.inc");
+            this.Macros.AddVerbatim("Version", "unified1");
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--spirv-core-grammar=$(GrammarJsonFile) ");
-            arguments.Append("--extinst-debuginfo-grammar=$(DebugGrammarFile) ");
-            arguments.Append("--extension-enum-output=$(0) ");
-            arguments.Append("--enum-string-mapping-output=$(GrammarEnumStringMappingIncFile) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new [] {this.OutputPath}));
-        }
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
 
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/extension_enum.inc");
-            }
-        }
-
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/generate_grammar_tables.py"));
+            this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--extinst-debuginfo-grammar=$(DebugGrammarFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--extension-enum-output=$(GrammarExtensionEnumIncFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--enum-string-mapping-output=$(GrammarEnumStringMappingIncFile)"));
         }
     }
 
@@ -417,6 +416,7 @@ namespace SPIRVTools
             source.DependsOn(extensionEnumInc);
             source.UsePublicPatches(extensionEnumInc);
 
+            /*
             var debugInfoHeader = Bam.Core.Graph.Instance.FindReferencedModule<DebugInfo>();
             source.DependsOn(debugInfoHeader);
             source.UsePublicPatches(debugInfoHeader);
@@ -457,6 +457,7 @@ namespace SPIRVTools
             var buildVersion = Bam.Core.Graph.Instance.FindReferencedModule<BuildVersion>();
             source.DependsOn(buildVersion);
             source.UsePublicPatches(buildVersion);
+            */
 
             source.PrivatePatch(settings =>
             {
