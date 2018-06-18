@@ -166,7 +166,8 @@ namespace SPIRVTools
         }
     }
 
-    class CoreTables : C.ProceduralHeaderFile
+    class CoreTables :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -177,44 +178,22 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
-            this.Macros.Add("Version", "unified1");
+            this.Macros.AddVerbatim("Version", "unified1");
             this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/spirv.core.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
             this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.debuginfo.grammar.json");
-            this.Macros.Add("GrammarKindsIncFile", "$(packagebuilddir)/$(moduleoutputdir)/operand.kinds-$(Version).inc");
+            this.Macros.Add("CoreInstIncFile", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/core.insts-$(Version).inc"));
+            this.Macros.Add("GrammarKindsIncFile", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/operand.kinds-$(Version).inc"));
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--spirv-core-grammar=$(GrammarJsonFile) ");
-            arguments.Append("--extinst-debuginfo-grammar=$(DebugGrammarFile) ");
-            arguments.Append("--core-insts-output=$(0) ");
-            arguments.Append("--operand-kinds-output=$(GrammarKindsIncFile) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
-        }
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
 
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/core.insts-$(Version).inc");
-            }
-        }
+            this.ExpectedOutputFiles.Add(this.Macros["CoreInstIncFile"]);
+            this.ExpectedOutputFiles.Add(this.Macros["GrammarKindsIncFile"]);
 
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/generate_grammar_tables.py"));
+            this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--extinst-debuginfo-grammar=$(DebugGrammarFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--core-insts-output=$(CoreInstIncFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--operand-kinds-output=$(GrammarKindsIncFile)"));
         }
     }
 
@@ -360,11 +339,11 @@ namespace SPIRVTools
                 source.UsePublicPatches(vendorTablesInc);
             }
 
-            /*
             var coreTables = Bam.Core.Graph.Instance.FindReferencedModule<CoreTables>();
             source.DependsOn(coreTables);
             source.UsePublicPatches(coreTables);
 
+            /*
             var generators = Bam.Core.Graph.Instance.FindReferencedModule<Generators>();
             source.DependsOn(generators);
             source.UsePublicPatches(generators);
