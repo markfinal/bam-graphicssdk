@@ -81,7 +81,8 @@ namespace SPIRVTools
         }
     }
 
-    class GLSLTables : C.ProceduralHeaderFile
+    class GLSLTables :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -92,40 +93,17 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
-            this.Macros.Add("Version", "unified1");
+            this.Macros.AddVerbatim("Version", "unified1");
             this.Macros.Add("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/extinst.glsl.std.450.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
+            this.Macros.Add("GLSLHeader", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/glsl.std.450.insts.inc"));
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--extinst-glsl-grammar=$(GrammarJsonFile) ");
-            arguments.Append("--glsl-insts-output=$(0) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
-        }
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
 
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/glsl.std.450.insts.inc");
-            }
-        }
+            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(GLSLHeader)"));
 
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/generate_grammar_tables.py"));
+            this.Arguments.Add(this.CreateTokenizedString("--extinst-glsl-grammar=$(GrammarJsonFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--glsl-insts-output=$(GLSLHeader)"));
         }
     }
 
@@ -379,11 +357,11 @@ namespace SPIRVTools
             source.DependsOn(debugInfoHeader);
             source.UsePublicPatches(debugInfoHeader);
 
-            /*
             var glslTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<GLSLTables>();
             source.DependsOn(glslTablesInc);
             source.UsePublicPatches(glslTablesInc);
 
+            /*
             var openclTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<OpenCLTables>();
             source.DependsOn(openclTablesInc);
             source.UsePublicPatches(openclTablesInc);
