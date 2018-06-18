@@ -177,7 +177,8 @@ namespace SPIRVTools
         }
     }
 
-    class GenerateVendorTables : C.ProceduralHeaderFile
+    class GenerateVendorTables :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -188,14 +189,16 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_grammar_tables.py");
-            this.Macros.Add("DebugGrammarFile", "$(packagedir)/source/extinst.$(TableName).grammar.json");
+            this.Macros.Add("DebugGrammarFile", this.CreateTokenizedString("$(packagedir)/source/extinst.$(TableName).grammar.json"));
+            this.Macros.Add("VendorTable", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/$(TableName).insts.inc"));
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--extinst-vendor-grammar=$(packagedir)/source/extinst.$(TableName).grammar.json ");
-            arguments.Append("--vendor-insts-output=$(0) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
+
+            this.ExpectedOutputFiles.Add(this.Macros["VendorTable"]);
+
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/generate_grammar_tables.py"));
+            this.Arguments.Add(this.CreateTokenizedString("--extinst-vendor-grammar=$(packagedir)/source/extinst.$(TableName).grammar.json"));
+            this.Arguments.Add(this.CreateTokenizedString("--vendor-insts-output=$(VendorTable)"));
         }
 
         public string TableName
@@ -203,31 +206,6 @@ namespace SPIRVTools
             set
             {
                 this.Macros.AddVerbatim("TableName", value);
-            }
-        }
-
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/$(TableName).insts.inc");
-            }
-        }
-
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
             }
         }
     }
@@ -409,6 +387,7 @@ namespace SPIRVTools
             var openclTablesInc = Bam.Core.Graph.Instance.FindReferencedModule<OpenCLTables>();
             source.DependsOn(openclTablesInc);
             source.UsePublicPatches(openclTablesInc);
+            */
 
             var vendorTables = new Bam.Core.StringArray(
                 "debuginfo",
@@ -427,6 +406,7 @@ namespace SPIRVTools
                 source.UsePublicPatches(vendorTablesInc);
             }
 
+            /*
             var coreTables = Bam.Core.Graph.Instance.FindReferencedModule<CoreTables>();
             source.DependsOn(coreTables);
             source.UsePublicPatches(coreTables);
