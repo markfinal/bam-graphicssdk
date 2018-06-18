@@ -197,7 +197,8 @@ namespace SPIRVTools
         }
     }
 
-    class Generators : C.ProceduralHeaderFile
+    class Generators :
+        PythonSourceGenerator
     {
         protected override void
         Init(
@@ -208,39 +209,17 @@ namespace SPIRVTools
             var spirvheaders = Bam.Core.Graph.Instance.FindReferencedModule<SPIRVHeaders.SPIRVHeaders>();
             this.DependsOn(spirvheaders);
 
-            this.Macros.Add("PyScript", "$(packagedir)/utils/generate_registry_tables.py");
+            this.Macros.Add("PyScript", "");
             this.Macros.Add("XmlRegistryFile", this.CreateTokenizedString("$(0)/spirv/spir-v.xml", new[] { spirvheaders.Macros["IncludeDir"] }));
+            this.Macros.Add("GeneratorsInc", this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/generators.inc"));
 
-            var arguments = new System.Text.StringBuilder();
-            arguments.Append("$(PyScript) ");
-            arguments.Append("--xml=$(XmlRegistryFile) ");
-            arguments.Append("--generator-output=$(0) ");
-            this.Macros.Add("Arguments", this.CreateTokenizedString(arguments.ToString(), new[] { this.OutputPath }));
-        }
+            this.OutputDirectory = this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)");
 
-        protected override Bam.Core.TokenizedString OutputPath
-        {
-            get
-            {
-                return this.CreateTokenizedString("$(packagebuilddir)/$(moduleoutputdir)/generators.inc");
-            }
-        }
+            this.ExpectedOutputFiles.Add(this.Macros["GeneratorsInc"]);
 
-        protected override string Contents
-        {
-            get
-            {
-                var output = Bam.Core.OSUtilities.RunExecutable(
-                    "python",
-                    this.Macros["Arguments"].ToString()
-                );
-                Bam.Core.Log.MessageAll("Running 'python {0}'", this.Macros["Arguments"].ToString());
-                if (!System.String.IsNullOrEmpty(output))
-                {
-                    Bam.Core.Log.MessageAll("\t{0}", output);
-                }
-                return null;
-            }
+            this.Arguments.Add(this.CreateTokenizedString("$(packagedir)/utils/generate_registry_tables.py"));
+            this.Arguments.Add(this.CreateTokenizedString("--xml=$(XmlRegistryFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--generator-output=$(GeneratorsInc)"));
         }
     }
 
@@ -343,11 +322,11 @@ namespace SPIRVTools
             source.DependsOn(coreTables);
             source.UsePublicPatches(coreTables);
 
-            /*
             var generators = Bam.Core.Graph.Instance.FindReferencedModule<Generators>();
             source.DependsOn(generators);
             source.UsePublicPatches(generators);
 
+            /*
             var buildVersion = Bam.Core.Graph.Instance.FindReferencedModule<BuildVersion>();
             source.DependsOn(buildVersion);
             source.UsePublicPatches(buildVersion);
