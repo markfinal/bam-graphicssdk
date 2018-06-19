@@ -43,10 +43,8 @@ namespace SPIRVTools
             this.AddInputFile("DebugGrammarFile", this.CreateTokenizedString("$(packagedir)/source/extinst.debuginfo.grammar.json"));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("GrammarExtensionEnumIncFile", this.CreateTokenizedString("$(0)/extension_enum.inc", new []{this.OutputDirectory}));
-            this.Macros.Add("GrammarEnumStringMappingIncFile", this.CreateTokenizedString("$(0)/enum_string_mapping.inc", new[] { this.OutputDirectory }));
-            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(GrammarExtensionEnumIncFile)"));
-            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(GrammarEnumStringMappingIncFile)"));
+            this.AddExpectedOutputFile("GrammarExtensionEnumIncFile", this.CreateTokenizedString("$(0)/extension_enum.inc", new []{this.OutputDirectory}));
+            this.AddExpectedOutputFile("GrammarEnumStringMappingIncFile", this.CreateTokenizedString("$(0)/enum_string_mapping.inc", new[] { this.OutputDirectory }));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
@@ -72,7 +70,7 @@ namespace SPIRVTools
             this.AddInputFile("DebugGrammarFile", this.CreateTokenizedString("$(packagedir)/source/extinst.debuginfo.grammar.json"));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(0)/DebugInfo.h", new []{this.OutputDirectory}));
+            this.AddExpectedOutputFile("DebugInfo", this.CreateTokenizedString("$(0)/DebugInfo.h", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-name=DebugInfo"));
@@ -99,8 +97,7 @@ namespace SPIRVTools
             this.AddInputFile("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/extinst.glsl.std.450.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("GLSLHeader", this.CreateTokenizedString("$(0)/glsl.std.450.insts.inc", new []{this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(GLSLHeader)"));
+            this.AddExpectedOutputFile("GLSLHeader", this.CreateTokenizedString("$(0)/glsl.std.450.insts.inc", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-glsl-grammar=$(GrammarJsonFile)"));
@@ -125,8 +122,7 @@ namespace SPIRVTools
             this.AddInputFile("GrammarJsonFile", this.CreateTokenizedString("$(0)/spirv/$(Version)/extinst.opencl.std.100.grammar.json", new[] { spirvheaders.Macros["IncludeDir"] }));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("OpenCLHeader", this.CreateTokenizedString("$(0)/opencl.std.insts.inc", new []{this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.CreateTokenizedString("$(OpenCLHeader)"));
+            this.AddExpectedOutputFile("OpenCLHeader", this.CreateTokenizedString("$(0)/opencl.std.insts.inc", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-opencl-grammar=$(GrammarJsonFile)"));
@@ -150,8 +146,7 @@ namespace SPIRVTools
             this.AddInputFile("DebugGrammarFile", this.CreateTokenizedString("$(packagedir)/source/extinst.$(TableName).grammar.json"));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("VendorTable", this.CreateTokenizedString("$(0)/$(TableName).insts.inc", new [] {this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.Macros["VendorTable"]);
+            this.AddExpectedOutputFile("VendorTable", this.CreateTokenizedString("$(0)/$(TableName).insts.inc", new [] {this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-vendor-grammar=$(DebugGrammarFile)"));
@@ -185,10 +180,8 @@ namespace SPIRVTools
             this.AddInputFile("DebugGrammarFile", this.CreateTokenizedString("$(packagedir)/source/extinst.debuginfo.grammar.json"));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("CoreInstIncFile", this.CreateTokenizedString("$(0)/core.insts-$(Version).inc", new []{this.OutputDirectory}));
-            this.Macros.Add("GrammarKindsIncFile", this.CreateTokenizedString("$(0)/operand.kinds-$(Version).inc", new []{this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.Macros["CoreInstIncFile"]);
-            this.ExpectedOutputFiles.Add(this.Macros["GrammarKindsIncFile"]);
+            this.AddExpectedOutputFile("CoreInstIncFile", this.CreateTokenizedString("$(0)/core.insts-$(Version).inc", new []{this.OutputDirectory}));
+            this.AddExpectedOutputFile("GrammarKindsIncFile", this.CreateTokenizedString("$(0)/operand.kinds-$(Version).inc", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
@@ -214,8 +207,7 @@ namespace SPIRVTools
             this.AddInputFile("XmlRegistryFile", this.CreateTokenizedString("$(0)/spirv/spir-v.xml", new[] { spirvheaders.Macros["IncludeDir"] }));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("GeneratorsInc", this.CreateTokenizedString("$(0)/generators.inc", new []{this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.Macros["GeneratorsInc"]);
+            this.AddExpectedOutputFile("GeneratorsInc", this.CreateTokenizedString("$(0)/generators.inc", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--xml=$(XmlRegistryFile)"));
@@ -238,8 +230,7 @@ namespace SPIRVTools
             this.AddInputFile("PyScript", this.CreateTokenizedString("$(packagedir)/utils/update_build_version.py"));
 
             this.SetOutputDirectory("$(packagebuilddir)/$(moduleoutputdir)");
-            this.Macros.Add("BuildVersionInc", this.CreateTokenizedString("$(0)/build-version.inc", new []{this.OutputDirectory}));
-            this.ExpectedOutputFiles.Add(this.Macros["BuildVersionInc"]);
+            this.AddExpectedOutputFile("BuildVersionInc", this.CreateTokenizedString("$(0)/build-version.inc", new []{this.OutputDirectory}));
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("$(packagedir)"));
