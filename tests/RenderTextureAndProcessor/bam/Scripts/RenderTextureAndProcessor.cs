@@ -53,10 +53,6 @@ namespace RenderTextureAndProcessor
                 cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
             });
 
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
             this.LinkAgainst<OpenGLSDK.OpenGL>();
 
             this.PrivatePatch(settings =>
@@ -101,11 +97,6 @@ namespace RenderTextureAndProcessor
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
                 });
-
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
 
             this.PrivatePatch(settings =>
                 {

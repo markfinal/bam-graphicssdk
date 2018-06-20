@@ -54,11 +54,6 @@ namespace OpenGLTriangle
             var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
             this.CompileAndLinkAgainst<glew.GLEWStatic>(rendererObj);
 
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
-
             this.PrivatePatch(settings =>
                 {
                     var linker = settings as C.ICommonLinkerSettings;
