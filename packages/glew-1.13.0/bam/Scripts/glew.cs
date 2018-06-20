@@ -53,11 +53,6 @@ namespace glew
                         compiler.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
                 });
-
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
-            {
-                this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
-            }
         }
     }
 }

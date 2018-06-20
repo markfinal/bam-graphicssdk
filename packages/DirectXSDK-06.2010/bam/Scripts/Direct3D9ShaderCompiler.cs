@@ -42,27 +42,23 @@ namespace DirectXSDK
             var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
             if (meta.UseWindowsSDK)
             {
-                var windowsSDKMeta = Bam.Core.Graph.Instance.PackageMetaData<Bam.Core.PackageMetaData>("WindowsSDK");
-                Bam.Core.TokenizedString windowsSDKInstallDir = null;
-                if (windowsSDKMeta.Contains("InstallDir"))
+                var vcMetaData = Bam.Core.Graph.Instance.PackageMetaData<VisualC.MetaData>("VisualC");
+                var vcEnv = vcMetaData.Environment(this.BitDepth);
+                if (vcEnv.ContainsKey("WindowsSdkDir"))
                 {
-                    windowsSDKInstallDir = windowsSDKMeta["InstallDir"] as Bam.Core.TokenizedString;
-                }
-                else if (windowsSDKMeta.Contains("InstallDirWinSDK81"))
-                {
-                    windowsSDKInstallDir = windowsSDKMeta["InstallDirWinSDK81"] as Bam.Core.TokenizedString;
+                    System.Diagnostics.Debug.Assert(1 == vcEnv["WindowsSdkDir"].Count, "Only one WindowsSDK directory");
+                    if (this.BitDepth == C.EBit.SixtyFour)
+                    {
+                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
+                    }
+                    else if (this.BitDepth == C.EBit.ThirtyTwo)
+                    {
+                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
+                    }
                 }
                 else
                 {
-                    throw new Bam.Core.Exception("Unable to determine WindowsSDK installation directory");
-                }
-                if (this.BitDepth == C.EBit.SixtyFour)
-                {
-                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", windowsSDKInstallDir);
-                }
-                else if (this.BitDepth == C.EBit.ThirtyTwo)
-                {
-                    this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", windowsSDKInstallDir);
+                    throw new Bam.Core.Exception("Unable to determine WindowsSDK installation directory in order to find the D3D9 shader compiler");
                 }
             }
             else
