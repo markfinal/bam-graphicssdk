@@ -75,8 +75,8 @@ namespace OpenGLSDK
                 });
         }
 
-        public override void
-        Evaluate()
+        protected override void
+        EvaluateInternal()
         {
             this.ReasonToExecute = null;
         }
