@@ -4,6 +4,7 @@
   <Dependents>
     <Package name="C" />
     <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="MakeFileBuilder" />
     <Package name="MoltenVK" version="1.0.10" />
     <Package name="NativeBuilder" />
     <Package name="VisualC" version="12.0" />
