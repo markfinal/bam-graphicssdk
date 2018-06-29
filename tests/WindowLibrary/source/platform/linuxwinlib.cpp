@@ -41,7 +41,7 @@ GraphicsWindow::init()
 WindowHandle
 GraphicsWindow::getNativeWindowHandle() const
 {
-	return nullptr;
+    return nullptr;
 }
 
 } // namespace WindowLibrary
