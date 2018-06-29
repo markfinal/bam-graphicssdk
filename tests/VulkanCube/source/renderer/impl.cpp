@@ -148,6 +148,8 @@ Renderer::Impl::create_logical_device()
     queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queue_info.queueFamilyIndex = 0;
     queue_info.queueCount = 1;
+    float queuePriority = 1.0f;
+    queue_info.pQueuePriorities = &queuePriority; // Note: this is essential for at least MoltenVK, which does not check whether this is null or not
 
     // create a logical device
     auto createDeviceFn = GETIFN(this->_instance.get(), vkCreateDevice);
