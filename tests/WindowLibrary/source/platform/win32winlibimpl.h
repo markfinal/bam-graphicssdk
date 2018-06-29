@@ -27,38 +27,39 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "windowlibrary/winlib.h"
-#include "windowlibrary/exception.h"
+#ifndef WINDOWLIBRARY_WINLIB_PLATFORM_WIN32WINLIBIMPL_H
+#define WINDOWLIBRARY_WINLIB_PLATFORM_WIN32WINLIBIMPL_H
 
-#ifdef D_BAM_PLATFORM_WINDOWS
-#include "platform/win32winlibimpl.h"
-#else
-#error Unsupported platform
-#endif
+#include "windowlibrary/winlib.h"
+#include <string>
 
 namespace WindowLibrary
 {
 
-GraphicsWindow::GraphicsWindow()
-    :
-    _impl(new Impl(this))
-{}
-
-GraphicsWindow::~GraphicsWindow() = default;
-
-void
-GraphicsWindow::onCreate(
-    WindowHandle inWindowHandle)
+struct GraphicsWindow::Impl
 {
-    (void)inWindowHandle;
-}
+    GraphicsWindow *_parent = nullptr;
+    ::HINSTANCE     _instance;
+    std::string     _className;
+    WindowHandle    _windowHandle;
 
-void
-GraphicsWindow::onDestroy()
-{}
+    Impl(
+        GraphicsWindow *inParent);
+    ~Impl();
 
-void
-GraphicsWindow::onClose()
-{}
+    void
+    registerWindowClass();
+
+    void
+    unregisterWindowClass();
+
+    void
+    createWindow();
+
+    void
+    destroyWindow();
+};
 
 } // namespace WindowLibrary
+
+#endif // WINDOWLIBRARY_WINLIB_PLATFORM_WIN32WINLIBIMPL_H

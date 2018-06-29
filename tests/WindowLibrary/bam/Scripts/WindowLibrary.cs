@@ -27,6 +27,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using Bam.Core;
 namespace WindowLibrary
 {
     class WindowLibrary :
@@ -38,9 +39,15 @@ namespace WindowLibrary
         {
             base.Init(parent);
 
-            this.CreateHeaderContainer("$(packagedir)/include/windowlibrary/**.h");
+            var headers = this.CreateHeaderContainer("$(packagedir)/include/windowlibrary/**.h");
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                source.AddFiles("$(packagedir)/source/platform/win32winlib.cpp");
+                source.AddFiles("$(packagedir)/source/platform/win32winlibimpl.cpp");
+                headers.AddFiles("$(packagedir)/source/platform/win32winlibimpl.h");
+            }
             source.PrivatePatch(settings =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;

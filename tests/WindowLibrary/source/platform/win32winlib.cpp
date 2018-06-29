@@ -28,37 +28,57 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "windowlibrary/winlib.h"
-#include "windowlibrary/exception.h"
-
-#ifdef D_BAM_PLATFORM_WINDOWS
-#include "platform/win32winlibimpl.h"
-#else
-#error Unsupported platform
-#endif
+#include "win32winlibimpl.h"
 
 namespace WindowLibrary
 {
 
-GraphicsWindow::GraphicsWindow()
-    :
-    _impl(new Impl(this))
-{}
-
-GraphicsWindow::~GraphicsWindow() = default;
-
 void
-GraphicsWindow::onCreate(
-    WindowHandle inWindowHandle)
+GraphicsWindow::init()
 {
-    (void)inWindowHandle;
+    auto impl = this->_impl.get();
+    impl->registerWindowClass();
+    impl->createWindow();
 }
 
 void
-GraphicsWindow::onDestroy()
-{}
+GraphicsWindow::win32SetInstanceHandle(
+    ::HINSTANCE inInstance)
+{
+    auto impl = this->_impl.get();
+    impl->_instance = inInstance;
+}
 
-void
-GraphicsWindow::onClose()
-{}
+LRESULT
+GraphicsWindow::win32MessageProc(
+    ::HWND hWnd,
+    ::UINT Msg,
+    ::WPARAM wParam,
+    ::LPARAM lParam
+)
+{
+    switch (Msg)
+    {
+    case WM_CREATE:
+        this->onCreate(hWnd);
+        break;
+
+    case WM_DESTROY:
+        this->onDestroy();
+        break;
+
+    case WM_CLOSE:
+        this->onClose();
+        return 0;
+    }
+    return ::DefWindowProc(hWnd, Msg, wParam, lParam);
+}
+
+WindowHandle
+GraphicsWindow::getNativeWindowHandle() const
+{
+    auto impl = this->_impl.get();
+    return impl->_windowHandle;
+}
 
 } // namespace WindowLibrary
