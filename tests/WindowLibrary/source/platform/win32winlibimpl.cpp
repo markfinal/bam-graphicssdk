@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cassert>
 
-namespace WindowLibrary
+namespace
 {
 
 ::LRESULT CALLBACK
@@ -43,19 +43,24 @@ WindowProcBootstrap(
     ::WPARAM wParam,
     ::LPARAM lParam)
 {
-    GraphicsWindow *window = nullptr;
+    WindowLibrary::GraphicsWindow *window = nullptr;
     if (WM_CREATE == Msg)
     {
         LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        window = static_cast<GraphicsWindow*>(lpcs->lpCreateParams);
+        window = static_cast<WindowLibrary::GraphicsWindow*>(lpcs->lpCreateParams);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
     }
     else
     {
-        window = reinterpret_cast<GraphicsWindow*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        window = reinterpret_cast<WindowLibrary::GraphicsWindow*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     }
     return window->win32MessageProc(hWnd, Msg, wParam, lParam);
 }
+
+} // anonymous namespace
+
+namespace WindowLibrary
+{
 
 GraphicsWindow::Impl::Impl(
     GraphicsWindow *inParent)
