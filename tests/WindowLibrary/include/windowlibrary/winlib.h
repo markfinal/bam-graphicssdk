@@ -30,14 +30,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_WINLIB_H
 #define WINDOWLIBRARY_WINLIB_H
 
-#include <memory>
-#include <Windows.h>
-
 #ifdef D_BAM_PLATFORM_WINDOWS
 #include "platform/win32types.h"
 #else
 #error Unsupported platform
 #endif
+
+#include <memory>
 
 namespace WindowLibrary
 {

@@ -33,8 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <cassert>
 
-#include <Windows.h>
-
 namespace WindowLibrary
 {
 
@@ -43,7 +41,7 @@ struct GraphicsWindow::Impl
     GraphicsWindow *_parent = nullptr;
     ::HINSTANCE     _instance;
     std::string     _className;
-    ::HWND          _windowHandle;
+    WindowHandle    _windowHandle;
 
     Impl(
         GraphicsWindow *inParent);
@@ -63,7 +61,7 @@ struct GraphicsWindow::Impl
 };
 
 ::LRESULT CALLBACK
-WindowProc(
+WindowProcBootstrap(
     ::HWND hWnd,
     ::UINT Msg,
     ::WPARAM wParam,
@@ -106,7 +104,7 @@ GraphicsWindow::Impl::registerWindowClass()
     ::ZeroMemory(&windowClass, sizeof(windowClass));
     windowClass.cbSize = sizeof(windowClass);
     windowClass.hInstance = this->_instance;
-    windowClass.lpfnWndProc = WindowProc;
+    windowClass.lpfnWndProc = WindowProcBootstrap;
     windowClass.lpszClassName = this->_className.c_str();
     UINT style = CS_OWNDC;
     windowClass.style = style;
