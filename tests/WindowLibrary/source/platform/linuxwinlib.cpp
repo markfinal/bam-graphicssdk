@@ -36,12 +36,28 @@ namespace WindowLibrary
 void
 GraphicsWindow::init()
 {
+    auto impl = this->_impl.get();
+    impl->createWindow();
 }
 
 WindowHandle
 GraphicsWindow::getNativeWindowHandle() const
 {
     return nullptr;
+}
+
+Display *
+GraphicsWindow::linuxDisplay() const
+{
+    auto impl = this->_impl.get();
+    return impl->_display;
+}
+
+Atom
+GraphicsWindow::linuxDeleteWindowMessage() const
+{
+    auto impl = this->_impl.get();
+    return impl->_deleteWindowMessage;
 }
 
 } // namespace WindowLibrary

@@ -42,6 +42,52 @@ GraphicsWindow::Impl::Impl(
     _parent(inParent)
 {}
 
-GraphicsWindow::Impl::~Impl() = default;
+GraphicsWindow::Impl::~Impl()
+{
+    this->destroyWindow();
+}
+
+void
+GraphicsWindow::Impl::createWindow()
+{
+    char *displayName = nullptr;
+    auto display = ::XOpenDisplay(displayName);
+    if (nullptr == display)
+    {
+        throw LinuxFailedToOpenDisplay();
+    }
+
+    auto screen = DefaultScreen(display);
+
+    auto window = ::XCreateSimpleWindow(
+        display,
+        RootWindow(display, screen),
+        0, 0,
+        512, 512,
+        1,
+        BlackPixel(display, screen),
+        WhitePixel(display, screen)
+    );
+
+    ::XStoreName(display, window, "OpenGL triangle");
+    ::XSelectInput(display, window, ExposureMask | KeyPressMask);
+
+    // register interest in the delete window message
+    auto wmDeleteMessage = ::XInternAtom(display, "WM_DELETE_WINDOW", False);
+    ::XSetWMProtocols(display, window, &wmDeleteMessage, 1);
+
+    // show
+    ::XMapWindow(display, window);
+
+    this->_display = display;
+    this->_window = window;
+    this->_deleteWindowMessage = wmDeleteMessage;
+}
+
+void
+GraphicsWindow::Impl::destroyWindow()
+{
+    // TODO
+}
 
 } // namespace WindowLibrary

@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // forward declarations
 class Renderer;
-class Window;
+class AppWindow;
 
 #include <memory>
 
@@ -55,7 +55,7 @@ private:
 
 private:
     static Application *spInstance;
-    std::unique_ptr<Window> mpWindow;
+    std::unique_ptr<AppWindow> mpWindow;
     Renderer *mpRenderer;
     void *mhWin32Instance;
     int mi32ExitCode;

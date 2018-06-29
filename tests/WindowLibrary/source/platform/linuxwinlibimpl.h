@@ -38,10 +38,20 @@ namespace WindowLibrary
 struct GraphicsWindow::Impl
 {
     GraphicsWindow *_parent = nullptr;
+    ::Display      *_display = nullptr;
+    ::Window        _window;
+    ::Atom          _deleteWindowMessage;
 
     Impl(
         GraphicsWindow *inParent);
     ~Impl();
+
+    void
+    createWindow();
+
+private:
+    void
+    destroyWindow();
 };
 
 } // namespace WindowLibrary

@@ -53,7 +53,7 @@ public:
     init();
 
 public:
-#ifdef D_BAM_PLATFORM_WINDOWS
+#if defined(D_BAM_PLATFORM_WINDOWS)
     void
     win32SetInstanceHandle(
         ::HINSTANCE inInstance
@@ -66,6 +66,14 @@ public:
         ::WPARAM wParam,
         ::LPARAM lParam
     );
+#elif defined(D_BAM_PLATFORM_LINUX)
+    Display *
+    linuxDisplay() const;
+
+    Atom
+    linuxDeleteWindowMessage() const;
+#else
+#error Unsupported platform
 #endif // D_BAM_PLATFORM_WINDOWS
 
 protected:

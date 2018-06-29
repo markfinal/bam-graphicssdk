@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace WindowLibrary
 {
 
-#ifdef D_BAM_PLATFORM_WINDOWS
+#if defined(D_BAM_PLATFORM_WINDOWS)
 class Win32BaseException :
     public std::exception
 {
@@ -84,6 +84,10 @@ class Win32FailedToDeleteRenderContext final :
 
 class Win32FailedToMakeRenderContextCurrent final :
     public Win32BaseException
+{};
+#elif defined(D_BAM_PLATFORM_LINUX)
+class LinuxFailedToOpenDisplay :
+    public std::exception
 {};
 #endif // D_BAM_PLATFORM_WINDOWS
 

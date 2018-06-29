@@ -71,6 +71,10 @@ namespace OpenGLTriangle
                         linker.Libraries.Add("-lopengl32");
                         linker.Libraries.Add("-lgdi32");
                     }
+                    else if (this.Linker is GccCommon.LinkerBase)
+                    {
+                        linker.Libraries.Add("-lX11");
+                    }
                 });
         }
     }

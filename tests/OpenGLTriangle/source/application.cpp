@@ -44,7 +44,7 @@ Application *Application::GetInstance()
 Application::Application(int UNUSEDARG(argc), char *UNUSEDARG(argv)[])
     :
     mpRenderer(nullptr),
-    mpWindow(new Window),
+    mpWindow(new AppWindow),
     mhWin32Instance(0),
     mi32ExitCode(0)
 {
@@ -87,6 +87,28 @@ void Application::MainLoop()
     }
 
     this->mi32ExitCode = (int)msg.wParam;
+#elif defined(D_BAM_PLATFORM_LINUX)
+    auto display = this->mpWindow->linuxDisplay();
+    while (true)
+    {
+        while (::XPending(display) > 0)
+        {
+            ::XEvent event;
+            ::XNextEvent(display, &event);
+            switch (event.type)
+            {
+            case ClientMessage:
+                if (event.xclient.data.l[0] == static_cast<int long>(this->mpWindow->linuxDeleteWindowMessage()))
+                {
+                this->mi32ExitCode = 0;
+                return;
+                }
+                break;
+            }
+        }
+    }
+#else
+#error Unsupported platform
 #endif
 }
 
