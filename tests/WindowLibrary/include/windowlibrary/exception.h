@@ -30,13 +30,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_EXCEPTION_H
 #define WINDOWLIBRARY_EXCEPTION_H
 
-#include <Windows.h>
-
 #include <exception>
+
+#ifdef D_BAM_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
 
 namespace WindowLibrary
 {
 
+#ifdef D_BAM_PLATFORM_WINDOWS
 class Win32BaseException :
     public std::exception
 {
@@ -62,6 +65,7 @@ class Win32FailedToCreateWindow final :
 class Win32FailedToDestroyWindow final :
     public Win32BaseException
 {};
+#endif // D_BAM_PLATFORM_WINDOWS
 
 } // namespace WindowLibrary
 

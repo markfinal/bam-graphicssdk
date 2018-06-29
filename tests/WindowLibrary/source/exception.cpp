@@ -32,9 +32,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace WindowLibrary
 {
 
+#ifdef D_BAM_PLATFORM_WINDOWS
 Win32BaseException::Win32BaseException()
 {
     this->_error_code = ::GetLastError();
 }
+#endif // D_BAM_PLATFORM_WINDOWS
 
 } // namespace WindowLibrary

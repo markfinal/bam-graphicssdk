@@ -31,5 +31,6 @@
   </DotNetAssemblies>
   <SupportedPlatforms>
     <Platform name="Windows" />
+    <Platform name="Linux" />
   </SupportedPlatforms>
 </PackageDefinition>

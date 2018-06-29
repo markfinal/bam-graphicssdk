@@ -29,38 +29,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "windowlibrary/winlib.h"
 #include "windowlibrary/exception.h"
+#include "linuxwinlibimpl.h"
 
-#if defined(D_BAM_PLATFORM_WINDOWS)
-#include "platform/win32winlibimpl.h"
-#elif defined(D_BAM_PLATFORM_LINUX)
-#include "platform/linuxwinlibimpl.h"
-#else
-#error Unsupported platform
-#endif
+#include <cassert>
 
 namespace WindowLibrary
 {
-
-GraphicsWindow::GraphicsWindow()
-    :
-    _impl(new Impl(this))
-{}
-
-GraphicsWindow::~GraphicsWindow() = default;
-
-void
-GraphicsWindow::onCreate(
-    WindowHandle inWindowHandle)
-{
-    (void)inWindowHandle;
-}
-
-void
-GraphicsWindow::onDestroy()
-{}
-
-void
-GraphicsWindow::onClose()
-{}
 
 } // namespace WindowLibrary

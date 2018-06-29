@@ -27,40 +27,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "windowlibrary/winlib.h"
-#include "windowlibrary/exception.h"
-
-#if defined(D_BAM_PLATFORM_WINDOWS)
-#include "platform/win32winlibimpl.h"
-#elif defined(D_BAM_PLATFORM_LINUX)
-#include "platform/linuxwinlibimpl.h"
-#else
-#error Unsupported platform
-#endif
+#ifndef WINDOWLIBRARY_PLATFORM_LINUXTYPES_H
+#define WINDOWLIBRARY_PLATFORM_LINUXTYPES_H
 
 namespace WindowLibrary
 {
 
-GraphicsWindow::GraphicsWindow()
-    :
-    _impl(new Impl(this))
-{}
-
-GraphicsWindow::~GraphicsWindow() = default;
-
-void
-GraphicsWindow::onCreate(
-    WindowHandle inWindowHandle)
-{
-    (void)inWindowHandle;
-}
-
-void
-GraphicsWindow::onDestroy()
-{}
-
-void
-GraphicsWindow::onClose()
-{}
+typedef void* WindowHandle;
 
 } // namespace WindowLibrary
+
+#endif // WINDOWLIBRARY_PLATFORM_LINUXTYPES_H

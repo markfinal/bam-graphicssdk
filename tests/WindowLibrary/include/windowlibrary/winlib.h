@@ -30,8 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_WINLIB_H
 #define WINDOWLIBRARY_WINLIB_H
 
-#ifdef D_BAM_PLATFORM_WINDOWS
+#if defined(D_BAM_PLATFORM_WINDOWS)
 #include "platform/win32types.h"
+#elif defined(D_BAM_PLATFORM_LINUX)
+#include "platform/linuxtypes.h"
 #else
 #error Unsupported platform
 #endif

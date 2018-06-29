@@ -48,6 +48,12 @@ namespace WindowLibrary
                 source.AddFiles("$(packagedir)/source/platform/win32winlibimpl.cpp");
                 headers.AddFiles("$(packagedir)/source/platform/win32winlibimpl.h");
             }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+            {
+                source.AddFiles("$(packagedir)/source/platform/linuxwinlib.cpp");
+                source.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.cpp");
+                headers.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.h");
+            }
             source.PrivatePatch(settings =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
@@ -55,6 +61,8 @@ namespace WindowLibrary
 
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                    cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                    cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
                     var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
                     if (null != vcCompiler)
