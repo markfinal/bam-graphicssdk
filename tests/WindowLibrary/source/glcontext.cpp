@@ -27,66 +27,53 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WINDOWLIBRARY_EXCEPTION_H
-#define WINDOWLIBRARY_EXCEPTION_H
+#include "windowlibrary/glcontext.h"
 
-#include <exception>
-
-#ifdef D_BAM_PLATFORM_WINDOWS
-#include <Windows.h>
+#if defined(D_BAM_PLATFORM_WINDOWS)
+#include "platform/win32glcontextimpl.h"
+#elif defined(D_BAM_PLATFORM_LINUX)
+#include "platform/linuxglcontextimpl.h"
+#else
+#error Unsupported platform
 #endif
 
 namespace WindowLibrary
 {
 
-#ifdef D_BAM_PLATFORM_WINDOWS
-class Win32BaseException :
-    public std::exception
+GLContext::GLContext(
+    WindowHandle inHandle)
+    :
+    _impl(new Impl(inHandle))
+{}
+
+GLContext::~GLContext() = default;
+
+void
+GLContext::init()
 {
-protected:
-    Win32BaseException();
+    auto impl = this->_impl.get();
+    impl->createContext();
+}
 
-protected:
-    ::DWORD _error_code;
-};
+void
+GLContext::makeCurrent()
+{
+    auto impl = this->_impl.get();
+    impl->makeCurrent();
+}
 
-class Win32FailedToRegisterClass final :
-    public Win32BaseException
-{};
+void
+GLContext::detachCurrent()
+{
+    auto impl = this->_impl.get();
+    impl->detachCurrent();
+}
 
-class Win32FailedToUnregisterClass final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDestroyWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToChoosePixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToSetPixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDeleteRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToMakeRenderContextCurrent final :
-    public Win32BaseException
-{};
-#endif // D_BAM_PLATFORM_WINDOWS
+void
+GLContext::swapBuffers()
+{
+    auto impl = this->_impl.get();
+    impl->swapBuffers();
+}
 
 } // namespace WindowLibrary
-
-#endif // WINDOWLIBRARY_EXCEPTION_H

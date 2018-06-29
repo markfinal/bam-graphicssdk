@@ -27,66 +27,45 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WINDOWLIBRARY_EXCEPTION_H
-#define WINDOWLIBRARY_EXCEPTION_H
+#ifndef WINDOWLIBRARY_WINLIB_PLATFORM_WIN32GLCONTEXTIMPL_H
+#define WINDOWLIBRARY_WINLIB_PLATFORM_WIN32GLCONTEXTIMPL_H
 
-#include <exception>
-
-#ifdef D_BAM_PLATFORM_WINDOWS
-#include <Windows.h>
-#endif
+#include "windowlibrary/glcontext.h"
 
 namespace WindowLibrary
 {
 
-#ifdef D_BAM_PLATFORM_WINDOWS
-class Win32BaseException :
-    public std::exception
+struct GLContext::Impl
 {
-protected:
-    Win32BaseException();
+    WindowHandle _handle;
+    ::HDC        _dc;
+    ::HGLRC      _rc;
 
-protected:
-    ::DWORD _error_code;
+    Impl(
+        WindowHandle inHandle);
+    ~Impl();
+
+    void
+    createContext();
+
+    void
+    makeCurrent();
+
+    void
+    detachCurrent();
+
+    void
+    swapBuffers();
+
+private:
+    void
+    destroyContext();
+
+    void
+    do_make_current(
+        ::HGLRC inRenderContext);
 };
-
-class Win32FailedToRegisterClass final :
-    public Win32BaseException
-{};
-
-class Win32FailedToUnregisterClass final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDestroyWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToChoosePixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToSetPixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDeleteRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToMakeRenderContextCurrent final :
-    public Win32BaseException
-{};
-#endif // D_BAM_PLATFORM_WINDOWS
 
 } // namespace WindowLibrary
 
-#endif // WINDOWLIBRARY_EXCEPTION_H
+#endif // WINDOWLIBRARY_WINLIB_PLATFORM_WIN32GLCONTEXTIMPL_H

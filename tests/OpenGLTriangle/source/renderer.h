@@ -30,6 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "windowlibrary/winlib.h"
+
 #ifdef _MSC_VER
 typedef unsigned __int64 uint64;
 #else
@@ -40,10 +42,17 @@ typedef uint64_t uint64;
 #include <new>
 #include <cstddef> // for size_t
 
+namespace WindowLibrary
+{
+    class GLContext;
+} // namespace WindowLibrary
+
 class Renderer
 {
 public:
-    Renderer(void *windowHandle);
+    Renderer(
+        WindowLibrary::WindowHandle inHandle);
+    ~Renderer();
 
     void Initialize();
     void Release();
@@ -56,9 +65,6 @@ public:
 protected:
     static void threadFunction(void* param);
     void runThread();
-
-    void CreateContext();
-    void DestroyContext();
 
     void InitializeGLEW();
     void ReleaseGLEW();
@@ -77,9 +83,10 @@ protected:
 
 private:
     uint64 mi64TimeElapsed;
-    void *mhWindowHandle;
-    void *mhDC;
-    void *mhRC;
+    std::unique_ptr<WindowLibrary::GLContext> _glContext;
+    //void *mhWindowHandle;
+    //void *mhDC;
+    //void *mhRC;
     void *mhThread;
     int mhVertexShader;
     int mhFragmentShader;

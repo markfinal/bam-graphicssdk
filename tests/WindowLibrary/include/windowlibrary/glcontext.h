@@ -27,66 +27,40 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef WINDOWLIBRARY_EXCEPTION_H
-#define WINDOWLIBRARY_EXCEPTION_H
+#ifndef WINDOWLIBRARY_GLCONTEXT_H
+#define WINDOWLIBRARY_GLCONTEXT_H
 
-#include <exception>
+#include "windowlibrary/winlib.h"
 
-#ifdef D_BAM_PLATFORM_WINDOWS
-#include <Windows.h>
-#endif
+#include <memory>
 
 namespace WindowLibrary
 {
 
-#ifdef D_BAM_PLATFORM_WINDOWS
-class Win32BaseException :
-    public std::exception
+class GLContext final
 {
-protected:
-    Win32BaseException();
+public:
+    GLContext(
+        WindowHandle inHandle);
+    ~GLContext();
 
-protected:
-    ::DWORD _error_code;
+    void
+    init();
+
+    void
+    makeCurrent();
+
+    void
+    detachCurrent();
+
+    void
+    swapBuffers();
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
 };
-
-class Win32FailedToRegisterClass final :
-    public Win32BaseException
-{};
-
-class Win32FailedToUnregisterClass final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDestroyWindow final :
-    public Win32BaseException
-{};
-
-class Win32FailedToChoosePixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToSetPixelFormat final :
-    public Win32BaseException
-{};
-
-class Win32FailedToCreateRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToDeleteRenderContext final :
-    public Win32BaseException
-{};
-
-class Win32FailedToMakeRenderContextCurrent final :
-    public Win32BaseException
-{};
-#endif // D_BAM_PLATFORM_WINDOWS
 
 } // namespace WindowLibrary
 
-#endif // WINDOWLIBRARY_EXCEPTION_H
+#endif // WINDOWLIBRARY_GLCONTEXT_H

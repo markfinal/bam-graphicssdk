@@ -29,6 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "renderer.h"
 #include "errorhandler.h"
+#include "windowlibrary/glcontext.h"
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <string>
@@ -87,18 +89,19 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
     }
 }
 
-Renderer::Renderer(void *windowHandle)
-: mhWindowHandle(windowHandle),
-  mhDC(0),
-  mhRC(0),
-  mhThread(0),
-  mhVertexShader(0),
-  mhFragmentShader(0),
-  mhProgram(0),
-  miTimerQuery(0),
-  mbQuitFlag(false)
-{
-}
+Renderer::Renderer(
+    WindowLibrary::WindowHandle inHandle)
+    :
+    _glContext(new WindowLibrary::GLContext(inHandle)),
+    mhThread(0),
+    mhVertexShader(0),
+    mhFragmentShader(0),
+    mhProgram(0),
+    miTimerQuery(0),
+    mbQuitFlag(false)
+{}
+
+Renderer::~Renderer() = default;
 
 void *Renderer::operator new(size_t size)
 {
@@ -113,7 +116,7 @@ void Renderer::operator delete(void *object)
 
 void Renderer::Initialize()
 {
-    this->CreateContext();
+    this->_glContext->init();
 
     // create a thread for OpenGL rendering
     unsigned int threadId;
@@ -131,67 +134,7 @@ void Renderer::Release()
     this->Exit();
     this->mhThread = 0;
 
-    this->DestroyContext();
-}
-
-void Renderer::CreateContext()
-{
-    ::HWND hWindow = static_cast< ::HWND>(this->mhWindowHandle);
-    ::HDC hDC = ::GetDC(hWindow);
-    ::PIXELFORMATDESCRIPTOR pfDescriptor;
-    ::ZeroMemory(&pfDescriptor, sizeof(pfDescriptor));
-    pfDescriptor.nSize = sizeof(pfDescriptor);
-    pfDescriptor.nVersion = 1;
-    DWORD flags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfDescriptor.dwFlags = flags;
-    pfDescriptor.iPixelType = PFD_TYPE_RGBA;
-    pfDescriptor.cColorBits = 8;
-    //pfDescriptor.cDepthBits = 24;
-    //pfDescriptor.cStencilBits = 8;
-
-    int pixelFormat = ::ChoosePixelFormat(hDC, &pfDescriptor);
-    if (0 == pixelFormat)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to choose pixel format; error %d, '%s'", errorCode);
-        return;
-    }
-
-    BOOL result = ::SetPixelFormat(hDC, pixelFormat, &pfDescriptor);
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to set pixel format; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::HGLRC hRC = ::wglCreateContext(hDC);
-    if (0 == hRC)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to create context; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::ReleaseDC(hWindow, hDC);
-
-    this->mhDC = hDC;
-    this->mhRC = hRC;
-}
-
-void Renderer::DestroyContext()
-{
-    ::HWND hWindow = static_cast< ::HWND>(this->mhWindowHandle);
-
-    ::BOOL result = ::wglDeleteContext(static_cast<HGLRC>(this->mhRC));
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to delete context; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::ReleaseDC(hWindow, static_cast< ::HDC>(this->mhDC));
+    this->_glContext.reset();
 }
 
 void Renderer::InitializeGLEW()
@@ -251,16 +194,7 @@ void Renderer::threadFunction(void* param)
 // rendering loop
 void Renderer::runThread()
 {
-    ::HDC hDC = static_cast< ::HDC>(this->mhDC);
-
-    // set the current RC in this thread
-    BOOL result = ::wglMakeCurrent(hDC, static_cast< ::HGLRC>(this->mhRC));
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to set current context; error %d, '%s'", errorCode);
-        return;
-    }
+    this->_glContext->makeCurrent();
 
     const GLubyte *lacVendor = GLFN(::glGetString(GL_VENDOR));
     const GLubyte *lacRenderer = GLFN(::glGetString(GL_RENDERER));
@@ -327,7 +261,7 @@ void Renderer::runThread()
             REPORTERROR1("GPU time = %.4f ms", lui64TimeElapsed / 1024.0f / 1024.f);
         }
 
-        ::SwapBuffers(hDC);
+        this->_glContext->swapBuffers();
     }
 
     REPORTERROR("Begin shutting down render thread");
@@ -341,13 +275,7 @@ void Renderer::runThread()
     this->ReleaseGLEW();
 
     // terminate rendering thread
-    result = ::wglMakeCurrent(hDC, 0);
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to unset current context; error %d, '%s'", errorCode);
-        return;
-    }
+    this->_glContext->detachCurrent();
 
     _endthread();
     REPORTERROR("Render thread has terminated");

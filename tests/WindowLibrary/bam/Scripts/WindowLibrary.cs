@@ -46,7 +46,9 @@ namespace WindowLibrary
             {
                 source.AddFiles("$(packagedir)/source/platform/win32winlib.cpp");
                 source.AddFiles("$(packagedir)/source/platform/win32winlibimpl.cpp");
+                source.AddFiles("$(packagedir)/source/platform/win32glcontextimpl.cpp");
                 headers.AddFiles("$(packagedir)/source/platform/win32winlibimpl.h");
+                headers.AddFiles("$(packagedir)/source/platform/win32glcontextimpl.h");
             }
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
             {
