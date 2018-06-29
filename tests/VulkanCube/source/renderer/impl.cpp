@@ -105,6 +105,7 @@ Renderer::Impl::enumerate_physics_devices()
     {
         throw Exception("There are no physical devices available on this hardware");
     }
+    Log().get() << "Found " << numPhysicalDevices << " physical devices" << std::endl;
     this->_physical_devices.resize(numPhysicalDevices);
     enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, this->_physical_devices.data());
     if (VK_SUCCESS != enumPhysDevicesRes)
@@ -118,6 +119,9 @@ Renderer::Impl::enumerate_physics_devices()
         auto device = this->_physical_devices[i];
         VkPhysicalDeviceFeatures features;
         getPhysDeviceFeaturesFn(device, &features);
+        Log().get() << "Features of physical device " << i << std::endl;
+        Log().get() << "\tGeometry shader: " << features.geometryShader << std::endl;
+        Log().get() << "\tTessellation shader: " << features.tessellationShader << std::endl;
     }
 
     // arbitrary choice
@@ -133,13 +137,18 @@ Renderer::Impl::create_logical_device()
     auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceQueueFamilyProperties);
     uint32_t numQueueFamilyProperties = 0;
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
+    if (0 == numQueueFamilyProperties)
+    {
+        throw Exception("Unable to find any queue families on this physical device");
+    }
+    Log().get() << "Found " << numQueueFamilyProperties << " queue families on this physical device" << std::endl;
 
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
     // assume that the first queue family is capable of graphics
     if (0 == (queueFamilyProperties[0].queueFlags & VK_QUEUE_GRAPHICS_BIT))
     {
-        throw Exception("Unable to find queue family with graphics support");
+        throw Exception("Unable to find queue family with graphics support on this physical device");
     }
 
     // logical devices need a queue
