@@ -93,7 +93,7 @@ Renderer::Renderer(
     WindowLibrary::WindowHandle inHandle)
     :
     _glContext(new WindowLibrary::GLContext(inHandle)),
-    mhThread(0),
+    _thread(nullptr),
     mhVertexShader(0),
     mhFragmentShader(0),
     mhProgram(0),
@@ -119,21 +119,12 @@ void Renderer::Initialize()
     this->_glContext->init();
 
     // create a thread for OpenGL rendering
-    unsigned int threadId;
-    this->mhThread = reinterpret_cast<HANDLE>(_beginthreadex(
-        0,
-        0,
-        (unsigned (__stdcall *)(void *))threadFunction,
-        this,
-        0,
-        &threadId));
+    this->_thread.reset(new std::thread(threadFunction, this));
 }
 
 void Renderer::Release()
 {
     this->Exit();
-    this->mhThread = 0;
-
     this->_glContext.reset();
 }
 
@@ -153,42 +144,20 @@ void Renderer::ReleaseGLEW()
 
 void Renderer::Exit()
 {
-    if (0 != this->mhThread)
+    if (nullptr == this->_thread)
     {
-        mbQuitFlag = true;
-        REPORTERROR("Request thread shutdown");
-        WaitForSingleObject(this->mhThread, INFINITE);
-
-        for (;;)
-        {
-            ::DWORD exitCode;
-            ::BOOL result = ::GetExitCodeThread(this->mhThread, &exitCode);
-            if (0 == result)
-            {
-                ::DWORD errorCode = ::GetLastError();
-                REPORTWIN32ERROR("Unable to exit the rendering thread; error %d, '%s'", errorCode);
-                return;
-            }
-            else if (STILL_ACTIVE == result)
-            {
-                REPORTERROR("Thread is still alive");
-                continue;
-            }
-            else
-            {
-                REPORTERROR1("Thread exit code is %d", result);
-                ::CloseHandle(this->mhThread);
-                this->mhThread = 0;
-                break;
-            }
-        }
+        return;
     }
+    mbQuitFlag = true;
+    REPORTERROR("Request thread shutdown");
+    this->_thread->join();
+    this->_thread.reset();
 }
 
 // route to the worker thread
-void Renderer::threadFunction(void* param)
+void Renderer::threadFunction(Renderer *inRenderer)
 {
-    ((Renderer*)param)->runThread();
+    inRenderer->runThread();
 }
 
 // rendering loop

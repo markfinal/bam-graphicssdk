@@ -41,6 +41,7 @@ typedef uint64_t uint64;
 
 #include <new>
 #include <cstddef> // for size_t
+#include <thread>
 
 namespace WindowLibrary
 {
@@ -63,7 +64,7 @@ public:
     void operator delete(void *object);
 
 protected:
-    static void threadFunction(void* param);
+    static void threadFunction(Renderer *inRenderer);
     void runThread();
 
     void InitializeGLEW();
@@ -84,10 +85,7 @@ protected:
 private:
     uint64 mi64TimeElapsed;
     std::unique_ptr<WindowLibrary::GLContext> _glContext;
-    //void *mhWindowHandle;
-    //void *mhDC;
-    //void *mhRC;
-    void *mhThread;
+    std::unique_ptr<std::thread> _thread;
     int mhVertexShader;
     int mhFragmentShader;
     int mhProgram;
