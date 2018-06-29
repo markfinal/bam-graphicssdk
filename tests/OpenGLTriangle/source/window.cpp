@@ -27,20 +27,46 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ERRORHANDLER_H
-#define ERRORHANDLER_H
+#include "window.h"
+#include "application.h"
+#include "renderer.h"
+#include "errorhandler.h"
 
-class ErrorHandler
+void
+Window::onCreate(
+    ::HWND hwnd)
 {
-public:
-    static void Report(const char *file, int line, const char *message, ...);
-    static void ReportWin32Error(const char *file, int line, const char *message, int errorCode);
-};
+    Application *application = Application::GetInstance();
+    Renderer *renderer = new Renderer(hwnd);
+    renderer->Initialize();
+    application->SetRenderer(renderer);
+}
 
-#define REPORTERROR(_message)                               ErrorHandler::Report(__FILE__, __LINE__, _message)
-#define REPORTERROR1(_message, _value1)                     ErrorHandler::Report(__FILE__, __LINE__, _message, _value1)
-#define REPORTERROR2(_message, _value1, _value2)            ErrorHandler::Report(__FILE__, __LINE__, _message, _value1, _value2)
-#define REPORTERROR3(_message, _value1, _value2, _value3)   ErrorHandler::Report(__FILE__, __LINE__, _message, _value1, _value2, _value3)
-#define REPORTWIN32ERROR(_message, _errCode)                ErrorHandler::ReportWin32Error(__FILE__, __LINE__, _message, _errCode)
+void
+Window::onDestroy()
+{
+    Application *application = Application::GetInstance();
+    Renderer *renderer = application->GetRenderer();
+    if (renderer != 0)
+    {
+        renderer->Release();
+        delete renderer;
+        application->SetRenderer(0);
+    }
+}
 
-#endif // ERRORHANDLER_H
+void
+Window::onClose()
+{
+    Application *application = Application::GetInstance();
+    Renderer *renderer = application->GetRenderer();
+    if (0 != renderer)
+    {
+        renderer->Exit();
+    }
+
+#ifdef D_BAM_PLATFORM_WINDOWS
+    REPORTERROR("Sending quit message");
+    ::PostQuitMessage(0);
+#endif
+}

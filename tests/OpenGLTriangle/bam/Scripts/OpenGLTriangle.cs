@@ -49,6 +49,7 @@ namespace OpenGLTriangle
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
                 });
 
+            this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);
             this.LinkAgainst<OpenGLSDK.OpenGL>();
 
             var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;

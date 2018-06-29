@@ -19,6 +19,7 @@
     <Package name="VisualC" version="14.0" default="true" />
     <Package name="VisualC" version="15.0" />
     <Package name="VSSolutionBuilder" />
+    <Package name="WindowLibrary" />
   </Dependents>
   <BamAssemblies>
     <BamAssembly name="Bam.Core" major="1" minor="2" patch="0" />
