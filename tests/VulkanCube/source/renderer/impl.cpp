@@ -143,10 +143,12 @@ Renderer::Impl::create_logical_device()
     }
     Log().get() << "Found " << numQueueFamilyProperties << " queue families on this physical device" << std::endl;
 
+    // assume that the first queue family is capable of graphics
+    auto graphics_family_queue_index = 0;
+
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
-    // assume that the first queue family is capable of graphics
-    if (0 == (queueFamilyProperties[0].queueFlags & VK_QUEUE_GRAPHICS_BIT))
+    if (0 == (queueFamilyProperties[graphics_family_queue_index].queueFlags & VK_QUEUE_GRAPHICS_BIT))
     {
         throw Exception("Unable to find queue family with graphics support on this physical device");
     }
@@ -155,7 +157,7 @@ Renderer::Impl::create_logical_device()
     VkDeviceQueueCreateInfo queue_info;
     memset(&queue_info, 0, sizeof(queue_info));
     queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_info.queueFamilyIndex = 0;
+    queue_info.queueFamilyIndex = graphics_family_queue_index;
     queue_info.queueCount = 1;
     float queuePriority = 1.0f;
     queue_info.pQueuePriorities = &queuePriority; // Note: this is essential for at least MoltenVK, which does not check whether this is null or not
@@ -175,4 +177,14 @@ Renderer::Impl::create_logical_device()
     }
     decltype(this->_logical_device) temp(device, this->_function_table.destroy_device_wrapper);
     this->_logical_device = std::move(temp);
+
+    auto graphics_queue_index = 0;
+
+    auto getQueueFn = GETIFN(this->_instance.get(), vkGetDeviceQueue);
+    getQueueFn(
+        this->_logical_device.get(),
+        graphics_family_queue_index,
+        graphics_queue_index,
+        &this->_graphics_queue
+    );
 }
