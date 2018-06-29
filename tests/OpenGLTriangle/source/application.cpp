@@ -67,7 +67,9 @@ void Application::SetWin32Instance(void *instance)
 
 int Application::Run()
 {
+#ifdef D_BAM_PLATFORM_WINDOWS
     this->mpWindow->win32SetInstanceHandle(static_cast<::HINSTANCE>(mhWin32Instance));
+#endif
     this->mpWindow->init();
     this->MainLoop();
     return this->mi32ExitCode;
