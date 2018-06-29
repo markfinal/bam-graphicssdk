@@ -36,4 +36,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace WindowLibrary
 {
 
+GraphicsWindow::Impl::Impl(
+    GraphicsWindow *inParent)
+    :
+    _parent(inParent)
+{}
+
+GraphicsWindow::Impl::~Impl() = default;
+
 } // namespace WindowLibrary

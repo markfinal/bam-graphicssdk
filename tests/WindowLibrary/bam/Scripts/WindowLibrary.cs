@@ -54,7 +54,9 @@ namespace WindowLibrary
             {
                 source.AddFiles("$(packagedir)/source/platform/linuxwinlib.cpp");
                 source.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.cpp");
+                source.AddFiles("$(packagedir)/source/platform/linuxglcontextimpl.cpp");
                 headers.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.h");
+                headers.AddFiles("$(packagedir)/source/platform/linuxglcontextimpl.h");
             }
             source.PrivatePatch(settings =>
                 {
