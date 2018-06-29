@@ -28,9 +28,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "errorhandler.h"
-#include <Windows.h>
 #include <cstdio>
 #include <cstdarg>
+
+#if defined(D_BAM_PLATFORM_WINDOWS)
+#include <Windows.h>
+#endif
 
 void ErrorHandler::Report(const char *file, int line, const char *message, ...)
 {
@@ -39,6 +42,7 @@ void ErrorHandler::Report(const char *file, int line, const char *message, ...)
 
     va_list list;
     va_start(list, message);
+#if defined(D_BAM_PLATFORM_WINDOWS)
     if (::IsDebuggerPresent())
     {
         char buffer2[1024];
@@ -46,12 +50,14 @@ void ErrorHandler::Report(const char *file, int line, const char *message, ...)
         ::OutputDebugString(buffer2);
     }
     else
+#endif
     {
         vfprintf(stderr, buffer, list);
     }
     va_end(list);
 }
 
+#if defined(D_BAM_PLATFORM_WINDOWS)
 void ErrorHandler::ReportWin32Error(const char *file, int line, const char *message, int errorCode)
 {
     //translate the error code into a message
@@ -75,3 +81,5 @@ void ErrorHandler::ReportWin32Error(const char *file, int line, const char *mess
     //free buffer
     ::LocalFree(p_text);
 }
+#endif
+

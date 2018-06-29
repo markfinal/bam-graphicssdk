@@ -47,6 +47,8 @@ namespace OpenGLTriangle
                 {
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
+                    cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                    cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
                 });
 
             this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);

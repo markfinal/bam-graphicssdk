@@ -76,6 +76,7 @@ int Application::Run()
 
 void Application::MainLoop()
 {
+#if defined(D_BAM_PLATFORM_WINDOWS)
     ::MSG msg;
 
     // loop until WM_QUIT(0) received
@@ -86,6 +87,7 @@ void Application::MainLoop()
     }
 
     this->mi32ExitCode = (int)msg.wParam;
+#endif
 }
 
 void Application::SetRenderer(Renderer *renderer)

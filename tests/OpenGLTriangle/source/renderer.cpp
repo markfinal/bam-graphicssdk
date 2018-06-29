@@ -29,11 +29,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "renderer.h"
 #include "errorhandler.h"
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <string>
+
+#if defined(D_BAM_PLATFORM_WINDOWS)
 #include <Windows.h>
 #include <process.h>
-#include <gl/glew.h>
-#include <gl/gl.h>
-#include <string>
+#endif
 
 //#define USE_UNIFORM_BUFFER
 
@@ -77,7 +80,9 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
 
         if (breakOnError)
         {
+#if defined(D_BAM_PLATFORM_WINDOWS)
             ::DebugBreak();
+#endif
         }
     }
 }
