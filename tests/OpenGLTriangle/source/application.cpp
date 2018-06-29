@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "renderer.h"
 #include "errorhandler.h"
 #include "common.h"
-#include "window.h"
+#include "appwindow.h"
 
 #include <string>
 
