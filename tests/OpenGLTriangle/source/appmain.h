@@ -27,37 +27,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef APPMAIN_H
+#define APPMAIN_H
 
-// forward declarations
-class Renderer;
-class AppWindow;
+extern int
+appmain(
+    char **argv,
+    int argc);
 
-#include <memory>
-
-class Application
-{
-public:
-    static Application *GetInstance();
-
-    Application(int argc, char *argv[]);
-    ~Application();
-
-    int Run();
-
-    void SetRenderer(Renderer *);
-    Renderer *GetRenderer();
-
-private:
-    void MainLoop();
-
-private:
-    static Application *spInstance;
-    std::unique_ptr<AppWindow> mpWindow;
-    Renderer *mpRenderer;
-    void *mhWin32Instance;
-    int mi32ExitCode;
-};
-
-#endif // APPLICATION_H
+#endif // APPMAIN_H

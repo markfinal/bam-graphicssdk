@@ -54,15 +54,14 @@ Application::Application(int UNUSEDARG(argc), char *UNUSEDARG(argv)[])
         return;
     }
 
+#ifdef D_BAM_PLATFORM_WINDOWS
+    mhWin32Instance = ::GetModuleHandle(nullptr);
+#endif
+
     spInstance = this;
 }
 
 Application::~Application() = default;
-
-void Application::SetWin32Instance(void *instance)
-{
-    mhWin32Instance = instance;
-}
 
 int Application::Run()
 {

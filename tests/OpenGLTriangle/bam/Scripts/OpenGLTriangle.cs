@@ -43,12 +43,27 @@ namespace OpenGLTriangle
             this.CreateHeaderContainer("$(packagedir)/source/*.h");
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                source.AddFiles("$(packagedir)/source/platform/winmain.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+            {
+                source.AddFiles("$(packagedir)/source/platform/main.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/**.mm");
+            }
             source.PrivatePatch(settings =>
                 {
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
                     cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                     cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
 
             this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);
