@@ -52,6 +52,9 @@ public:
     void
     init();
 
+    WindowHandle
+    getNativeWindowHandle() const;
+
 public:
 #if defined(D_BAM_PLATFORM_WINDOWS)
     void
@@ -81,18 +84,13 @@ public:
 
 protected:
     virtual void
-    onCreate(
-        WindowHandle inWindowHandle);
+    onCreate();
 
     virtual void
     onDestroy();
 
     virtual void
     onClose();
-
-private:
-    WindowHandle
-    getNativeWindowHandle() const;
 
 private:
     struct Impl;

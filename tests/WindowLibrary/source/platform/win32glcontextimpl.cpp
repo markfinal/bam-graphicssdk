@@ -35,9 +35,9 @@ namespace WindowLibrary
 {
 
 GLContext::Impl::Impl(
-    WindowHandle inHandle)
+    GraphicsWindow *inWindow)
     :
-    _handle(inHandle)
+    _window(inWindow)
 {}
 
 GLContext::Impl::~Impl()
@@ -48,7 +48,8 @@ GLContext::Impl::~Impl()
 void
 GLContext::Impl::createContext()
 {
-    ::HDC hDC = ::GetDC(this->_handle);
+    auto window_handle = this->_window->getNativeWindowHandle();
+    ::HDC hDC = ::GetDC(window_handle);
     ::PIXELFORMATDESCRIPTOR pfDescriptor;
     ::ZeroMemory(&pfDescriptor, sizeof(pfDescriptor));
     pfDescriptor.nSize = sizeof(pfDescriptor);
@@ -78,7 +79,7 @@ GLContext::Impl::createContext()
         throw Win32FailedToCreateRenderContext();
     }
 
-    ::ReleaseDC(this->_handle, hDC);
+    ::ReleaseDC(window_handle, hDC);
 
     this->_dc = hDC;
     this->_rc = hRC;
@@ -113,7 +114,8 @@ GLContext::Impl::destroyContext()
         throw Win32FailedToDeleteRenderContext();
     }
 
-    ::ReleaseDC(this->_handle, this->_dc);
+    auto window_handle = this->_window->getNativeWindowHandle();
+    ::ReleaseDC(window_handle, this->_dc);
 }
 
 void

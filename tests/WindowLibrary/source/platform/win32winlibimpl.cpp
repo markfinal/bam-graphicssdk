@@ -142,6 +142,9 @@ GraphicsWindow::Impl::createWindow()
         throw Win32FailedToCreateWindow();
     }
 
+    this->_parent->onCreate();
+
+    // show window
     ::UpdateWindow(this->_windowHandle);
     ::ShowWindow(this->_windowHandle, SW_SHOWDEFAULT);
 }

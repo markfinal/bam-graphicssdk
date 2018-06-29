@@ -41,7 +41,7 @@ struct GraphicsWindow::Impl
     GraphicsWindow *_parent = nullptr;
     ::HINSTANCE     _instance;
     std::string     _className;
-    WindowHandle    _windowHandle;
+    WindowHandle    _windowHandle = nullptr;
 
     Impl(
         GraphicsWindow *inParent);

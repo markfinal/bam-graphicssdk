@@ -49,11 +49,8 @@ GraphicsWindow::GraphicsWindow()
 GraphicsWindow::~GraphicsWindow() = default;
 
 void
-GraphicsWindow::onCreate(
-    WindowHandle inWindowHandle)
-{
-    (void)inWindowHandle;
-}
+GraphicsWindow::onCreate()
+{}
 
 void
 GraphicsWindow::onDestroy()

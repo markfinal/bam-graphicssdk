@@ -37,8 +37,7 @@ class AppWindow :
 {
 public:
     void
-    onCreate(
-        WindowLibrary::WindowHandle inWindowHandle) override;
+    onCreate() override;
 
     void
     onDestroy() override;

@@ -30,6 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowlibrary/winlib.h"
 #include "win32winlibimpl.h"
 
+#include <cassert>
+
 namespace WindowLibrary
 {
 
@@ -60,7 +62,6 @@ GraphicsWindow::win32MessageProc(
     switch (Msg)
     {
     case WM_CREATE:
-        this->onCreate(hWnd);
         break;
 
     case WM_DESTROY:
@@ -78,6 +79,7 @@ WindowHandle
 GraphicsWindow::getNativeWindowHandle() const
 {
     auto impl = this->_impl.get();
+    assert(nullptr != impl->_windowHandle);
     return impl->_windowHandle;
 }
 

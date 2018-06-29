@@ -33,8 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "errorhandler.h"
 
 void
-AppWindow::onCreate(
-    WindowLibrary::WindowHandle inWindowHandle)
+AppWindow::onCreate()
 {
     Application *application = Application::GetInstance();
     Renderer *renderer = new Renderer(this);

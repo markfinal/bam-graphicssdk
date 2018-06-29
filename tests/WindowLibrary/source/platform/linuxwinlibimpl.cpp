@@ -68,7 +68,6 @@ GraphicsWindow::Impl::createWindow()
         BlackPixel(display, screen),
         WhitePixel(display, screen)
     );
-    this->_parent->onCreate(window);
 
     ::XStoreName(display, window, "OpenGL triangle");
     ::XSelectInput(display, window, ExposureMask | KeyPressMask);
@@ -77,13 +76,15 @@ GraphicsWindow::Impl::createWindow()
     auto wmDeleteMessage = ::XInternAtom(display, "WM_DELETE_WINDOW", False);
     ::XSetWMProtocols(display, window, &wmDeleteMessage, 1);
 
-    // show
-    ::XMapWindow(display, window);
-
     this->_screen = screen;
     this->_display = display;
     this->_window = window;
     this->_deleteWindowMessage = wmDeleteMessage;
+
+    this->_parent->onCreate(window);
+
+    // show
+    ::XMapWindow(display, window);
 }
 
 void
