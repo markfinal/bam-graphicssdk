@@ -191,7 +191,7 @@ void Renderer::runThread()
     // rendering loop
     while(!this->mbQuitFlag)
     {
-        ::SwitchToThread();
+        std::this_thread::yield();
 
         this->StartTimerQuery();
 
@@ -246,7 +246,6 @@ void Renderer::runThread()
     // terminate rendering thread
     this->_glContext->detachCurrent();
 
-    _endthread();
     REPORTERROR("Render thread has terminated");
 }
 
