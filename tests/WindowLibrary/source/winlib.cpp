@@ -195,34 +195,13 @@ GraphicsWindow::init()
     impl->createWindow();
 }
 
+#ifdef D_BAM_PLATFORM_WINDOWS
 void
 GraphicsWindow::win32SetInstanceHandle(
     ::HINSTANCE inInstance)
 {
     auto impl = this->_impl.get();
     impl->_instance = inInstance;
-}
-
-void
-GraphicsWindow::onCreate(
-    ::HWND hwnd)
-{
-    (void)hwnd;
-}
-
-void
-GraphicsWindow::onDestroy()
-{}
-
-void
-GraphicsWindow::onClose()
-{}
-
-::HWND
-GraphicsWindow::win32GetNativeHandle() const
-{
-    auto impl = this->_impl.get();
-    return impl->_windowHandle;
 }
 
 LRESULT
@@ -248,6 +227,29 @@ GraphicsWindow::win32MessageProc(
         return 0;
     }
     return ::DefWindowProc(hWnd, Msg, wParam, lParam);
+}
+#endif // D_BAM_PLATFORM_WINDOWS
+
+void
+GraphicsWindow::onCreate(
+    WindowHandle inWindowHandle)
+{
+    (void)inWindowHandle;
+}
+
+void
+GraphicsWindow::onDestroy()
+{}
+
+void
+GraphicsWindow::onClose()
+{}
+
+WindowHandle
+GraphicsWindow::getNativeWindowHandle() const
+{
+    auto impl = this->_impl.get();
+    return impl->_windowHandle;
 }
 
 } // namespace WindowLibrary

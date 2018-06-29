@@ -38,7 +38,7 @@ namespace WindowLibrary
         {
             base.Init(parent);
 
-            this.CreateHeaderContainer("$(packagedir)/include/windowlibrary/*.h");
+            this.CreateHeaderContainer("$(packagedir)/include/windowlibrary/**.h");
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
             source.PrivatePatch(settings =>

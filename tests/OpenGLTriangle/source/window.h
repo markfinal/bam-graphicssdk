@@ -38,7 +38,7 @@ class Window :
 public:
     void
     onCreate(
-        ::HWND hwnd) override;
+        WindowLibrary::WindowHandle inWindowHandle) override;
 
     void
     onDestroy() override;

@@ -34,10 +34,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void
 Window::onCreate(
-    ::HWND hwnd)
+    WindowLibrary::WindowHandle inWindowHandle)
 {
     Application *application = Application::GetInstance();
-    Renderer *renderer = new Renderer(hwnd);
+    Renderer *renderer = new Renderer(inWindowHandle);
     renderer->Initialize();
     application->SetRenderer(renderer);
 }
