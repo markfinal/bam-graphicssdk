@@ -100,8 +100,9 @@ void Application::MainLoop()
             case ClientMessage:
                 if (event.xclient.data.l[0] == static_cast<int long>(this->mpWindow->linuxDeleteWindowMessage()))
                 {
-                this->mi32ExitCode = 0;
-                return;
+                    this->mpWindow->onDestroy();
+                    this->mi32ExitCode = 0;
+                    return;
                 }
                 break;
             }

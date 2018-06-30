@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace WindowLibrary
 {
 
-typedef void* WindowHandle;
+typedef Window WindowHandle;
 
 } // namespace WindowLibrary
 

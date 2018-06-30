@@ -68,6 +68,7 @@ GraphicsWindow::Impl::createWindow()
         BlackPixel(display, screen),
         WhitePixel(display, screen)
     );
+    this->_parent->onCreate(window);
 
     ::XStoreName(display, window, "OpenGL triangle");
     ::XSelectInput(display, window, ExposureMask | KeyPressMask);
