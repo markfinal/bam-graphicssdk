@@ -32,7 +32,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowlibrary/glcontext.h"
 
 #include <GL/glew.h>
+#if defined(D_BAM_PLATFORM_OSX)
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <string>
 
 #if defined(D_BAM_PLATFORM_WINDOWS)

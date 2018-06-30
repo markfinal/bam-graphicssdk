@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform/win32winlibimpl.h"
 #elif defined(D_BAM_PLATFORM_LINUX)
 #include "platform/linuxwinlibimpl.h"
+#elif defined(D_BAM_PLATFORM_OSX)
+#include "platform/macoswinlibimpl.h"
 #else
 #error Unsupported platform
 #endif

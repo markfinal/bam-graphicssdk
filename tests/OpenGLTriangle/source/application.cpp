@@ -108,6 +108,8 @@ void Application::MainLoop()
             }
         }
     }
+#elif defined(D_BAM_PLATFORM_OSX)
+    // TODO: possibly in an objective-C file
 #else
 #error Unsupported platform
 #endif

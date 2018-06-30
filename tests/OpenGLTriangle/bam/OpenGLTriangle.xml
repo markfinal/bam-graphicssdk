@@ -4,8 +4,8 @@
     <Package name="C" />
     <Package name="Clang" version="Xcode6" />
     <Package name="Clang" version="Xcode7" />
-    <Package name="Clang" version="Xcode8" default="true" />
-    <Package name="Clang" version="Xcode9" />
+    <Package name="Clang" version="Xcode8" />
+    <Package name="Clang" version="Xcode9" default="true" />
     <Package name="Gcc" version="4.8" default="true" />
     <Package name="Gcc" version="5.4" />
     <Package name="glew" version="2.0.0" />
@@ -32,5 +32,6 @@
   <SupportedPlatforms>
     <Platform name="Windows" />
     <Platform name="Linux" />
+    <Platform name="OSX" />
   </SupportedPlatforms>
 </PackageDefinition>

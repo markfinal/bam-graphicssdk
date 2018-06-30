@@ -27,55 +27,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "windowlibrary/glcontext.h"
-
-#if defined(D_BAM_PLATFORM_WINDOWS)
-#include "platform/win32glcontextimpl.h"
-#elif defined(D_BAM_PLATFORM_LINUX)
-#include "platform/linuxglcontextimpl.h"
-#elif defined(D_BAM_PLATFORM_OSX)
-#include "platform/macosglcontextimpl.h"
-#else
-#error Unsupported platform
-#endif
+#ifndef WINDOWLIBRARY_PLATFORM_MACOSTYPES_H
+#define WINDOWLIBRARY_PLATFORM_MACOSTYPES_H
 
 namespace WindowLibrary
 {
 
-GLContext::GLContext(
-    GraphicsWindow *inWindow)
-    :
-    _impl(new Impl(inWindow))
-{}
-
-GLContext::~GLContext() = default;
-
-void
-GLContext::init()
-{
-    auto impl = this->_impl.get();
-    impl->createContext();
-}
-
-void
-GLContext::makeCurrent()
-{
-    auto impl = this->_impl.get();
-    impl->makeCurrent();
-}
-
-void
-GLContext::detachCurrent()
-{
-    auto impl = this->_impl.get();
-    impl->detachCurrent();
-}
-
-void
-GLContext::swapBuffers()
-{
-    auto impl = this->_impl.get();
-    impl->swapBuffers();
-}
+typedef void *WindowHandle;
 
 } // namespace WindowLibrary
+
+#endif // WINDOWLIBRARY_PLATFORM_MACOSTYPES_H

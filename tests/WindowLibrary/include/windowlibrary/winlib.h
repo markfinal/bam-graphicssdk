@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform/win32types.h"
 #elif defined(D_BAM_PLATFORM_LINUX)
 #include "platform/linuxtypes.h"
+#elif defined(D_BAM_PLATFORM_OSX)
+#include "platform/macostypes.h"
 #else
 #error Unsupported platform
 #endif
@@ -78,6 +80,8 @@ public:
 
     Atom
     linuxDeleteWindowMessage() const;
+#elif defined(D_BAM_PLATFORM_OSX)
+    // TODO
 #else
 #error Unsupported platform
 #endif // D_BAM_PLATFORM_WINDOWS

@@ -27,55 +27,30 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "windowlibrary/glcontext.h"
+#ifndef WINDOWLIBRARY_WINLIB_PLATFORM_MACOSWINLIBIMPL_H
+#define WINDOWLIBRARY_WINLIB_PLATFORM_MACOSWINLIBIMPL_H
 
-#if defined(D_BAM_PLATFORM_WINDOWS)
-#include "platform/win32glcontextimpl.h"
-#elif defined(D_BAM_PLATFORM_LINUX)
-#include "platform/linuxglcontextimpl.h"
-#elif defined(D_BAM_PLATFORM_OSX)
-#include "platform/macosglcontextimpl.h"
-#else
-#error Unsupported platform
-#endif
+#include "windowlibrary/winlib.h"
 
 namespace WindowLibrary
 {
 
-GLContext::GLContext(
-    GraphicsWindow *inWindow)
-    :
-    _impl(new Impl(inWindow))
-{}
-
-GLContext::~GLContext() = default;
-
-void
-GLContext::init()
+struct GraphicsWindow::Impl
 {
-    auto impl = this->_impl.get();
-    impl->createContext();
-}
+    GraphicsWindow *_parent = nullptr;
 
-void
-GLContext::makeCurrent()
-{
-    auto impl = this->_impl.get();
-    impl->makeCurrent();
-}
+    Impl(
+        GraphicsWindow *inParent);
+    ~Impl();
 
-void
-GLContext::detachCurrent()
-{
-    auto impl = this->_impl.get();
-    impl->detachCurrent();
-}
+    void
+    createWindow();
 
-void
-GLContext::swapBuffers()
-{
-    auto impl = this->_impl.get();
-    impl->swapBuffers();
-}
+private:
+    void
+    destroyWindow();
+};
 
 } // namespace WindowLibrary
+
+#endif // WINDOWLIBRARY_WINLIB_PLATFORM_MACOSWINLIBIMPL_H

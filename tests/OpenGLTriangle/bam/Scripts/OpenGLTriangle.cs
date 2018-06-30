@@ -52,7 +52,7 @@ namespace OpenGLTriangle
                 });
 
             this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);
-            this.LinkAgainst<OpenGLSDK.OpenGL>();
+            this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
 
             var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
             this.CompileAndLinkAgainst<glew.GLEWStatic>(rendererObj);
@@ -74,6 +74,12 @@ namespace OpenGLTriangle
                     else if (this.Linker is GccCommon.LinkerBase)
                     {
                         linker.Libraries.Add("-lX11");
+                    }
+                    else if (this.Linker is ClangCommon.LinkerBase)
+                    {
+                        var osxLinker = settings as C.ICommonLinkerSettingsOSX;
+                        // in order to link against libc++
+                        osxLinker.MinimumVersionSupported = "macosx10.9";
                     }
                 });
         }
