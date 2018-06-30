@@ -99,7 +99,8 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
 
 void CheckForFrameBufferErrors(const GLenum status, const char *file, int line, bool breakOnError)
 {
-    if (GL_NO_ERROR == status)
+    CheckForGLErrors(file, line, breakOnError);
+    if (GL_FRAMEBUFFER_COMPLETE == status)
     {
         return;
     }
@@ -225,14 +226,6 @@ void Renderer::runThread()
 {
     this->_glContext->makeCurrent();
 
-    ::CheckForFrameBufferErrors(
-        glCheckFramebufferStatus(GL_FRAMEBUFFER),
-        __FILE__,
-        __LINE__,
-        true
-    );
-
-
     const GLubyte *lacVendor = GLFN(::glGetString(GL_VENDOR));
     const GLubyte *lacRenderer = GLFN(::glGetString(GL_RENDERER));
     const GLubyte *lacVersion = GLFN(::glGetString(GL_VERSION));
@@ -245,6 +238,14 @@ void Renderer::runThread()
     bool lbHasGLSL = (0 != lacGLSLVersion);
 
     this->InitializeGLEW();
+
+    ::CheckForFrameBufferErrors(
+        glCheckFramebufferStatus(GL_FRAMEBUFFER),
+        __FILE__,
+        __LINE__,
+        true
+    );
+
     this->CreateTimerQuery();
 
     // TODO: what is the best way to do this?
