@@ -32,12 +32,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "windowlibrary/winlib.h"
 
+#ifdef __OBJC__
+#include <Cocoa/Cocoa.h>
+#endif
+
 namespace WindowLibrary
 {
 
 struct GraphicsWindow::Impl
 {
     GraphicsWindow *_parent = nullptr;
+#ifdef __OBJC__
+    NSWindow *_window = nullptr;
+#else
+    void     *_window = nullptr;
+#endif
 
     Impl(
         GraphicsWindow *inParent);

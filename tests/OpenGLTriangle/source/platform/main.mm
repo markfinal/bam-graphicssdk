@@ -28,8 +28,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "appmain.h"
+#include "application.h"
 
 #import <Cocoa/Cocoa.h>
+
+void
+Application::MainLoop()
+{
+    [NSApp run];
+}
 
 int
 main(
@@ -38,5 +45,7 @@ main(
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     [NSApplication sharedApplication];
-    return appmain(argv, argc);
+    auto exit_code = appmain(argv, argc);
+    [pool drain];
+    return exit_code;
 }

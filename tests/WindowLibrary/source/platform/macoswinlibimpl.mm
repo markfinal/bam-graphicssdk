@@ -31,8 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowlibrary/exception.h"
 #include "macoswinlibimpl.h"
 
-#include <cassert>
-
 namespace WindowLibrary
 {
 
@@ -50,6 +48,20 @@ GraphicsWindow::Impl::~Impl()
 void
 GraphicsWindow::Impl::createWindow()
 {
+    NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask;
+
+    // Window bounds (x, y, width, height).
+    NSRect windowRect = NSMakeRect(100, 100, 400, 400);
+    NSWindow *window = [[NSWindow alloc] initWithContentRect:windowRect
+                                                    styleMask:windowStyle
+                                                      backing:NSBackingStoreBuffered
+                                                        defer:NO];
+    [window autorelease];
+
+    this->_parent->onCreate();
+
+    // show window
+    [window orderFrontRegardless];
 }
 
 void

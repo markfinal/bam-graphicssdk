@@ -73,6 +73,7 @@ int Application::Run()
     return this->mi32ExitCode;
 }
 
+#if defined(D_BAM_PLATFORM_WINDOWS) || defined(D_BAM_PLATFORM_LINUX)
 void Application::MainLoop()
 {
 #if defined(D_BAM_PLATFORM_WINDOWS)
@@ -107,12 +108,9 @@ void Application::MainLoop()
             }
         }
     }
-#elif defined(D_BAM_PLATFORM_OSX)
-    // TODO: possibly in an objective-C file
-#else
-#error Unsupported platform
 #endif
 }
+#endif // defined(D_BAM_PLATFORM_WINDOWS) || defined(D_BAM_PLATFORM_LINUX)
 
 void Application::SetRenderer(Renderer *renderer)
 {
