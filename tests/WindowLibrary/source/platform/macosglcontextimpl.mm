@@ -50,7 +50,7 @@ GLContext::Impl::createContext()
 {
     NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
     {
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        //NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
         NSOpenGLPFAColorSize    , 24                           ,
         NSOpenGLPFAAlphaSize    , 8                            ,
         NSOpenGLPFADoubleBuffer ,
