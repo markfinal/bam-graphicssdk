@@ -101,6 +101,10 @@ class LinuxFailedToChooseVisual :
 class LinuxFailedToCreateRenderContext :
     public LinuxBaseException
 {};
+
+class LinuxFailedToMakeRenderContextCurrent :
+    public LinuxBaseException
+{};
 #endif // D_BAM_PLATFORM_WINDOWS
 
 } // namespace WindowLibrary

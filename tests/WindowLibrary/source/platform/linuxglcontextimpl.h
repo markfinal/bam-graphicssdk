@@ -32,12 +32,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "windowlibrary/glcontext.h"
 
+#include <GL/glx.h>
+
 namespace WindowLibrary
 {
 
 struct GLContext::Impl
 {
     GraphicsWindow *_window;
+    GLXContext      _context = nullptr;
 
     Impl(
         GraphicsWindow *inWindow);

@@ -31,8 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "linuxglcontextimpl.h"
 #include "windowlibrary/exception.h"
 
-#include <GL/glx.h>
-
 namespace WindowLibrary
 {
 
@@ -77,26 +75,45 @@ GLContext::Impl::createContext()
         throw LinuxFailedToCreateRenderContext();
     }
     ::XFree(visual);
+
+    this->_context = context;
 }
 
 void
 GLContext::Impl::makeCurrent()
 {
+    auto display = this->_window->linuxDisplay();
+    auto window = this->_window->getNativeWindowHandle();
+    if (False == ::glXMakeCurrent(display, window, this->_context))
+    {
+        throw LinuxFailedToMakeRenderContextCurrent();
+    }
 }
 
 void
 GLContext::Impl::detachCurrent()
 {
+    auto display = this->_window->linuxDisplay();
+    if (False == ::glXMakeCurrent(display, 0, 0))
+    {
+        throw LinuxFailedToMakeRenderContextCurrent();
+    }
 }
 
 void
 GLContext::Impl::swapBuffers()
 {
+    auto display = this->_window->linuxDisplay();
+    auto window = this->_window->getNativeWindowHandle();
+    ::glXSwapBuffers(display, window);
 }
 
 void
 GLContext::Impl::destroyContext()
 {
+    auto display = this->_window->linuxDisplay();
+    ::glXDestroyContext(display, this->_context);
+    this->_context = nullptr;
 }
 
 } // namespace WindowLibrary

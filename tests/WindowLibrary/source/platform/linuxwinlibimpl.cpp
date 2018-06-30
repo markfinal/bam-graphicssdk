@@ -81,7 +81,7 @@ GraphicsWindow::Impl::createWindow()
     this->_window = window;
     this->_deleteWindowMessage = wmDeleteMessage;
 
-    this->_parent->onCreate(window);
+    this->_parent->onCreate();
 
     // show
     ::XMapWindow(display, window);
