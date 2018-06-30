@@ -41,7 +41,7 @@ class GLContext final
 {
 public:
     GLContext(
-        WindowHandle inHandle);
+        GraphicsWindow *inWindow);
     ~GLContext();
 
     void

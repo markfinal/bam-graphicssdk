@@ -37,7 +37,7 @@ AppWindow::onCreate(
     WindowLibrary::WindowHandle inWindowHandle)
 {
     Application *application = Application::GetInstance();
-    Renderer *renderer = new Renderer(inWindowHandle);
+    Renderer *renderer = new Renderer(this);
     renderer->Initialize();
     application->SetRenderer(renderer);
 }

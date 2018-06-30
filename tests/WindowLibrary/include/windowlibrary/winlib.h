@@ -70,6 +70,9 @@ public:
     Display *
     linuxDisplay() const;
 
+    int
+    linuxScreen() const;
+
     Atom
     linuxDeleteWindowMessage() const;
 #else

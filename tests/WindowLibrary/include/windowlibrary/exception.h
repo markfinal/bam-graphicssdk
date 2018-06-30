@@ -86,8 +86,20 @@ class Win32FailedToMakeRenderContextCurrent final :
     public Win32BaseException
 {};
 #elif defined(D_BAM_PLATFORM_LINUX)
-class LinuxFailedToOpenDisplay :
+class LinuxBaseException :
     public std::exception
+{};
+
+class LinuxFailedToOpenDisplay :
+    public LinuxBaseException
+{};
+
+class LinuxFailedToChooseVisual :
+    public LinuxBaseException
+{};
+
+class LinuxFailedToCreateRenderContext :
+    public LinuxBaseException
 {};
 #endif // D_BAM_PLATFORM_WINDOWS
 

@@ -41,9 +41,9 @@ namespace WindowLibrary
 {
 
 GLContext::GLContext(
-    WindowHandle inHandle)
+    GraphicsWindow *inWindow)
     :
-    _impl(new Impl(inHandle))
+    _impl(new Impl(inWindow))
 {}
 
 GLContext::~GLContext() = default;

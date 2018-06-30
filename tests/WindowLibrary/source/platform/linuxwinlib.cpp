@@ -54,6 +54,13 @@ GraphicsWindow::linuxDisplay() const
     return impl->_display;
 }
 
+int
+GraphicsWindow::linuxScreen() const
+{
+    auto impl = this->_impl.get();
+    return impl->_screen;
+}
+
 Atom
 GraphicsWindow::linuxDeleteWindowMessage() const
 {

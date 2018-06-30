@@ -37,10 +37,10 @@ namespace WindowLibrary
 
 struct GLContext::Impl
 {
-    WindowHandle _handle;
+    GraphicsWindow *_window;
 
     Impl(
-        WindowHandle inHandle);
+        GraphicsWindow *inWindow);
     ~Impl();
 
     void

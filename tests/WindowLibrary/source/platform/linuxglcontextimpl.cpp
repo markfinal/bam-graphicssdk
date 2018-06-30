@@ -31,13 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "linuxglcontextimpl.h"
 #include "windowlibrary/exception.h"
 
+#include <GL/glx.h>
+
 namespace WindowLibrary
 {
 
 GLContext::Impl::Impl(
-    WindowHandle inHandle)
+    GraphicsWindow *inWindow)
     :
-    _handle(inHandle)
+    _window(inWindow)
 {}
 
 GLContext::Impl::~Impl()
@@ -48,6 +50,33 @@ GLContext::Impl::~Impl()
 void
 GLContext::Impl::createContext()
 {
+    auto display = this->_window->linuxDisplay();
+    auto screen = this->_window->linuxScreen();
+    int attributes[] =
+        {
+            GLX_RED_SIZE, 8,
+            GLX_GREEN_SIZE, 8,
+            GLX_BLUE_SIZE, 8,
+            GLX_DEPTH_SIZE, 16,
+            GLX_DOUBLEBUFFER,
+            GLX_RGBA,
+            None
+        };
+    auto visual = ::glXChooseVisual(
+        display,
+        screen,
+        attributes
+    );
+    if (nullptr == visual)
+    {
+        throw LinuxFailedToChooseVisual();
+    }
+    auto context = ::glXCreateContext(display, visual, 0, True);
+    if (nullptr == context)
+    {
+        throw LinuxFailedToCreateRenderContext();
+    }
+    ::XFree(visual);
 }
 
 void

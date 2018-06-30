@@ -80,6 +80,7 @@ GraphicsWindow::Impl::createWindow()
     // show
     ::XMapWindow(display, window);
 
+    this->_screen = screen;
     this->_display = display;
     this->_window = window;
     this->_deleteWindowMessage = wmDeleteMessage;

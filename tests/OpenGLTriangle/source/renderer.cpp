@@ -90,9 +90,9 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
 }
 
 Renderer::Renderer(
-    WindowLibrary::WindowHandle inHandle)
+    WindowLibrary::GraphicsWindow *inWindow)
     :
-    _glContext(new WindowLibrary::GLContext(inHandle)),
+    _glContext(new WindowLibrary::GLContext(inWindow)),
     _thread(nullptr),
     mhVertexShader(0),
     mhFragmentShader(0),

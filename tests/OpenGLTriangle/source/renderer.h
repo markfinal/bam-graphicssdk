@@ -52,7 +52,7 @@ class Renderer
 {
 public:
     Renderer(
-        WindowLibrary::WindowHandle inHandle);
+        WindowLibrary::GraphicsWindow *inWindow);
     ~Renderer();
 
     void Initialize();

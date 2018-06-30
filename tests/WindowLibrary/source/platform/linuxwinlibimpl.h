@@ -38,6 +38,7 @@ namespace WindowLibrary
 struct GraphicsWindow::Impl
 {
     GraphicsWindow *_parent = nullptr;
+    int             _screen;
     ::Display      *_display = nullptr;
     ::Window        _window;
     ::Atom          _deleteWindowMessage;
