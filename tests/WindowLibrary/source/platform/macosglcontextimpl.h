@@ -42,6 +42,11 @@ namespace WindowLibrary
 struct GLContext::Impl
 {
     GraphicsWindow *_window;
+#ifdef __OBJC__
+    NSOpenGLView   *_view;
+#else
+    void           *_view;
+#endif
 
     Impl(
         GraphicsWindow *inWindow);

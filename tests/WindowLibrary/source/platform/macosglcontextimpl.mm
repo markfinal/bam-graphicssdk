@@ -59,25 +59,26 @@ GLContext::Impl::createContext()
     };
     NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
     WindowHandle window = this->_window->getNativeWindowHandle();
-    auto glview = [NSOpenGLView alloc];
-    [glview initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
-    //[self setView:[[[NSOpenGLView alloc] initWithFrame:[[[self window] contentView] bounds] pixelFormat:pixelFormat] autorelease]];
-    //[[[self window] contentView] addSubview:[self view]];
+    this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
+    [[window contentView] addSubview:this->_view];
 }
 
 void
 GLContext::Impl::makeCurrent()
 {
+    [[this->_view openGLContext] makeCurrentContext];
 }
 
 void
 GLContext::Impl::detachCurrent()
 {
+    [NSOpenGLContext clearCurrentContext];
 }
 
 void
 GLContext::Impl::swapBuffers()
 {
+    [[this->_view openGLContext] flushBuffer];
 }
 
 void
