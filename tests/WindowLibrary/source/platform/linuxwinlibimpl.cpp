@@ -40,7 +40,9 @@ GraphicsWindow::Impl::Impl(
     GraphicsWindow *inParent)
     :
     _parent(inParent)
-{}
+{
+    ::XInitThreads();
+}
 
 GraphicsWindow::Impl::~Impl()
 {
