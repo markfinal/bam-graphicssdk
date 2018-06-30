@@ -29,10 +29,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "appmain.h"
 
+#import <Cocoa/Cocoa.h>
+
 int
 main(
     int argc,
     char *argv[])
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [NSApplication sharedApplication];
     return appmain(argv, argc);
 }

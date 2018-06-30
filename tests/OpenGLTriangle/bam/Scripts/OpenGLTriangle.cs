@@ -103,6 +103,7 @@ namespace OpenGLTriangle
                         var osxLinker = settings as C.ICommonLinkerSettingsOSX;
                         // in order to link against libc++
                         osxLinker.MinimumVersionSupported = "macosx10.9";
+                        osxLinker.Frameworks.AddUnique("Cocoa");
                     }
                 });
         }
