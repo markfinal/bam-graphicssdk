@@ -173,7 +173,7 @@ void Renderer::runThread()
     const GLubyte *lacRenderer = GLFN(::glGetString(GL_RENDERER));
     const GLubyte *lacVersion = GLFN(::glGetString(GL_VERSION));
     const GLubyte *lacGLSLVersion = GLFN_DONOTBREAK(::glGetString(GL_SHADING_LANGUAGE_VERSION));
-    REPORTERROR1("GL_lacVendor   = '%s'", lacVendor);
+    REPORTERROR1("GL_VENDOR   = '%s'", lacVendor);
     REPORTERROR1("GL_RENDERER = '%s'", lacRenderer);
     REPORTERROR1("GL_VERSION  = '%s'", lacVersion);
     REPORTERROR1("GL_SHADING_LANGUAGE_VERSION = '%s'", lacGLSLVersion);
