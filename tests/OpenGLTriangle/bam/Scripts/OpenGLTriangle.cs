@@ -31,7 +31,7 @@ using Bam.Core;
 using System.Linq;
 namespace OpenGLTriangle
 {
-    sealed class GLUniformBufferTest :
+    class GLUniformBufferTest :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -82,6 +82,20 @@ namespace OpenGLTriangle
                         osxLinker.MinimumVersionSupported = "macosx10.9";
                     }
                 });
+        }
+    }
+
+    sealed class Runtime :
+        Publisher.Collation
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+            this.Include<GLUniformBufferTest>(C.Cxx.ConsoleApplication.Key);
         }
     }
 }
