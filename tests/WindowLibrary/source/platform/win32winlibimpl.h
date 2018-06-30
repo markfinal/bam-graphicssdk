@@ -42,6 +42,8 @@ struct GraphicsWindow::Impl
     ::HINSTANCE     _instance;
     std::string     _className;
     WindowHandle    _windowHandle = nullptr;
+    uint32_t        _width;
+    uint32_t        _height;
 
     Impl(
         GraphicsWindow *inParent);
@@ -54,7 +56,9 @@ struct GraphicsWindow::Impl
     unregisterWindowClass();
 
     void
-    createWindow();
+    createWindow(
+        const uint32_t inWidth,
+        const uint32_t inHeight);
 
     void
     destroyWindow();

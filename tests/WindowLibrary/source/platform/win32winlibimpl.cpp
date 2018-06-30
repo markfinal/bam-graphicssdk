@@ -110,7 +110,9 @@ GraphicsWindow::Impl::unregisterWindowClass()
 }
 
 void
-GraphicsWindow::Impl::createWindow()
+GraphicsWindow::Impl::createWindow(
+    const uint32_t inWidth,
+    const uint32_t inHeight)
 {
     assert(nullptr != this->_instance);
     DWORD exStyle = 0;
@@ -118,8 +120,6 @@ GraphicsWindow::Impl::createWindow()
     DWORD style = WS_OVERLAPPEDWINDOW;
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
-    int width = 512;
-    int height = 512;
     ::HWND parentWindow = 0;
     ::HMENU menuHandle = 0;
     ::LPVOID lpParam = this->_parent;
@@ -131,8 +131,8 @@ GraphicsWindow::Impl::createWindow()
         style,
         x,
         y,
-        width,
-        height,
+        inWidth,
+        inHeight,
         parentWindow,
         menuHandle,
         this->_instance,
@@ -143,6 +143,8 @@ GraphicsWindow::Impl::createWindow()
     }
 
     this->_parent->onCreate();
+    this->_width = inWidth;
+    this->_height = inHeight;
 
     // show window
     ::UpdateWindow(this->_windowHandle);
