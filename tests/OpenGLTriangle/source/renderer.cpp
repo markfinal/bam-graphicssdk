@@ -80,6 +80,10 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
             ErrorHandler::Report(file, line, "GL out of memory");
             break;
 
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            ErrorHandler::Report(file, line, "Invalid framebuffer operation");
+            break;
+
         default:
             ErrorHandler::Report(file, line, "Unrecognized GL error 0x%x", error);
         }
