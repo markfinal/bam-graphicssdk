@@ -82,7 +82,10 @@ namespace OpenGLTriangle
                 {
                     var linker = settings as C.ICommonLinkerSettings;
                     var cxxLinker = settings as C.ICxxOnlyLinkerSettings;
-                    cxxLinker.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+                    if (null != cxxLinker)
+                    {
+                        cxxLinker.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+                    }
                     if (this.Linker is VisualCCommon.LinkerBase)
                     {
                         linker.Libraries.Add("OPENGL32.lib");
