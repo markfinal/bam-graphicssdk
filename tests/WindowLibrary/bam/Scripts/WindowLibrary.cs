@@ -58,6 +58,28 @@ namespace WindowLibrary
                 headers.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.h");
                 headers.AddFiles("$(packagedir)/source/platform/linuxglcontextimpl.h");
             }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/platform/*.mm");
+                objCSource.PrivatePatch(settings =>
+                    {
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        compiler.WarningsAsErrors = true;
+
+                        var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                        cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                        cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                        cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                        var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                        if (null != clangCompiler)
+                        {
+                            clangCompiler.AllWarnings = true;
+                            clangCompiler.ExtraWarnings = true;
+                            clangCompiler.Pedantic = true;
+                        }
+                    });
+            }
             source.PrivatePatch(settings =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
@@ -79,6 +101,13 @@ namespace WindowLibrary
                         gccCompiler.AllWarnings = true;
                         gccCompiler.ExtraWarnings = true;
                         gccCompiler.Pedantic = true;
+                    }
+                    var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                    if (null != clangCompiler)
+                    {
+                        clangCompiler.AllWarnings = true;
+                        clangCompiler.ExtraWarnings = true;
+                        clangCompiler.Pedantic = true;
                     }
                 });
 

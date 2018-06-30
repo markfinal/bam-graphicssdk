@@ -43,18 +43,6 @@ namespace OpenGLTriangle
             this.CreateHeaderContainer("$(packagedir)/source/*.h");
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
-            {
-                source.AddFiles("$(packagedir)/source/platform/winmain.cpp");
-            }
-            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
-            {
-                source.AddFiles("$(packagedir)/source/platform/main.cpp");
-            }
-            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
-            {
-                this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/**.mm");
-            }
             source.PrivatePatch(settings =>
                 {
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
@@ -66,6 +54,24 @@ namespace OpenGLTriangle
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
 
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                source.AddFiles("$(packagedir)/source/platform/winmain.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+            {
+                source.AddFiles("$(packagedir)/source/platform/main.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/**.mm");
+                objCSource.PrivatePatch(settings =>
+                    {
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                    });
+            }
+
             this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);
             this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
 
@@ -75,6 +81,8 @@ namespace OpenGLTriangle
             this.PrivatePatch(settings =>
                 {
                     var linker = settings as C.ICommonLinkerSettings;
+                    var cxxLinker = settings as C.ICxxOnlyLinkerSettings;
+                    cxxLinker.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
                     if (this.Linker is VisualCCommon.LinkerBase)
                     {
                         linker.Libraries.Add("OPENGL32.lib");
