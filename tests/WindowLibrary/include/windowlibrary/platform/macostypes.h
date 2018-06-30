@@ -30,10 +30,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_PLATFORM_MACOSTYPES_H
 #define WINDOWLIBRARY_PLATFORM_MACOSTYPES_H
 
+#ifdef __OBJC__
+#import <Cocoa/Cocoa.h>
+#endif
+
 namespace WindowLibrary
 {
 
+#ifdef __OBJC__
+typedef NSWindow *WindowHandle;
+#else
 typedef void *WindowHandle;
+#endif
 
 } // namespace WindowLibrary
 

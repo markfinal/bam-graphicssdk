@@ -32,6 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "windowlibrary/glcontext.h"
 
+#ifdef __OBJC__
+#import <Cocoa/Cocoa.h>
+#endif
+
 namespace WindowLibrary
 {
 

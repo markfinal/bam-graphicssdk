@@ -48,6 +48,21 @@ GLContext::Impl::~Impl()
 void
 GLContext::Impl::createContext()
 {
+    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
+    {
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        NSOpenGLPFAColorSize    , 24                           ,
+        NSOpenGLPFAAlphaSize    , 8                            ,
+        NSOpenGLPFADoubleBuffer ,
+        NSOpenGLPFAAccelerated  ,
+        0
+    };
+    NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
+    WindowHandle window = this->_window->getNativeWindowHandle();
+    auto glview = [NSOpenGLView alloc];
+    [glview initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
+    //[self setView:[[[NSOpenGLView alloc] initWithFrame:[[[self window] contentView] bounds] pixelFormat:pixelFormat] autorelease]];
+    //[[[self window] contentView] addSubview:[self view]];
 }
 
 void
