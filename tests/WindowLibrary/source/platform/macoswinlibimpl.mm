@@ -51,7 +51,7 @@ GraphicsWindow::Impl::createWindow()
     NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask;
 
     // Window bounds (x, y, width, height).
-    NSRect windowRect = NSMakeRect(100, 100, 400, 400);
+    NSRect windowRect = NSMakeRect(0, 0, 512, 512);
     NSWindow *window = [[NSWindow alloc] initWithContentRect:windowRect
                                                     styleMask:windowStyle
                                                       backing:NSBackingStoreBuffered
