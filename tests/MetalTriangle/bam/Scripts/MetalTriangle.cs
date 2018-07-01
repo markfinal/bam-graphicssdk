@@ -35,6 +35,7 @@ namespace MetalTriangle
                 var osxLinker = settings as C.ICommonLinkerSettingsOSX;
                 osxLinker.Frameworks.AddUnique("Cocoa");
                 osxLinker.Frameworks.AddUnique("Metal");
+                osxLinker.Frameworks.AddUnique("QuartzCore"); // including Core Animation
                 osxLinker.MinimumVersionSupported = "macos10.9";
             });
         }
