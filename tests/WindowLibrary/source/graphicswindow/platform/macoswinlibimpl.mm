@@ -71,7 +71,8 @@ GraphicsWindow::Impl::~Impl()
 void
 GraphicsWindow::Impl::createWindow(
     const uint32_t inWidth,
-    const uint32_t inHeight)
+    const uint32_t inHeight,
+    const std::string &inTitle)
 {
     NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask;
 
@@ -81,7 +82,7 @@ GraphicsWindow::Impl::createWindow(
                                                       backing:NSBackingStoreBuffered
                                                         defer:NO];
     [window center];
-    [window setTitle:@"OpenGL triangle"];
+    [window setTitle:[NSString stringWithCString:inTitle.c_str() encoding:[NSString defaultCStringEncoding]]];
     this->_window = window;
     this->_width = inWidth;
     this->_height = inHeight;

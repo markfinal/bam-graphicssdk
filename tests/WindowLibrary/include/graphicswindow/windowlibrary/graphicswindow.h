@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include <memory>
+#include <string>
 
 namespace WindowLibrary
 {
@@ -54,7 +55,8 @@ public:
     void
     init(
         const uint32_t inWidth,
-        const uint32_t inHeight);
+        const uint32_t inHeight,
+        const std::string &inTitle);
 
     WindowHandle
     getNativeWindowHandle() const;

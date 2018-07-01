@@ -10,6 +10,21 @@ namespace MetalTriangle
             base.Init(parent);
 
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
+            source.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.WarningsAsErrors = true;
+
+                var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                clangCompiler.AllWarnings = true;
+                clangCompiler.ExtraWarnings = true;
+                clangCompiler.Pedantic = true;
+            });
+
             this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
 
             this.PrivatePatch(settings =>
@@ -20,6 +35,7 @@ namespace MetalTriangle
                 var osxLinker = settings as C.ICommonLinkerSettingsOSX;
                 osxLinker.Frameworks.AddUnique("Cocoa");
                 osxLinker.Frameworks.AddUnique("Metal");
+                osxLinker.MinimumVersionSupported = "macos10.9";
             });
         }
     }
