@@ -313,8 +313,12 @@ void Renderer::runThread()
     this->DestroyTimerQuery();
     this->ReleaseGLEW();
 
+    // on macos, even though the above is destroying GL objects, clearing the
+    // current context gives an error
+#if !defined(D_BAM_PLATFORM_OSX)
     // terminate rendering thread
     this->_glContext->detachCurrent();
+#endif
 
     REPORTERROR("Render thread has terminated");
 }
