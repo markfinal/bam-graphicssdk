@@ -57,6 +57,8 @@ GraphicsWindow::Impl::createWindow()
                                                       backing:NSBackingStoreBuffered
                                                         defer:NO];
     [window autorelease];
+    [window center];
+    [window setTitle:@"OpenGL triangle"];
     this->_window = window;
 
     this->_parent->onCreate();
