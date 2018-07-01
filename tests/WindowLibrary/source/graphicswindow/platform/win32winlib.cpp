@@ -38,11 +38,19 @@ namespace WindowLibrary
 void
 GraphicsWindow::init(
     const uint32_t inWidth,
-    const uint32_t inHeight)
+    const uint32_t inHeight,
+    const std::string &inTitle)
 {
     auto impl = this->_impl.get();
     impl->registerWindowClass();
-    impl->createWindow(inWidth, inHeight);
+    impl->createWindow(inWidth, inHeight, inTitle);
+}
+
+void
+GraphicsWindow::show()
+{
+    auto impl = this->_impl.get();
+    impl->show();
 }
 
 void

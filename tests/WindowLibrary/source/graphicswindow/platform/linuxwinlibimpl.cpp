@@ -52,7 +52,8 @@ GraphicsWindow::Impl::~Impl()
 void
 GraphicsWindow::Impl::createWindow(
     const uint32_t inWidth,
-    const uint32_t inHeight)
+    const uint32_t inHeight,
+    const std::string &inTitle)
 {
     char *displayName = nullptr;
     auto display = ::XOpenDisplay(displayName);
@@ -73,7 +74,7 @@ GraphicsWindow::Impl::createWindow(
         WhitePixel(display, screen)
     );
 
-    ::XStoreName(display, window, "OpenGL triangle");
+    ::XStoreName(display, window, inTitle.c_str());
     ::XSelectInput(display, window, ExposureMask | KeyPressMask);
 
     // register interest in the delete window message
@@ -88,8 +89,11 @@ GraphicsWindow::Impl::createWindow(
     this->_height = inHeight;
 
     this->_parent->onCreate();
+}
 
-    // show
+void
+GraphicsWindow::Impl::show()
+{
     ::XMapWindow(display, window);
 }
 

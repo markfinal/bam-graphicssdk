@@ -35,8 +35,10 @@ namespace WindowLibrary
 {
 
 GLContext::Impl::Impl(
+    GLContext *inParent,
     GraphicsWindow *inWindow)
     :
+    _parent(inParent),
     _window(inWindow)
 {}
 
@@ -83,6 +85,8 @@ GLContext::Impl::createContext()
 
     this->_dc = hDC;
     this->_rc = hRC;
+
+    this->_parent->onVisible();
 }
 
 void

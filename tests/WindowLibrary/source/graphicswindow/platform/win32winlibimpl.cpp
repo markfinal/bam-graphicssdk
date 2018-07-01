@@ -112,11 +112,11 @@ GraphicsWindow::Impl::unregisterWindowClass()
 void
 GraphicsWindow::Impl::createWindow(
     const uint32_t inWidth,
-    const uint32_t inHeight)
+    const uint32_t inHeight,
+    const std::string &inTitle)
 {
     assert(nullptr != this->_instance);
     DWORD exStyle = 0;
-    std::string mainWindowName("OpenGL triangle");
     DWORD style = WS_OVERLAPPEDWINDOW;
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
@@ -127,7 +127,7 @@ GraphicsWindow::Impl::createWindow(
     this->_windowHandle = ::CreateWindowEx(
         exStyle,
         this->_className.c_str(),
-        mainWindowName.c_str(),
+        inTitle.c_str(),
         style,
         x,
         y,
@@ -145,8 +145,11 @@ GraphicsWindow::Impl::createWindow(
     this->_parent->onCreate();
     this->_width = inWidth;
     this->_height = inHeight;
+}
 
-    // show window
+void
+GraphicsWindow::Impl::show()
+{
     ::UpdateWindow(this->_windowHandle);
     ::ShowWindow(this->_windowHandle, SW_SHOWDEFAULT);
 }

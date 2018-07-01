@@ -39,10 +39,12 @@ namespace WindowLibrary
 
 struct GLContext::Impl
 {
+    GLContext      *_parent;
     GraphicsWindow *_window;
     GLXContext      _context = nullptr;
 
     Impl(
+        GLContext *inParent,
         GraphicsWindow *inWindow);
     ~Impl();
 

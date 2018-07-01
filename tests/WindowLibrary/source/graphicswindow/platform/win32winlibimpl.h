@@ -58,7 +58,11 @@ struct GraphicsWindow::Impl
     void
     createWindow(
         const uint32_t inWidth,
-        const uint32_t inHeight);
+        const uint32_t inHeight,
+        const std::string &inTitle);
+
+    void
+    show();
 
     void
     destroyWindow();

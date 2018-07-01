@@ -35,8 +35,10 @@ namespace WindowLibrary
 {
 
 GLContext::Impl::Impl(
+    GLContext *inParent,
     GraphicsWindow *inWindow)
     :
+    _parent(inParent),
     _window(inWindow)
 {}
 
@@ -77,6 +79,8 @@ GLContext::Impl::createContext()
     ::XFree(visual);
 
     this->_context = context;
+
+    this->_parent->onVisible();
 }
 
 void
