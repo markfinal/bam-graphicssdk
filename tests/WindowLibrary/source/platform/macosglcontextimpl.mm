@@ -65,8 +65,9 @@ GLContext::Impl::createContext()
     assert(nullptr != this->_view);
     [pixelFormat release];
     [[window contentView] addSubview:this->_view];
-    // TODO: trying this https://stackoverflow.com/questions/20083027/nsopenglview-and-cvdisplaylink-no-default-frame-buffer
-    //[[this->_view openGLContext] setView:this->_view];
+    // context view isn't set up for a few frames
+    // https://stackoverflow.com/questions/20083027/nsopenglview-and-cvdisplaylink-no-default-frame-buffer
+    [[this->_view openGLContext] setView:this->_view];
 
     // TODO: can only invoke prepareOpenGL in the main thread
     //[[this->_view openGLContext] makeCurrentContext];
