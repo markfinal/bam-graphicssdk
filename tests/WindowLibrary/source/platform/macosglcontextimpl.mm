@@ -62,6 +62,8 @@ GLContext::Impl::createContext()
     this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
     [pixelFormat release];
     [[window contentView] addSubview:this->_view];
+    // TODO: trying this https://stackoverflow.com/questions/20083027/nsopenglview-and-cvdisplaylink-no-default-frame-buffer
+    //[[this->_view openGLContext] setView:this->_view];
 }
 
 void
