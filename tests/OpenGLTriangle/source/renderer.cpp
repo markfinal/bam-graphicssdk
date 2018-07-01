@@ -97,6 +97,58 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
     }
 }
 
+void CheckForFrameBufferErrors(const GLenum status, const char *file, int line, bool breakOnError)
+{
+    if (GL_NO_ERROR == status)
+    {
+        return;
+    }
+    switch (status)
+    {
+        case GL_FRAMEBUFFER_UNDEFINED:
+            ErrorHandler::Report(file, line, "Default framebuffer does not exist");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            ErrorHandler::Report(file, line, "Incomplete framebuffer attachments");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            ErrorHandler::Report(file, line, "Need at least one attachment to the framebuffer");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            ErrorHandler::Report(file, line, "Incomplete drawbuffer");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            ErrorHandler::Report(file, line, "Incomplete readbuffer");
+            break;
+
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            ErrorHandler::Report(file, line, "Framebuffer formats not supported");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            ErrorHandler::Report(file, line, "Inconsistent multisample for attachments");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+            ErrorHandler::Report(file, line, "Framebuffer layers incomplete");
+            break;
+
+        default:
+            ErrorHandler::Report(file, line, "Unrecognized GL framebuffer status 0x%x",  status);
+    }
+
+    if (breakOnError)
+    {
+#if defined(D_BAM_PLATFORM_WINDOWS)
+        ::DebugBreak();
+#endif
+    }
+}
+
 Renderer::Renderer(
     WindowLibrary::GraphicsWindow *inWindow)
     :
@@ -172,6 +224,14 @@ void Renderer::threadFunction(Renderer *inRenderer)
 void Renderer::runThread()
 {
     this->_glContext->makeCurrent();
+
+    ::CheckForFrameBufferErrors(
+        glCheckFramebufferStatus(GL_FRAMEBUFFER),
+        __FILE__,
+        __LINE__,
+        true
+    );
+
 
     const GLubyte *lacVendor = GLFN(::glGetString(GL_VENDOR));
     const GLubyte *lacRenderer = GLFN(::glGetString(GL_RENDERER));
