@@ -1,3 +1,4 @@
+using MetalExtensions;
 namespace MetalTriangle
 {
     class MetalTest :
@@ -10,6 +11,7 @@ namespace MetalTriangle
             base.Init(parent);
 
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
+            source.AddFiles("$(packagedir)/resources/*.metal");
             source.PrivatePatch(settings =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;
@@ -39,6 +41,8 @@ namespace MetalTriangle
                 osxLinker.Frameworks.AddUnique("QuartzCore"); // including Core Animation
                 osxLinker.MinimumVersionSupported = "macos10.9";
             });
+
+            //this.addMetalResources(this.CreateTokenizedString("$(packagedir)/resources/*.metal"));
         }
     }
 

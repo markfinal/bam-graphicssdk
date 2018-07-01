@@ -24,8 +24,8 @@
     [self.view.layer addSublayer:metalLayer];
 
     auto mtlLibrary = [mtlDevice newDefaultLibrary];
-    auto vertexProgram = [mtlLibrary newFunctionWithName:@"vertexShader"];
-    auto fragmentProgram = [mtlLibrary newFunctionWithName:@"fragmentShader"];
+    auto vertexProgram = [mtlLibrary newFunctionWithName:@"clip_space_colour_vertex_function"];
+    auto fragmentProgram = [mtlLibrary newFunctionWithName:@"pass_through_colour_fragment_function"];
 
     auto mtlRenderPipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     [mtlRenderPipelineDescriptor setVertexFunction:vertexProgram];
