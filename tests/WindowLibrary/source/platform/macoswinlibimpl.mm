@@ -31,6 +31,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowlibrary/exception.h"
 #include "macoswinlibimpl.h"
 
+@interface WindowDelegate : NSObject<NSWindowDelegate>
+{
+}
+@property WindowLibrary::GraphicsWindow *Window;
+- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)window;
+@end
+
+@implementation WindowDelegate : NSObject
+- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)window
+{
+    [self setWindow:window];
+    return self;
+}
+
+- (BOOL)windowShouldClose:(id)sender
+{
+    (void)sender;
+    [self Window]->onClose();
+    [[NSApplication sharedApplication] stop:self];
+    return YES;
+}
+@end
+
 namespace WindowLibrary
 {
 
@@ -63,6 +86,9 @@ GraphicsWindow::Impl::createWindow(
     this->_window = window;
     this->_width = inWidth;
     this->_height = inHeight;
+
+    auto wndDelegate = [[WindowDelegate alloc] initWithWindow:this->_parent];
+    [window setDelegate: wndDelegate];
 
     this->_parent->onCreate();
 

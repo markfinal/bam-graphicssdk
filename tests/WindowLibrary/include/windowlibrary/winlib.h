@@ -94,7 +94,7 @@ public:
 #error Unsupported platform
 #endif // D_BAM_PLATFORM_WINDOWS
 
-protected:
+public:
     virtual void
     onCreate();
 
