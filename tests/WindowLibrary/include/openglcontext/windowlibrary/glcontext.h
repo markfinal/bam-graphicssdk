@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_GLCONTEXT_H
 #define WINDOWLIBRARY_GLCONTEXT_H
 
-#include "windowlibrary/winlib.h"
+#include "windowlibrary/graphicswindow.h"
 
 #include <memory>
 

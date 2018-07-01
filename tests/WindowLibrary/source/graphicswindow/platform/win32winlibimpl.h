@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_WINLIB_PLATFORM_WIN32WINLIBIMPL_H
 #define WINDOWLIBRARY_WINLIB_PLATFORM_WIN32WINLIBIMPL_H
 
-#include "windowlibrary/winlib.h"
+#include "windowlibrary/graphicswindow.h"
 #include <string>
 
 namespace WindowLibrary

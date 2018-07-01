@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef WINDOWLIBRARY_WINLIB_PLATFORM_MACOSWINLIBIMPL_H
 #define WINDOWLIBRARY_WINLIB_PLATFORM_MACOSWINLIBIMPL_H
 
-#include "windowlibrary/winlib.h"
+#include "windowlibrary/graphicswindow.h"
 
 #ifdef __OBJC__
 #include <Cocoa/Cocoa.h>

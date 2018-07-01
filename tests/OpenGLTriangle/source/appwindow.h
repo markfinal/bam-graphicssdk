@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef APPWINDOW_H
 #define APPWINDOW_H
 
-#include "windowlibrary/winlib.h"
+#include "windowlibrary/graphicswindow.h"
 
 class AppWindow :
     public WindowLibrary::GraphicsWindow

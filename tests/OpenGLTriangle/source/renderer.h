@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "windowlibrary/winlib.h"
+#include "windowlibrary/graphicswindow.h"
 
 #ifdef _MSC_VER
 typedef unsigned __int64 uint64;

@@ -1,3 +1,5 @@
+#include "windowlibrary/graphicswindow.h"
+
 #import <Cocoa/Cocoa.h>
 
 int
