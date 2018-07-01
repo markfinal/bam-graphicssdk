@@ -42,6 +42,7 @@ typedef uint64_t uint64;
 #include <new>
 #include <cstddef> // for size_t
 #include <thread>
+#include <atomic>
 
 namespace WindowLibrary
 {
@@ -91,7 +92,7 @@ private:
     int mhFragmentShader;
     int mhProgram;
     unsigned int miTimerQuery;
-    bool mbQuitFlag;
+    std::atomic<bool> mbQuitFlag;
 };
 
 #endif // RENDERER_H
