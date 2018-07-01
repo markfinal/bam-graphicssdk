@@ -31,53 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macosglcontextimpl.h"
 #include "windowlibrary/exception.h"
 
-@interface OpenGLView : NSOpenGLView
-{
-}
-
-- (BOOL)acceptsFirstResponder;
-- (id)viewDidMoveToWindow;
-- (id)viewWillMoveToWindow;
-- (id)viewDidMoveToSuperview;
-- (id)viewWillMoveToSuperview;
-@end
-
-@implementation OpenGLView : NSOpenGLView
-- (BOOL)acceptsFirstResponder
-{
-    // accept events
-    return YES;
-}
-
-- (id)viewDidMoveToWindow
-{
-    auto window = self.window;
-    (void)window;
-    return self;
-}
-
-- (id)viewWillMoveToWindow
-{
-    auto window = self.window;
-    (void)window;
-    return self;
-}
-
-- (id)viewDidMoveToSuperview
-{
-    auto sv = self.superview;
-    (void)sv;
-    return self;
-}
-
-- (id)viewWillMoveToSuperview
-{
-    auto sv = self.superview;
-    (void)sv;
-    return self;
-}
-@end
-
 namespace WindowLibrary
 {
 
@@ -108,18 +61,13 @@ GLContext::Impl::createContext()
     assert(nullptr != pixelFormat);
     auto window = this->_window->getNativeWindowHandle();
     assert(nullptr != window);
-    this->_view = [[OpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
+    this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
     assert(nullptr != this->_view);
     [pixelFormat release];
     [[window contentView] addSubview:this->_view];
     // context view isn't set up for a few frames
     // https://stackoverflow.com/questions/20083027/nsopenglview-and-cvdisplaylink-no-default-frame-buffer
     [[this->_view openGLContext] setView:this->_view];
-
-    // TODO: can only invoke prepareOpenGL in the main thread
-    //[[this->_view openGLContext] makeCurrentContext];
-    //[this->_view prepareOpenGL];
-    //[this->_view clearGLContext];
 }
 
 void
