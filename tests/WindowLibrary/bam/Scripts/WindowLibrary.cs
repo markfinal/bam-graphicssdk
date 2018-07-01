@@ -30,7 +30,7 @@
 using Bam.Core;
 namespace WindowLibrary
 {
-    class WindowLibrary :
+    class Common :
         C.StaticLibrary
     {
         protected override void
@@ -39,30 +39,78 @@ namespace WindowLibrary
         {
             base.Init(parent);
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/include/windowlibrary/**.h");
+            this.CreateHeaderContainer("$(packagedir)/include/common/windowlibrary/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            var source = this.CreateCxxSourceContainer("$(packagedir)/source/common/*.cpp");
+            source.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.WarningsAsErrors = true;
+
+                var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
+                if (null != vcCompiler)
+                {
+                    vcCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
+                }
+                var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
+                if (null != gccCompiler)
+                {
+                    gccCompiler.AllWarnings = true;
+                    gccCompiler.ExtraWarnings = true;
+                    gccCompiler.Pedantic = true;
+                }
+                var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clangCompiler)
+                {
+                    clangCompiler.AllWarnings = true;
+                    clangCompiler.ExtraWarnings = true;
+                    clangCompiler.Pedantic = true;
+                }
+            });
+
+            this.PublicPatch((settings, appliedTo) =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                if (null != compiler)
+                {
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/common"));
+                }
+            });
+        }
+    }
+
+    class GraphicsWindow :
+        C.StaticLibrary
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var headers = this.CreateHeaderContainer("$(packagedir)/include/graphicswindow/windowlibrary/**.h");
+
+            var source = this.CreateCxxSourceContainer("$(packagedir)/source/graphicswindow/*.cpp");
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
-                source.AddFiles("$(packagedir)/source/platform/win32winlib.cpp");
-                source.AddFiles("$(packagedir)/source/platform/win32winlibimpl.cpp");
-                source.AddFiles("$(packagedir)/source/platform/win32glcontextimpl.cpp");
-                headers.AddFiles("$(packagedir)/source/platform/win32winlibimpl.h");
-                headers.AddFiles("$(packagedir)/source/platform/win32glcontextimpl.h");
+                source.AddFiles("$(packagedir)/source/graphicswindow/platform/win32winlib.cpp");
+                source.AddFiles("$(packagedir)/source/graphicswindow/platform/win32winlibimpl.cpp");
             }
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
             {
-                source.AddFiles("$(packagedir)/source/platform/linuxwinlib.cpp");
-                source.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.cpp");
-                source.AddFiles("$(packagedir)/source/platform/linuxglcontextimpl.cpp");
-                headers.AddFiles("$(packagedir)/source/platform/linuxwinlibimpl.h");
-                headers.AddFiles("$(packagedir)/source/platform/linuxglcontextimpl.h");
+                source.AddFiles("$(packagedir)/source/graphicswindow/platform/linuxwinlib.cpp");
+                source.AddFiles("$(packagedir)/source/graphicswindow/platform/linuxwinlibimpl.cpp");
+                headers.AddFiles("$(packagedir)/source/graphicswindow/platform/linuxwinlibimpl.h");
             }
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
-                headers.AddFiles("$(packagedir)/source/platform/macoswinlibimpl.h");
-                headers.AddFiles("$(packagedir)/source/platform/macosglcontextimpl.h");
-                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/platform/*.mm");
+                headers.AddFiles("$(packagedir)/source/graphicswindow/platform/macoswinlibimpl.h");
+                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/graphicswindow/platform/*.mm");
                 objCSource.PrivatePatch(settings =>
                     {
                         var compiler = settings as C.ICommonCompilerSettings;
@@ -81,6 +129,7 @@ namespace WindowLibrary
                             clangCompiler.Pedantic = true;
                         }
                     });
+                this.CompileAgainst<Common>(objCSource);
             }
             source.PrivatePatch(settings =>
                 {
@@ -113,14 +162,107 @@ namespace WindowLibrary
                     }
                 });
 
+            this.CompileAgainst<Common>(source);
+
             this.PublicPatch((settings, appliedTo) =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
                     if (null != compiler)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/graphicswindow"));
                     }
                 });
+        }
+    }
+
+    class OpenGLContext :
+        C.StaticLibrary
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            var headers = this.CreateHeaderContainer("$(packagedir)/include/openglcontext/windowlibrary/*.h");
+
+            var source = this.CreateCxxSourceContainer("$(packagedir)/source/openglcontext/*.cpp");
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                source.AddFiles("$(packagedir)/source/openglcontext/platform/win32glcontextimpl.cpp");
+                headers.AddFiles("$(packagedir)/source/openglcontext/platform/win32glcontextimpl.h");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+            {
+                source.AddFiles("$(packagedir)/source/openglcontext/platform/linuxglcontextimpl.cpp");
+                headers.AddFiles("$(packagedir)/source/openglcontext/platform/linuxglcontextimpl.h");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                headers.AddFiles("$(packagedir)/source/openglcontext/platform/macosglcontextimpl.h");
+                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/openglcontext/platform/*.mm");
+                objCSource.PrivatePatch(settings =>
+                {
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.WarningsAsErrors = true;
+
+                    var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                    cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                    cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                    cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                    var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                    if (null != clangCompiler)
+                    {
+                        clangCompiler.AllWarnings = true;
+                        clangCompiler.ExtraWarnings = true;
+                        clangCompiler.Pedantic = true;
+                    }
+                });
+                this.CompileAgainst<Common>(objCSource);
+            }
+            source.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.WarningsAsErrors = true;
+
+                var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
+                if (null != vcCompiler)
+                {
+                    vcCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
+                }
+                var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
+                if (null != gccCompiler)
+                {
+                    gccCompiler.AllWarnings = true;
+                    gccCompiler.ExtraWarnings = true;
+                    gccCompiler.Pedantic = true;
+                }
+                var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clangCompiler)
+                {
+                    clangCompiler.AllWarnings = true;
+                    clangCompiler.ExtraWarnings = true;
+                    clangCompiler.Pedantic = true;
+                }
+            });
+
+            this.CompileAgainst<Common>(source);
+            this.CompileAgainstPublicly<GraphicsWindow>(source);
+
+            this.PublicPatch((settings, appliedTo) =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                if (null != compiler)
+                {
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/openglcontext"));
+                }
+            });
         }
     }
 }

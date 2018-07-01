@@ -67,12 +67,17 @@ namespace OpenGLTriangle
                 var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/**.mm");
                 objCSource.PrivatePatch(settings =>
                     {
+                        var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                        cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
+                        cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                        cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
                         var compiler = settings as C.ICommonCompilerSettings;
                         compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                     });
             }
 
-            this.CompileAndLinkAgainst<WindowLibrary.WindowLibrary>(source);
+            this.CompileAndLinkAgainst<WindowLibrary.OpenGLContext>(source);
             this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
 
             var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
