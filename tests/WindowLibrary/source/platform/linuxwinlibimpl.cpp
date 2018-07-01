@@ -50,7 +50,9 @@ GraphicsWindow::Impl::~Impl()
 }
 
 void
-GraphicsWindow::Impl::createWindow()
+GraphicsWindow::Impl::createWindow(
+    const uint32_t inWidth,
+    const uint32_t inHeight)
 {
     char *displayName = nullptr;
     auto display = ::XOpenDisplay(displayName);
@@ -65,7 +67,7 @@ GraphicsWindow::Impl::createWindow()
         display,
         RootWindow(display, screen),
         0, 0,
-        512, 512,
+        inWidth, inHeight,
         1,
         BlackPixel(display, screen),
         WhitePixel(display, screen)
@@ -82,6 +84,8 @@ GraphicsWindow::Impl::createWindow()
     this->_display = display;
     this->_window = window;
     this->_deleteWindowMessage = wmDeleteMessage;
+    this->_width = inWidth;
+    this->_height = inHeight;
 
     this->_parent->onCreate();
 

@@ -42,13 +42,17 @@ struct GraphicsWindow::Impl
     ::Display      *_display = nullptr;
     ::Window        _window;
     ::Atom          _deleteWindowMessage;
+    uint32_t        _width;
+    uint32_t        _height;
 
     Impl(
         GraphicsWindow *inParent);
     ~Impl();
 
     void
-    createWindow();
+    createWindow(
+        const uint32_t inWidth,
+        const uint32_t inHeight);
 
 private:
     void
