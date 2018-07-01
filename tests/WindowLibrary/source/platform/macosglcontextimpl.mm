@@ -36,12 +36,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 
 - (BOOL)acceptsFirstResponder;
+- (id)viewDidMoveToWindow;
+- (id)viewWillMoveToWindow;
+- (id)viewDidMoveToSuperview;
+- (id)viewWillMoveToSuperview;
 @end
 
 @implementation OpenGLView : NSOpenGLView
-- (BOOL)acceptsFirstResponder {
+- (BOOL)acceptsFirstResponder
+{
     // accept events
     return YES;
+}
+
+- (id)viewDidMoveToWindow
+{
+    auto window = self.window;
+    (void)window;
+    return self;
+}
+
+- (id)viewWillMoveToWindow
+{
+    auto window = self.window;
+    (void)window;
+    return self;
+}
+
+- (id)viewDidMoveToSuperview
+{
+    auto sv = self.superview;
+    (void)sv;
+    return self;
+}
+
+- (id)viewWillMoveToSuperview
+{
+    auto sv = self.superview;
+    (void)sv;
+    return self;
 }
 @end
 
