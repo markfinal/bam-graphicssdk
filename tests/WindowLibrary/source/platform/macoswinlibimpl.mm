@@ -80,7 +80,6 @@ GraphicsWindow::Impl::createWindow(
                                                     styleMask:windowStyle
                                                       backing:NSBackingStoreBuffered
                                                         defer:NO];
-    [window autorelease];
     [window center];
     [window setTitle:@"OpenGL triangle"];
     this->_window = window;
