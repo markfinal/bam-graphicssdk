@@ -153,6 +153,7 @@ void CheckForFrameBufferErrors(const GLenum status, const char *file, int line, 
 Renderer::Renderer(
     WindowLibrary::GraphicsWindow *inWindow)
     :
+    _window(inWindow),
     _glContext(new WindowLibrary::GLContext(inWindow)),
     _thread(nullptr),
     mhVertexShader(0),
@@ -273,7 +274,7 @@ void Renderer::runThread()
         GLFN(::glMatrixMode(GL_MODELVIEW));
         GLFN(::glLoadIdentity());
 
-        GLFN(::glViewport(0, 0, 512, 512));
+        GLFN(::glViewport(0, 0, this->_window->width(), this->_window->height()));
 
         GLFN(::glDisable(GL_CULL_FACE));
         GLFN(::glDisable(GL_DEPTH_TEST));

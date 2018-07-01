@@ -34,10 +34,12 @@ namespace WindowLibrary
 {
 
 void
-GraphicsWindow::init()
+GraphicsWindow::init(
+    const uint32_t inWidth,
+    const uint32_t inHeight)
 {
     auto impl = this->_impl.get();
-    impl->createWindow();
+    impl->createWindow(inWidth, inHeight);
 }
 
 WindowHandle

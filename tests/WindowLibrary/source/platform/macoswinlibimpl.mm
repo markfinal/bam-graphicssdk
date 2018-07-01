@@ -46,12 +46,13 @@ GraphicsWindow::Impl::~Impl()
 }
 
 void
-GraphicsWindow::Impl::createWindow()
+GraphicsWindow::Impl::createWindow(
+    const uint32_t inWidth,
+    const uint32_t inHeight)
 {
     NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask;
 
-    // Window bounds (x, y, width, height).
-    NSRect windowRect = NSMakeRect(0, 0, 512, 512);
+    NSRect windowRect = NSMakeRect(0, 0, inWidth, inHeight);
     NSWindow *window = [[NSWindow alloc] initWithContentRect:windowRect
                                                     styleMask:windowStyle
                                                       backing:NSBackingStoreBuffered
@@ -60,6 +61,8 @@ GraphicsWindow::Impl::createWindow()
     [window center];
     [window setTitle:@"OpenGL triangle"];
     this->_window = window;
+    this->_width = inWidth;
+    this->_height = inHeight;
 
     this->_parent->onCreate();
 

@@ -52,10 +52,18 @@ public:
     virtual ~GraphicsWindow();
 
     void
-    init();
+    init(
+        const uint32_t inWidth,
+        const uint32_t inHeight);
 
     WindowHandle
     getNativeWindowHandle() const;
+
+    uint32_t
+    width() const;
+
+    uint32_t
+    height() const;
 
 public:
 #if defined(D_BAM_PLATFORM_WINDOWS)

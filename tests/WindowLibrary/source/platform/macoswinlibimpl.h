@@ -42,6 +42,8 @@ namespace WindowLibrary
 struct GraphicsWindow::Impl
 {
     GraphicsWindow *_parent = nullptr;
+    uint32_t        _width;
+    uint32_t        _height;
 #ifdef __OBJC__
     NSWindow *_window = nullptr;
 #else
@@ -53,7 +55,9 @@ struct GraphicsWindow::Impl
     ~Impl();
 
     void
-    createWindow();
+    createWindow(
+        const uint32_t inWidth,
+        const uint32_t inHeight);
 
 private:
     void

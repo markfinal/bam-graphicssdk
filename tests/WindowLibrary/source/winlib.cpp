@@ -50,6 +50,20 @@ GraphicsWindow::GraphicsWindow()
 
 GraphicsWindow::~GraphicsWindow() = default;
 
+uint32_t
+GraphicsWindow::width() const
+{
+    auto impl = this->_impl.get();
+    return impl->_width;
+}
+
+uint32_t
+GraphicsWindow::height() const
+{
+    auto impl = this->_impl.get();
+    return impl->_height;
+}
+
 void
 GraphicsWindow::onCreate()
 {}

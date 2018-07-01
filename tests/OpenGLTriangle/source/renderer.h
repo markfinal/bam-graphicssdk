@@ -84,6 +84,7 @@ protected:
 
 private:
     uint64 mi64TimeElapsed;
+    WindowLibrary::GraphicsWindow *_window {nullptr};
     std::unique_ptr<WindowLibrary::GLContext> _glContext;
     std::unique_ptr<std::thread> _thread;
     int mhVertexShader;
