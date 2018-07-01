@@ -31,6 +31,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macosglcontextimpl.h"
 #include "windowlibrary/exception.h"
 
+@interface OpenGLView : NSOpenGLView
+{
+}
+
+- (BOOL)acceptsFirstResponder;
+@end
+
+@implementation OpenGLView : NSOpenGLView
+- (BOOL)acceptsFirstResponder {
+    // accept events
+    return YES;
+}
+@end
+
 namespace WindowLibrary
 {
 
@@ -61,7 +75,7 @@ GLContext::Impl::createContext()
     assert(nullptr != pixelFormat);
     auto window = this->_window->getNativeWindowHandle();
     assert(nullptr != window);
-    this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
+    this->_view = [[OpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
     assert(nullptr != this->_view);
     [pixelFormat release];
     [[window contentView] addSubview:this->_view];
