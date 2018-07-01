@@ -60,6 +60,7 @@ GLContext::Impl::createContext()
     NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
     WindowHandle window = this->_window->getNativeWindowHandle();
     this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
+    [pixelFormat release];
     [[window contentView] addSubview:this->_view];
 }
 
