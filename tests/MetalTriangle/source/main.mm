@@ -4,6 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
 
 @interface MetalViewController : NSViewController
@@ -67,8 +68,12 @@ main()
     std::unique_ptr<WindowLibrary::GraphicsWindow> metalWindow(new WindowLibrary::GraphicsWindow);
     metalWindow->init(512, 512, "Metal Example");
 
+    auto frame = NSMakeRect(0, 0, metalWindow->width(), metalWindow->height());
+    auto metal_view = [[MTKView alloc] initWithFrame:frame];
+    [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
+
     auto view_controller = [[MetalViewController alloc] init];
-    view_controller.view = [metalWindow->getNativeWindowHandle() contentView];
+    view_controller.view = metal_view;
 
     metalWindow->show();
 
