@@ -60,6 +60,8 @@ namespace WindowLibrary
             }
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
+                headers.AddFiles("$(packagedir)/source/platform/macoswinlibimpl.h");
+                headers.AddFiles("$(packagedir)/source/platform/macosglcontextimpl.h");
                 var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/platform/*.mm");
                 objCSource.PrivatePatch(settings =>
                     {
