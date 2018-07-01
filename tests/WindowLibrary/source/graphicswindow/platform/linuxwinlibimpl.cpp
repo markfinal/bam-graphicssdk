@@ -94,7 +94,7 @@ GraphicsWindow::Impl::createWindow(
 void
 GraphicsWindow::Impl::show()
 {
-    ::XMapWindow(display, window);
+    ::XMapWindow(this->_display, this->_window);
 }
 
 void

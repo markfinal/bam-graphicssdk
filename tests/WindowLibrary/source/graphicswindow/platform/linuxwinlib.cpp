@@ -43,6 +43,13 @@ GraphicsWindow::init(
     impl->createWindow(inWidth, inHeight, inTitle);
 }
 
+void
+GraphicsWindow::show()
+{
+    auto impl = this->_impl.get();
+    impl->show();
+}
+
 WindowHandle
 GraphicsWindow::getNativeWindowHandle() const
 {
