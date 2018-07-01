@@ -58,6 +58,9 @@ public:
         const uint32_t inHeight,
         const std::string &inTitle);
 
+    void
+    show();
+
     WindowHandle
     getNativeWindowHandle() const;
 

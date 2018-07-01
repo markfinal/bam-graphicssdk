@@ -8,36 +8,23 @@
 
 @interface MetalViewController : NSViewController
 {}
+-(void)viewDidAppear;
 @end
 
 @implementation MetalViewController : NSViewController
-@end
-
-int
-main()
+-(void)viewDidAppear
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [NSApplication sharedApplication];
-
-    std::unique_ptr<WindowLibrary::GraphicsWindow> metalWindow(new WindowLibrary::GraphicsWindow);
-    metalWindow->init(512, 512, "Metal Example");
-
-    auto window_view = [metalWindow->getNativeWindowHandle() contentView];
-
-    auto view_controller = [[MetalViewController alloc] init];
-    view_controller.view = window_view;
-
     // https://www.haroldserrano.com/blog/getting-started-with-metal-api
     auto mtlDevice = MTLCreateSystemDefaultDevice();
     auto metalLayer = [CAMetalLayer layer];
     metalLayer.device = mtlDevice;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    metalLayer.frame = window_view.bounds;
-    [window_view.layer addSublayer:metalLayer];
+    metalLayer.frame = self.view.bounds;
+    [self.view.layer addSublayer:metalLayer];
 
     auto mtlLibrary = [mtlDevice newDefaultLibrary];
     auto vertexProgram = [mtlLibrary newFunctionWithName:@"vertexShader"];
-    auto fragmentProgram=[mtlLibrary newFunctionWithName:@"fragmentShader"];
+    auto fragmentProgram = [mtlLibrary newFunctionWithName:@"fragmentShader"];
 
     auto mtlRenderPipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
     [mtlRenderPipelineDescriptor setVertexFunction:vertexProgram];
@@ -68,6 +55,22 @@ main()
 
     auto mtlCommandQueue = [mtlDevice newCommandQueue];
     (void)mtlCommandQueue;
+}
+@end
+
+int
+main()
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [NSApplication sharedApplication];
+
+    std::unique_ptr<WindowLibrary::GraphicsWindow> metalWindow(new WindowLibrary::GraphicsWindow);
+    metalWindow->init(512, 512, "Metal Example");
+
+    auto view_controller = [[MetalViewController alloc] init];
+    view_controller.view = [metalWindow->getNativeWindowHandle() contentView];
+
+    metalWindow->show();
 
     [NSApp run];
 

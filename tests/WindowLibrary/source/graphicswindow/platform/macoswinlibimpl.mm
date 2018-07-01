@@ -91,9 +91,12 @@ GraphicsWindow::Impl::createWindow(
     [window setDelegate: wndDelegate];
 
     this->_parent->onCreate();
+}
 
-    // show window
-    [window orderFrontRegardless];
+void
+GraphicsWindow::Impl::show()
+{
+    [this->_window orderFrontRegardless];
 }
 
 void
