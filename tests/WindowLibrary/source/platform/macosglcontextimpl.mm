@@ -68,7 +68,7 @@ GLContext::Impl::createContext()
     // TODO: can only invoke prepareOpenGL in the main thread
     //[[this->_view openGLContext] makeCurrentContext];
     //[this->_view prepareOpenGL];
-    //[NSOpenGLContext clearCurrentContext];
+    //[this->_view clearGLContext];
 }
 
 void
@@ -80,7 +80,7 @@ GLContext::Impl::makeCurrent()
 void
 GLContext::Impl::detachCurrent()
 {
-    [NSOpenGLContext clearCurrentContext];
+    [this->_view clearGLContext];
 }
 
 void
