@@ -43,7 +43,8 @@ GraphicsWindow::init()
 WindowHandle
 GraphicsWindow::getNativeWindowHandle() const
 {
-    return nullptr;
+    auto impl = this->_impl.get();
+    return impl->_window;
 }
 
 } // namespace WindowLibrary

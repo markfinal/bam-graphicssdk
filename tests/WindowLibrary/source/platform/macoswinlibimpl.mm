@@ -57,6 +57,7 @@ GraphicsWindow::Impl::createWindow()
                                                       backing:NSBackingStoreBuffered
                                                         defer:NO];
     [window autorelease];
+    this->_window = window;
 
     this->_parent->onCreate();
 
