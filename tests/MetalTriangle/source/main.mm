@@ -59,6 +59,28 @@
 }
 @end
 
+@interface MetalViewDelegate : NSViewController<MTKViewDelegate>
+- (void)drawInMTKView:(nonnull MTKView *)view;
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder;
+@end
+
+@implementation MetalViewDelegate : NSViewController
+- (void)drawInMTKView:(nonnull MTKView *)view
+{
+    (void)view;
+}
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+    (void)view;
+    (void)size;
+}
+- (void)encodeWithCoder:(nonnull NSCoder *)aCoder
+{
+    (void)aCoder;
+}
+@end
+
 int
 main()
 {
@@ -70,6 +92,7 @@ main()
 
     auto frame = NSMakeRect(0, 0, metalWindow->width(), metalWindow->height());
     auto metal_view = [[MTKView alloc] initWithFrame:frame];
+    metal_view.delegate = [[MetalViewDelegate alloc] init];
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
 
     auto view_controller = [[MetalViewController alloc] init];
