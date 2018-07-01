@@ -31,12 +31,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macosglcontextimpl.h"
 #include "windowlibrary/exception.h"
 
+@interface OpenGLViewController : NSViewController
+{}
+@property WindowLibrary::GLContext *Context;
+-(void)viewDidAppear;
+@end
+
+@implementation OpenGLViewController : NSViewController
+-(void)viewDidAppear
+{
+    [super viewDidAppear];
+    [self Context]->onVisible();
+}
+@end
+
 namespace WindowLibrary
 {
 
 GLContext::Impl::Impl(
+    GLContext *inContext,
     GraphicsWindow *inWindow)
     :
+    _parent(inContext),
     _window(inWindow)
 {}
 
@@ -64,6 +80,11 @@ GLContext::Impl::createContext()
     this->_view = [[NSOpenGLView alloc] initWithFrame:[[window contentView] bounds] pixelFormat:pixelFormat];
     assert(nullptr != this->_view);
     [pixelFormat release];
+
+    auto controller = [[OpenGLViewController alloc] init];
+    controller.Context = this->_parent;
+    controller.view = this->_view;
+
     [[window contentView] addSubview:this->_view];
     // context view isn't set up for a few frames
     // https://stackoverflow.com/questions/20083027/nsopenglview-and-cvdisplaylink-no-default-frame-buffer

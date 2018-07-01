@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "renderer.h"
 #include "errorhandler.h"
+#include "appcontext.h"
 #include "windowlibrary/glcontext.h"
 
 #include <GL/glew.h>
@@ -154,7 +155,7 @@ Renderer::Renderer(
     WindowLibrary::GraphicsWindow *inWindow)
     :
     _window(inWindow),
-    _glContext(new WindowLibrary::GLContext(inWindow)),
+    _glContext(new AppContext(inWindow)),
     _thread(nullptr),
     mhVertexShader(0),
     mhFragmentShader(0),
@@ -179,8 +180,11 @@ void Renderer::operator delete(void *object)
 void Renderer::Initialize()
 {
     this->_glContext->init();
+}
 
-    // create a thread for OpenGL rendering
+void Renderer::Begin()
+{
+    // create, and start, a thread for OpenGL rendering
     this->_thread.reset(new std::thread(threadFunction, this));
 }
 

@@ -37,8 +37,8 @@ AppWindow::onCreate()
 {
     Application *application = Application::GetInstance();
     Renderer *renderer = new Renderer(this);
-    renderer->Initialize();
     application->SetRenderer(renderer);
+    renderer->Initialize();
 }
 
 void

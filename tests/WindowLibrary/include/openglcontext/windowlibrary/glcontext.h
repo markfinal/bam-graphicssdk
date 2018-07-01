@@ -37,12 +37,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace WindowLibrary
 {
 
-class GLContext final
+class GLContext
 {
 public:
     GLContext(
         GraphicsWindow *inWindow);
-    ~GLContext();
+    virtual ~GLContext();
 
     void
     init();
@@ -55,6 +55,10 @@ public:
 
     void
     swapBuffers();
+
+public:
+    virtual void
+    onVisible();
 
 private:
     struct Impl;

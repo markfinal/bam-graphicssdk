@@ -41,14 +41,16 @@ namespace WindowLibrary
 
 struct GLContext::Impl
 {
-    GraphicsWindow *_window;
+    GLContext      *_parent{nullptr};
+    GraphicsWindow *_window{nullptr};
 #ifdef __OBJC__
-    NSOpenGLView   *_view;
+    NSOpenGLView   *_view{nullptr};
 #else
-    void           *_view;
+    void           *_view{nullptr};
 #endif
 
     Impl(
+        GLContext *inContext,
         GraphicsWindow *inWindow);
     ~Impl();
 

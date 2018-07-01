@@ -45,7 +45,7 @@ namespace WindowLibrary
 GLContext::GLContext(
     GraphicsWindow *inWindow)
     :
-    _impl(new Impl(inWindow))
+    _impl(new Impl(this, inWindow))
 {}
 
 GLContext::~GLContext() = default;
@@ -77,5 +77,9 @@ GLContext::swapBuffers()
     auto impl = this->_impl.get();
     impl->swapBuffers();
 }
+
+void
+GLContext::onVisible()
+{}
 
 } // namespace WindowLibrary
