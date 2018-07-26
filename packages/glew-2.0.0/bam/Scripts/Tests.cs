@@ -75,11 +75,8 @@ namespace glew
             {
                 base.Init(parent);
 
-#if D_NEW_PUBLISHING
                 this.SetDefaultMacrosAndMappings(EPublishingType.ConsoleApplication);
                 this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.Key);
-#else
-#endif
             }
         }
     }

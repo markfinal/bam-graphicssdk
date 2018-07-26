@@ -92,13 +92,8 @@ namespace Direct3DTriangle
         {
             base.Init(parent);
 
-#if D_NEW_PUBLISHING
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
             this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key);
-#else
-            var app = this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key, EPublishingType.WindowedApplication);
-            this.Include<DirectXSDK.Direct3D9ShaderCompiler>(C.DynamicLibrary.Key, ".", app);
-#endif
         }
     }
 }
