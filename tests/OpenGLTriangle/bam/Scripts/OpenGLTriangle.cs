@@ -1,5 +1,5 @@
 #region License
-// Copyright (c) 2010-2017, Mark Final
+// Copyright (c) 2010-2018, Mark Final
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,8 @@ namespace OpenGLTriangle
 
             this.LinkAgainst<OpenGLSDK.OpenGL>();
 
-            var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.Parse().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
+            var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
             this.CompileAndLinkAgainst<glew.GLEWStatic>(rendererObj);
-
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
 
             this.PrivatePatch(settings =>
                 {

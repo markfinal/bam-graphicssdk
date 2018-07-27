@@ -1,5 +1,5 @@
 #region License
-// Copyright (c) 2010-2017, Mark Final
+// Copyright (c) 2010-2018, Mark Final
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -92,49 +92,6 @@ namespace glew
                         compiler.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
                 });
-
-            if (source.Compiler is VisualCCommon.CompilerBase)
-            {
-                this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
-            }
-        }
-    }
-
-    namespace tests
-    {
-        [Bam.Core.ModuleGroup("Thirdparty/GLEW/tests")]
-        sealed class GLEWInfo :
-            C.ConsoleApplication
-        {
-            protected override void
-            Init(
-                Bam.Core.Module parent)
-            {
-                base.Init(parent);
-
-                var source = this.CreateCSourceContainer("$(packagedir)/src/glewinfo.c");
-                this.CompileAndLinkAgainst<GLEWStatic>(source);
-                this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
-
-                if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
-                {
-                    this.PrivatePatch(settings =>
-                        {
-                            var linker = settings as C.ICommonLinkerSettings;
-                            linker.Libraries.AddUnique("-lX11");
-                        });
-                }
-                else if (this.Linker is VisualCCommon.LinkerBase)
-                {
-                    this.LinkAgainst<WindowsSDK.WindowsSDK>();
-                    this.PrivatePatch(settings =>
-                        {
-                            var linker = settings as C.ICommonLinkerSettings;
-                            linker.Libraries.AddUnique("USER32.lib");
-                            linker.Libraries.AddUnique("GDI32.lib");
-                        });
-                }
-            }
         }
     }
 }

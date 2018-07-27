@@ -1,5 +1,5 @@
 #region License
-// Copyright (c) 2010-2017, Mark Final
+// Copyright (c) 2010-2018, Mark Final
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,11 +53,6 @@ namespace glew
                         compiler.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
                 });
-
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
-            {
-                this.CompileAgainst<WindowsSDK.WindowsSDK>(source);
-            }
         }
     }
 }

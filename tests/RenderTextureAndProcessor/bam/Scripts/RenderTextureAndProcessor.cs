@@ -1,5 +1,5 @@
 #region License
-// Copyright (c) 2010-2017, Mark Final
+// Copyright (c) 2010-2018, Mark Final
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,10 +53,6 @@ namespace RenderTextureAndProcessor
                 cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
             });
 
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
             this.LinkAgainst<OpenGLSDK.OpenGL>();
 
             this.PrivatePatch(settings =>
@@ -102,11 +98,6 @@ namespace RenderTextureAndProcessor
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
                 });
 
-            if (this.Linker is VisualCCommon.LinkerBase)
-            {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
-            }
-
             this.PrivatePatch(settings =>
                 {
                     var linker = settings as C.ICommonLinkerSettings;
@@ -131,8 +122,8 @@ namespace RenderTextureAndProcessor
         {
             base.Init(parent);
 
-            var app = this.Include<RenderTexture>(C.GUIApplication.Key, EPublishingType.WindowedApplication);
-            this.Include<TextureProcessor>(C.ConsoleApplication.Key, ".", app);
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+            this.Include<RenderTexture>(C.GUIApplication.Key);
         }
     }
 }

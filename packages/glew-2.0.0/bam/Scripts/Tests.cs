@@ -27,43 +27,56 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-namespace DirectXSDK
+using Bam.Core;
+namespace glew
 {
-    [C.Prebuilt]
-    sealed class Direct3D9ShaderCompiler :
-        C.Cxx.DynamicLibrary
+    namespace tests
     {
-        protected override void
-        Init(
-            Bam.Core.Module parent)
+        [Bam.Core.ModuleGroup("Thirdparty/GLEW/tests")]
+        class GLEWInfo :
+            C.ConsoleApplication
         {
-            base.Init(parent);
-
-            var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
-            if (meta.UseWindowsSDK)
+            protected override void
+            Init(
+                Bam.Core.Module parent)
             {
-                var vcMetaData = Bam.Core.Graph.Instance.PackageMetaData<VisualC.MetaData>("VisualC");
-                var vcEnv = vcMetaData.Environment(this.BitDepth);
-                if (vcEnv.ContainsKey("WindowsSdkDir"))
+                base.Init(parent);
+
+                var source = this.CreateCSourceContainer("$(packagedir)/src/glewinfo.c");
+                this.CompileAndLinkAgainst<GLEWStatic>(source);
+                this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
+
+                if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
                 {
-                    System.Diagnostics.Debug.Assert(1 == vcEnv["WindowsSdkDir"].Count, "Only one WindowsSDK directory");
-                    if (this.BitDepth == C.EBit.SixtyFour)
-                    {
-                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
-                    }
-                    else if (this.BitDepth == C.EBit.ThirtyTwo)
-                    {
-                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
-                    }
+                    this.PrivatePatch(settings =>
+                        {
+                            var linker = settings as C.ICommonLinkerSettings;
+                            linker.Libraries.AddUnique("-lX11");
+                        });
                 }
-                else
+                else if (this.Linker is VisualCCommon.LinkerBase)
                 {
-                    throw new Bam.Core.Exception("Unable to determine WindowsSDK installation directory in order to find the D3D9 shader compiler");
+                    this.PrivatePatch(settings =>
+                        {
+                            var linker = settings as C.ICommonLinkerSettings;
+                            linker.Libraries.AddUnique("USER32.lib");
+                            linker.Libraries.AddUnique("GDI32.lib");
+                        });
                 }
             }
-            else
+        }
+
+        sealed class TestRuntime :
+            Publisher.Collation
+        {
+            protected override void
+            Init(
+                Bam.Core.Module parent)
             {
-                throw new Bam.Core.Exception("DXSDK shader compiler is part of the redist");
+                base.Init(parent);
+
+                this.SetDefaultMacrosAndMappings(EPublishingType.ConsoleApplication);
+                this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.Key);
             }
         }
     }

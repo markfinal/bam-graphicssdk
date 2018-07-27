@@ -1,5 +1,5 @@
 #region License
-// Copyright (c) 2010-2017, Mark Final
+// Copyright (c) 2010-2018, Mark Final
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ namespace Direct3DTriangle
             if (this.Linker is VisualCCommon.LinkerBase)
             {
                 this.CompileAndLinkAgainst<DirectXSDK.Direct3D9>(source);
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
             }
 
             this.PrivatePatch(settings =>
@@ -79,6 +78,8 @@ namespace Direct3DTriangle
                         }
                     }
                 });
+
+            this.RequiredToExist<DirectXSDK.Direct3D9ShaderCompiler>();
         }
     }
 
@@ -91,8 +92,8 @@ namespace Direct3DTriangle
         {
             base.Init(parent);
 
-            var app = this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key, EPublishingType.WindowedApplication);
-            this.Include<DirectXSDK.Direct3D9ShaderCompiler>(C.DynamicLibrary.Key, ".", app);
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+            this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key);
         }
     }
 }
