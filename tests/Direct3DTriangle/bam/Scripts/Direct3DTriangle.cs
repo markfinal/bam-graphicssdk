@@ -93,7 +93,7 @@ namespace Direct3DTriangle
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
-            this.Include<D3D9TriangleTest>(C.ConsoleApplication.Key);
+            this.Include<D3D9TriangleTest>(C.ConsoleApplication.ExecutableKey);
         }
     }
 }

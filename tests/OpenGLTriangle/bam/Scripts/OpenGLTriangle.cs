@@ -110,7 +110,7 @@ namespace OpenGLTriangle
                     {
                         var osxLinker = settings as C.ICommonLinkerSettingsOSX;
                         // in order to link against libc++
-                        osxLinker.MinimumVersionSupported = "macosx10.9";
+                        osxLinker.MacOSMinimumVersionSupported = "10.9";
                         osxLinker.Frameworks.AddUnique("Cocoa");
                     }
                 });
@@ -127,7 +127,7 @@ namespace OpenGLTriangle
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
-            this.Include<GLUniformBufferTest>(C.Cxx.ConsoleApplication.Key);
+            this.Include<GLUniformBufferTest>(C.Cxx.ConsoleApplication.ExecutableKey);
         }
     }
 }

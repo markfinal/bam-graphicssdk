@@ -76,7 +76,7 @@ namespace glew
                 base.Init(parent);
 
                 this.SetDefaultMacrosAndMappings(EPublishingType.ConsoleApplication);
-                this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.Key);
+                this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.ExecutableKey);
             }
         }
     }

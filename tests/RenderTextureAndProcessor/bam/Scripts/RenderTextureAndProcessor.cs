@@ -123,7 +123,7 @@ namespace RenderTextureAndProcessor
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
-            this.Include<RenderTexture>(C.GUIApplication.Key);
+            this.Include<RenderTexture>(C.GUIApplication.ExecutableKey);
         }
     }
 }
