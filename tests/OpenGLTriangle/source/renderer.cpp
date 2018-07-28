@@ -1,37 +1,49 @@
-// Copyright (c) 2010-2015, Mark Final
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// * Redistributions of source code must retain the above copyright notice, this
-//   list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimer in the documentation
-//   and/or other materials provided with the distribution.
-//
-// * Neither the name of BuildAMation nor the names of its
-//   contributors may be used to endorse or promote products derived from
-//   this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+Copyright (c) 2010-2018, Mark Final
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of BuildAMation nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "renderer.h"
 #include "errorhandler.h"
+#include "appcontext.h"
+#include "windowlibrary/glcontext.h"
+
+#include <GL/glew.h>
+#if defined(D_BAM_PLATFORM_OSX)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+#include <string>
+
+#if defined(D_BAM_PLATFORM_WINDOWS)
 #include <Windows.h>
 #include <process.h>
-#include <gl/glew.h>
-#include <gl/gl.h>
-#include <string>
+#endif
 
 //#define USE_UNIFORM_BUFFER
 
@@ -69,29 +81,90 @@ void CheckForGLErrors(const char *file, int line, bool breakOnError)
             ErrorHandler::Report(file, line, "GL out of memory");
             break;
 
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            ErrorHandler::Report(file, line, "Invalid framebuffer operation");
+            break;
+
         default:
             ErrorHandler::Report(file, line, "Unrecognized GL error 0x%x", error);
         }
 
         if (breakOnError)
         {
+#if defined(D_BAM_PLATFORM_WINDOWS)
             ::DebugBreak();
+#endif
         }
     }
 }
 
-Renderer::Renderer(void *windowHandle)
-: mhWindowHandle(windowHandle),
-  mhDC(0),
-  mhRC(0),
-  mhThread(0),
-  mhVertexShader(0),
-  mhFragmentShader(0),
-  mhProgram(0),
-  miTimerQuery(0),
-  mbQuitFlag(false)
+void CheckForFrameBufferErrors(const GLenum status, const char *file, int line, bool breakOnError)
 {
+    CheckForGLErrors(file, line, breakOnError);
+    if (GL_FRAMEBUFFER_COMPLETE == status)
+    {
+        return;
+    }
+    switch (status)
+    {
+        case GL_FRAMEBUFFER_UNDEFINED:
+            ErrorHandler::Report(file, line, "Default framebuffer does not exist");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            ErrorHandler::Report(file, line, "Incomplete framebuffer attachments");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            ErrorHandler::Report(file, line, "Need at least one attachment to the framebuffer");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            ErrorHandler::Report(file, line, "Incomplete drawbuffer");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            ErrorHandler::Report(file, line, "Incomplete readbuffer");
+            break;
+
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            ErrorHandler::Report(file, line, "Framebuffer formats not supported");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            ErrorHandler::Report(file, line, "Inconsistent multisample for attachments");
+            break;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+            ErrorHandler::Report(file, line, "Framebuffer layers incomplete");
+            break;
+
+        default:
+            ErrorHandler::Report(file, line, "Unrecognized GL framebuffer status 0x%x",  status);
+    }
+
+    if (breakOnError)
+    {
+#if defined(D_BAM_PLATFORM_WINDOWS)
+        ::DebugBreak();
+#endif
+    }
 }
+
+Renderer::Renderer(
+    WindowLibrary::GraphicsWindow *inWindow)
+    :
+    _window(inWindow),
+    _glContext(new AppContext(inWindow)),
+    _thread(nullptr),
+    mhVertexShader(0),
+    mhFragmentShader(0),
+    mhProgram(0),
+    miTimerQuery(0),
+    mbQuitFlag(false)
+{}
+
+Renderer::~Renderer() = default;
 
 void *Renderer::operator new(size_t size)
 {
@@ -106,85 +179,19 @@ void Renderer::operator delete(void *object)
 
 void Renderer::Initialize()
 {
-    this->CreateContext();
+    this->_glContext->init();
+}
 
-    // create a thread for OpenGL rendering
-    unsigned int threadId;
-    this->mhThread = reinterpret_cast<HANDLE>(_beginthreadex(
-        0,
-        0,
-        (unsigned (__stdcall *)(void *))threadFunction,
-        this,
-        0,
-        &threadId));
+void Renderer::Begin()
+{
+    // create, and start, a thread for OpenGL rendering
+    this->_thread.reset(new std::thread(threadFunction, this));
 }
 
 void Renderer::Release()
 {
     this->Exit();
-    this->mhThread = 0;
-
-    this->DestroyContext();
-}
-
-void Renderer::CreateContext()
-{
-    ::HWND hWindow = static_cast< ::HWND>(this->mhWindowHandle);
-    ::HDC hDC = ::GetDC(hWindow);
-    ::PIXELFORMATDESCRIPTOR pfDescriptor;
-    ::ZeroMemory(&pfDescriptor, sizeof(pfDescriptor));
-    pfDescriptor.nSize = sizeof(pfDescriptor);
-    pfDescriptor.nVersion = 1;
-    DWORD flags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfDescriptor.dwFlags = flags;
-    pfDescriptor.iPixelType = PFD_TYPE_RGBA;
-    pfDescriptor.cColorBits = 8;
-    //pfDescriptor.cDepthBits = 24;
-    //pfDescriptor.cStencilBits = 8;
-
-    int pixelFormat = ::ChoosePixelFormat(hDC, &pfDescriptor);
-    if (0 == pixelFormat)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to choose pixel format; error %d, '%s'", errorCode);
-        return;
-    }
-
-    BOOL result = ::SetPixelFormat(hDC, pixelFormat, &pfDescriptor);
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to set pixel format; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::HGLRC hRC = ::wglCreateContext(hDC);
-    if (0 == hRC)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to create context; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::ReleaseDC(hWindow, hDC);
-
-    this->mhDC = hDC;
-    this->mhRC = hRC;
-}
-
-void Renderer::DestroyContext()
-{
-    ::HWND hWindow = static_cast< ::HWND>(this->mhWindowHandle);
-
-    ::BOOL result = ::wglDeleteContext(static_cast<HGLRC>(this->mhRC));
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to delete context; error %d, '%s'", errorCode);
-        return;
-    }
-
-    ::ReleaseDC(hWindow, static_cast< ::HDC>(this->mhDC));
+    this->_glContext.reset();
 }
 
 void Renderer::InitializeGLEW()
@@ -203,63 +210,32 @@ void Renderer::ReleaseGLEW()
 
 void Renderer::Exit()
 {
-    if (0 != this->mhThread)
+    if (nullptr == this->_thread)
     {
-        mbQuitFlag = true;
-        REPORTERROR("Request thread shutdown");
-        WaitForSingleObject(this->mhThread, INFINITE);
-
-        for (;;)
-        {
-            ::DWORD exitCode;
-            ::BOOL result = ::GetExitCodeThread(this->mhThread, &exitCode);
-            if (0 == result)
-            {
-                ::DWORD errorCode = ::GetLastError();
-                REPORTWIN32ERROR("Unable to exit the rendering thread; error %d, '%s'", errorCode);
-                return;
-            }
-            else if (STILL_ACTIVE == result)
-            {
-                REPORTERROR("Thread is still alive");
-                continue;
-            }
-            else
-            {
-                REPORTERROR1("Thread exit code is %d", result);
-                ::CloseHandle(this->mhThread);
-                this->mhThread = 0;
-                break;
-            }
-        }
+        return;
     }
+    mbQuitFlag = true;
+    REPORTERROR("Request thread shutdown");
+    this->_thread->join();
+    this->_thread.reset();
 }
 
 // route to the worker thread
-void Renderer::threadFunction(void* param)
+void Renderer::threadFunction(Renderer *inRenderer)
 {
-    ((Renderer*)param)->runThread();
+    inRenderer->runThread();
 }
 
 // rendering loop
 void Renderer::runThread()
 {
-    ::HDC hDC = static_cast< ::HDC>(this->mhDC);
-
-    // set the current RC in this thread
-    BOOL result = ::wglMakeCurrent(hDC, static_cast< ::HGLRC>(this->mhRC));
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to set current context; error %d, '%s'", errorCode);
-        return;
-    }
+    this->_glContext->makeCurrent();
 
     const GLubyte *lacVendor = GLFN(::glGetString(GL_VENDOR));
     const GLubyte *lacRenderer = GLFN(::glGetString(GL_RENDERER));
     const GLubyte *lacVersion = GLFN(::glGetString(GL_VERSION));
     const GLubyte *lacGLSLVersion = GLFN_DONOTBREAK(::glGetString(GL_SHADING_LANGUAGE_VERSION));
-    REPORTERROR1("GL_lacVendor   = '%s'", lacVendor);
+    REPORTERROR1("GL_VENDOR   = '%s'", lacVendor);
     REPORTERROR1("GL_RENDERER = '%s'", lacRenderer);
     REPORTERROR1("GL_VERSION  = '%s'", lacVersion);
     REPORTERROR1("GL_SHADING_LANGUAGE_VERSION = '%s'", lacGLSLVersion);
@@ -267,6 +243,14 @@ void Renderer::runThread()
     bool lbHasGLSL = (0 != lacGLSLVersion);
 
     this->InitializeGLEW();
+
+    ::CheckForFrameBufferErrors(
+        glCheckFramebufferStatus(GL_FRAMEBUFFER),
+        __FILE__,
+        __LINE__,
+        true
+    );
+
     this->CreateTimerQuery();
 
     // TODO: what is the best way to do this?
@@ -281,7 +265,7 @@ void Renderer::runThread()
     // rendering loop
     while(!this->mbQuitFlag)
     {
-        ::SwitchToThread();
+        std::this_thread::yield();
 
         this->StartTimerQuery();
 
@@ -294,7 +278,7 @@ void Renderer::runThread()
         GLFN(::glMatrixMode(GL_MODELVIEW));
         GLFN(::glLoadIdentity());
 
-        GLFN(::glViewport(0, 0, 512, 512));
+        GLFN(::glViewport(0, 0, this->_window->width(), this->_window->height()));
 
         GLFN(::glDisable(GL_CULL_FACE));
         GLFN(::glDisable(GL_DEPTH_TEST));
@@ -320,7 +304,7 @@ void Renderer::runThread()
             REPORTERROR1("GPU time = %.4f ms", lui64TimeElapsed / 1024.0f / 1024.f);
         }
 
-        ::SwapBuffers(hDC);
+        this->_glContext->swapBuffers();
     }
 
     REPORTERROR("Begin shutting down render thread");
@@ -333,16 +317,13 @@ void Renderer::runThread()
     this->DestroyTimerQuery();
     this->ReleaseGLEW();
 
+    // on macos, even though the above is destroying GL objects, clearing the
+    // current context gives an error
+#if !defined(D_BAM_PLATFORM_OSX)
     // terminate rendering thread
-    result = ::wglMakeCurrent(hDC, 0);
-    if (FALSE == result)
-    {
-        ::DWORD errorCode = ::GetLastError();
-        REPORTWIN32ERROR("Unable to unset current context; error %d, '%s'", errorCode);
-        return;
-    }
+    this->_glContext->detachCurrent();
+#endif
 
-    _endthread();
     REPORTERROR("Render thread has terminated");
 }
 

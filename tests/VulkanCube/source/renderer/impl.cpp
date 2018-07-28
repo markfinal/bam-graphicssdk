@@ -1,0 +1,219 @@
+/*
+Copyright (c) 2010-2018, Mark Final
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of BuildAMation nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+#include "impl.h"
+#include "exception.h"
+#include "log.h"
+
+#include <functional>
+
+Renderer::Impl::Impl()
+    :
+    _instance(nullptr, nullptr),
+    _logical_device(nullptr, nullptr)
+{}
+
+Renderer::Impl::~Impl() = default;
+
+PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
+PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
+
+void
+Renderer::Impl::VkFunctionTable::get_instance_functions(
+    ::VkInstance inInstance)
+{
+    _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
+    _destroy_device = GETIFN(inInstance, vkDestroyDevice);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_instance_wrapper(
+    ::VkInstance inInstance)
+{
+    _destroy_instance(inInstance, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
+    ::VkDevice inDevice)
+{
+    _destroy_device(inDevice, nullptr);
+}
+
+void
+Renderer::Impl::create_instance()
+{
+    ::VkApplicationInfo appInfo;
+    memset(&appInfo, 0, sizeof(appInfo));
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "Cube";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    // query extensions
+    auto query_extensions = GETFN(vkEnumerateInstanceExtensionProperties);
+    uint32_t num_extensions;
+    auto ext_query_res = query_extensions(
+        nullptr,
+        &num_extensions,
+        nullptr
+    );
+    std::vector< ::VkExtensionProperties> extensions(num_extensions);
+    ext_query_res = query_extensions(
+        nullptr,
+        &num_extensions,
+        extensions.data()
+    );
+    for (const auto &ext : extensions)
+    {
+        Log().get() << "Extension: " << ext.extensionName << ", v" << ext.specVersion << std::endl;
+    }
+
+    ::VkInstanceCreateInfo createInfo;
+    //::VkAllocationCallbacks allocCbs;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
+    createInfo.pApplicationInfo = &appInfo;
+    createInfo.enabledLayerCount = 0;
+    createInfo.enabledExtensionCount = 0;
+    //memset(&allocCbs, 0, sizeof(allocCbs));
+    ::VkInstance instance;
+    auto createInstanceFn = GETFN(vkCreateInstance);
+    auto createInstanceRes = createInstanceFn(&createInfo, nullptr, &instance);
+    if (VK_SUCCESS != createInstanceRes)
+    {
+        throw Exception("Unable to create instance");
+    }
+    this->_function_table.get_instance_functions(instance);
+    decltype(this->_instance) temp(instance, this->_function_table.destroy_instance_wrapper);
+    this->_instance = std::move(temp);
+}
+
+void
+Renderer::Impl::enumerate_physics_devices()
+{
+    // enumerate physical devices
+    auto enumPhysDevicesFn = GETIFN(this->_instance.get(), vkEnumeratePhysicalDevices);
+    uint32_t numPhysicalDevices = 0;
+
+    // get number of physical devices
+    auto enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, nullptr);
+    if (VK_SUCCESS != enumPhysDevicesRes)
+    {
+        throw Exception("Unable to count physical devices");
+    }
+    if (0 == numPhysicalDevices)
+    {
+        throw Exception("There are no physical devices available on this hardware");
+    }
+    Log().get() << "Found " << numPhysicalDevices << " physical devices" << std::endl;
+    this->_physical_devices.resize(numPhysicalDevices);
+    enumPhysDevicesRes = enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, this->_physical_devices.data());
+    if (VK_SUCCESS != enumPhysDevicesRes)
+    {
+        throw Exception("Unable to enumerate physical devices");
+    }
+
+    auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
+    for (auto i = 0u; i < numPhysicalDevices; ++i)
+    {
+        auto device = this->_physical_devices[i];
+        VkPhysicalDeviceFeatures features;
+        getPhysDeviceFeaturesFn(device, &features);
+        Log().get() << "Features of physical device " << i << std::endl;
+        Log().get() << "\tGeometry shader: " << features.geometryShader << std::endl;
+        Log().get() << "\tTessellation shader: " << features.tessellationShader << std::endl;
+    }
+
+    // arbitrary choice
+    this->_physical_device_index = 0;
+}
+
+void
+Renderer::Impl::create_logical_device()
+{
+    auto pDevice = this->_physical_devices[this->_physical_device_index];
+
+    // query the family of queues available
+    auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceQueueFamilyProperties);
+    uint32_t numQueueFamilyProperties = 0;
+    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
+    if (0 == numQueueFamilyProperties)
+    {
+        throw Exception("Unable to find any queue families on this physical device");
+    }
+    Log().get() << "Found " << numQueueFamilyProperties << " queue families on this physical device" << std::endl;
+
+    // assume that the first queue family is capable of graphics
+    auto graphics_family_queue_index = 0;
+
+    std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
+    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
+    if (0 == (queueFamilyProperties[graphics_family_queue_index].queueFlags & VK_QUEUE_GRAPHICS_BIT))
+    {
+        throw Exception("Unable to find queue family with graphics support on this physical device");
+    }
+
+    // logical devices need a queue
+    VkDeviceQueueCreateInfo queue_info;
+    memset(&queue_info, 0, sizeof(queue_info));
+    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_info.queueFamilyIndex = graphics_family_queue_index;
+    queue_info.queueCount = 1;
+    float queuePriority = 1.0f;
+    queue_info.pQueuePriorities = &queuePriority; // Note: this is essential for at least MoltenVK, which does not check whether this is null or not
+
+    // create a logical device
+    auto createDeviceFn = GETIFN(this->_instance.get(), vkCreateDevice);
+    VkDeviceCreateInfo deviceCreateInfo;
+    memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = &queue_info;
+    ::VkDevice device;
+    auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
+    if (VK_SUCCESS != createDeviceRes)
+    {
+        throw Exception("Unable to find create logical device");
+    }
+    decltype(this->_logical_device) temp(device, this->_function_table.destroy_device_wrapper);
+    this->_logical_device = std::move(temp);
+
+    auto graphics_queue_index = 0;
+
+    auto getQueueFn = GETIFN(this->_instance.get(), vkGetDeviceQueue);
+    getQueueFn(
+        this->_logical_device.get(),
+        graphics_family_queue_index,
+        graphics_queue_index,
+        &this->_graphics_queue
+    );
+}

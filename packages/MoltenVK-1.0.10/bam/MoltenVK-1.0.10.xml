@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="MoltenVK" version="1.0.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
+  <Description>MoltenVK, Vulkan layer 0 over Metal for macOS, version 1.0.10</Description>
+  <Dependents>
+    <Package name="C" />
+    <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="cereal" version="1.2.2" />
+    <Package name="NativeBuilder" />
+    <Package name="Publisher" />
+    <Package name="SPIRVCross" />
+    <Package name="SPIRVTools" version="v2018.3" />
+    <Package name="VulkanHeaders" />
+    <Package name="XcodeBuilder" />
+  </Dependents>
+  <BamAssemblies>
+    <BamAssembly name="Bam.Core" major="1" minor="2" />
+  </BamAssemblies>
+  <DotNetAssemblies>
+    <DotNetAssembly name="System" requiredTargetFramework="4.0.30319" />
+    <DotNetAssembly name="System.Xml" requiredTargetFramework="4.0.30319" />
+    <DotNetAssembly name="System.Core" requiredTargetFramework="4.0.30319" />
+  </DotNetAssemblies>
+  <SupportedPlatforms>
+    <Platform name="Windows" />
+    <Platform name="Linux" />
+    <Platform name="OSX" />
+  </SupportedPlatforms>
+</PackageDefinition>

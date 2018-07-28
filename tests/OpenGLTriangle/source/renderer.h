@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010-2015, Mark Final
+Copyright (c) 2010-2018, Mark Final
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "windowlibrary/graphicswindow.h"
+
 #ifdef _MSC_VER
 typedef unsigned __int64 uint64;
 #else
@@ -39,13 +41,20 @@ typedef uint64_t uint64;
 
 #include <new>
 #include <cstddef> // for size_t
+#include <thread>
+#include <atomic>
+
+class AppContext;
 
 class Renderer
 {
 public:
-    Renderer(void *windowHandle);
+    Renderer(
+        WindowLibrary::GraphicsWindow *inWindow);
+    ~Renderer();
 
     void Initialize();
+    void Begin();
     void Release();
 
     void Exit();
@@ -54,11 +63,8 @@ public:
     void operator delete(void *object);
 
 protected:
-    static void threadFunction(void* param);
+    static void threadFunction(Renderer *inRenderer);
     void runThread();
-
-    void CreateContext();
-    void DestroyContext();
 
     void InitializeGLEW();
     void ReleaseGLEW();
@@ -77,15 +83,14 @@ protected:
 
 private:
     uint64 mi64TimeElapsed;
-    void *mhWindowHandle;
-    void *mhDC;
-    void *mhRC;
-    void *mhThread;
+    WindowLibrary::GraphicsWindow *_window {nullptr};
+    std::unique_ptr<AppContext> _glContext;
+    std::unique_ptr<std::thread> _thread;
     int mhVertexShader;
     int mhFragmentShader;
     int mhProgram;
     unsigned int miTimerQuery;
-    bool mbQuitFlag;
+    std::atomic<bool> mbQuitFlag;
 };
 
 #endif // RENDERER_H

@@ -30,7 +30,18 @@
 using Bam.Core;
 namespace VulkanCube
 {
-    sealed class Cube :
+    sealed class ConfigureOSX :
+        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>
+    {
+        void
+        Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>.Configure(
+            Clang.MetaData instance)
+        {
+            instance.MinimumVersionSupported = "macosx10.9";
+        }
+    }
+
+    class Cube :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -39,13 +50,61 @@ namespace VulkanCube
         {
             base.Init(parent);
 
+            this.CreateHeaderContainer("$(packagedir)/source/**.h");
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
-            this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+            source.AddFiles("$(packagedir)/source/renderer/*.cpp");
 
-            if (this.Linker is VisualCCommon.LinkerBase)
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
-                this.CompileAndLinkAgainst<WindowsSDK.WindowsSDK>(source);
+                this.CompileAndLinkAgainst<MoltenVK.MoltenVK>(source);
+                this.CompileAgainst<VulkanHeaders.VkHeaders>(source);
             }
+            else
+            {
+                this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
+            }
+
+            source.PrivatePatch(settings =>
+                {
+                    var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
+                    cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                    cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+
+                    var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                    if (null != clang_compiler)
+                    {
+                        clang_compiler.AllWarnings = true;
+                        clang_compiler.ExtraWarnings = true;
+                        clang_compiler.Pedantic = true;
+                    }
+                });
+
+            this.PrivatePatch(settings =>
+            {
+                var clang_linker = settings as ClangCommon.ICommonLinkerSettings;
+                if (null != clang_linker)
+                {
+                    clang_linker.RPath.AddUnique(@"@executable_path/../Frameworks");
+                }
+            });
+        }
+    }
+
+    sealed class RuntimePackage :
+        Publisher.Collation
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+
+            this.Include<Cube>(C.Cxx.GUIApplication.Key);
         }
     }
 }

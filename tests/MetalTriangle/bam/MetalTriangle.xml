@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="MetalTriangle" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
+  <Description>Example of macos Metal to render a triangle</Description>
+  <Dependents>
+    <Package name="C" />
+    <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="Gcc" version="4.8" default="true" />
+    <Package name="MakeFileBuilder" />
+    <Package name="NativeBuilder" />
+    <Package name="Publisher" />
+    <Package name="VisualC" version="15.0" default="true" />
+    <Package name="WindowLibrary" />
+    <Package name="XcodeBuilder" />
+  </Dependents>
+  <BamAssemblies>
+    <BamAssembly name="Bam.Core" major="1" minor="2" />
+  </BamAssemblies>
+  <DotNetAssemblies>
+    <DotNetAssembly name="System" requiredTargetFramework="4.0.30319" />
+    <DotNetAssembly name="System.Xml" requiredTargetFramework="4.0.30319" />
+    <DotNetAssembly name="System.Core" requiredTargetFramework="4.0.30319" />
+  </DotNetAssemblies>
+  <SupportedPlatforms>
+    <Platform name="OSX" />
+  </SupportedPlatforms>
+</PackageDefinition>
