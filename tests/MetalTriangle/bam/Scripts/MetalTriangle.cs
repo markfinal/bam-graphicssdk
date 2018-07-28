@@ -39,7 +39,7 @@ namespace MetalTriangle
                 osxLinker.Frameworks.AddUnique("Metal");
                 osxLinker.Frameworks.AddUnique("MetalKit");
                 osxLinker.Frameworks.AddUnique("QuartzCore"); // including Core Animation
-                osxLinker.MinimumVersionSupported = "macos10.9";
+                osxLinker.MacOSMinimumVersionSupported = "10.9";
             });
 
             //this.addMetalResources(this.CreateTokenizedString("$(packagedir)/resources/*.metal"));
@@ -56,7 +56,7 @@ namespace MetalTriangle
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
-            this.Include<MetalTest>(C.Cxx.GUIApplication.Key);
+            this.Include<MetalTest>(C.Cxx.GUIApplication.ExecutableKey);
         }
     }
 }
