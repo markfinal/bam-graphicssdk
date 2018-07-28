@@ -28,11 +28,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
 using Bam.Core;
-namespace VulkanSDK
+namespace SPIRVCross
 {
-    [C.Prebuilt]
-    public class Vulkan :
-        C.DynamicLibrary
+    class SPIRVCross : C.StaticLibrary
     {
         protected override void
         Init(
@@ -40,38 +38,33 @@ namespace VulkanSDK
         {
             base.Init(parent);
 
-            // TODO: is this compatible with the Linux installer?
-            this.Macros["packagedir"].Set("$(VK_SDK_PATH)", null);
+            var header = this.CreateHeaderContainer("$(packagedir)/**.h");
+            header.AddFiles("$(packagedir)/**.hpp");
 
-            this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/lib"); // note, 64-bit
-
-            this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
-            this.GeneratedPaths[Key] = this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)"); // note: 64-bit
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            var source = this.CreateCxxSourceContainer("$(packagedir)/*.cpp");
+            source.PrivatePatch(settings =>
             {
-                this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)");
-            }
+                var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
+                cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/Include/vulkan/*.h");
-            headers.AddFile("$(packagedir)/Include/vulkan/*.hpp");
-
-            this.PublicPatch((settings, appliedTo) =>
+                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                if (null != clang_compiler)
                 {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    if (null != compiler)
-                    {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
+                    clang_compiler.AllWarnings = true;
+                    clang_compiler.ExtraWarnings = true;
+                    clang_compiler.Pedantic = true;
+                }
+            });
 
-                        if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
-                        {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
-                        }
-                        else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
-                        {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
-                        }
-                    }
-                });
+            this.PublicPatch((Settings, appliedTo) =>
+            {
+                var compiler = Settings as C.ICommonCompilerSettings;
+                if (null != compiler)
+                {
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)"));
+                }
+            });
         }
     }
 }

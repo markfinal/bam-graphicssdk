@@ -31,7 +31,7 @@ using Bam.Core;
 using System.Linq;
 namespace OpenGLTriangle
 {
-    sealed class GLUniformBufferTest :
+    class GLUniformBufferTest :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -47,9 +47,38 @@ namespace OpenGLTriangle
                 {
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
+                    cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                    cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                    var compiler = settings as C.ICommonCompilerSettings;
+                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
 
-            this.LinkAgainst<OpenGLSDK.OpenGL>();
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
+            {
+                source.AddFiles("$(packagedir)/source/platform/winmain.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
+            {
+                source.AddFiles("$(packagedir)/source/platform/main.cpp");
+            }
+            else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/**.mm");
+                objCSource.PrivatePatch(settings =>
+                    {
+                        var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
+                        cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
+                        cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+                        cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                    });
+            }
+
+            this.CompileAndLinkAgainst<WindowLibrary.OpenGLContext>(source);
+            this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
 
             var rendererObj = source.Children.Where(item => (item as C.Cxx.ObjectFile).InputPath.ToString().Contains("renderer")).ElementAt(0) as C.Cxx.ObjectFile;
             this.CompileAndLinkAgainst<glew.GLEWStatic>(rendererObj);
@@ -57,6 +86,11 @@ namespace OpenGLTriangle
             this.PrivatePatch(settings =>
                 {
                     var linker = settings as C.ICommonLinkerSettings;
+                    var cxxLinker = settings as C.ICxxOnlyLinkerSettings;
+                    if (null != cxxLinker)
+                    {
+                        cxxLinker.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
+                    }
                     if (this.Linker is VisualCCommon.LinkerBase)
                     {
                         linker.Libraries.Add("OPENGL32.lib");
@@ -68,7 +102,32 @@ namespace OpenGLTriangle
                         linker.Libraries.Add("-lopengl32");
                         linker.Libraries.Add("-lgdi32");
                     }
+                    else if (this.Linker is GccCommon.LinkerBase)
+                    {
+                        linker.Libraries.Add("-lX11");
+                    }
+                    else if (this.Linker is ClangCommon.LinkerBase)
+                    {
+                        var osxLinker = settings as C.ICommonLinkerSettingsOSX;
+                        // in order to link against libc++
+                        osxLinker.MinimumVersionSupported = "macosx10.9";
+                        osxLinker.Frameworks.AddUnique("Cocoa");
+                    }
                 });
+        }
+    }
+
+    sealed class Runtime :
+        Publisher.Collation
+    {
+        protected override void
+        Init(
+            Bam.Core.Module parent)
+        {
+            base.Init(parent);
+
+            this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+            this.Include<GLUniformBufferTest>(C.Cxx.ConsoleApplication.Key);
         }
     }
 }

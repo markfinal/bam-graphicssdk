@@ -1,82 +1,39 @@
-// Copyright (c) 2010-2015, Mark Final
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// * Redistributions of source code must retain the above copyright notice, this
-//   list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimer in the documentation
-//   and/or other materials provided with the distribution.
-//
-// * Neither the name of BuildAMation nor the names of its
-//   contributors may be used to endorse or promote products derived from
-//   this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+Copyright (c) 2010-2018, Mark Final
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of BuildAMation nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "application.h"
 #include "renderer.h"
 #include "errorhandler.h"
 #include "common.h"
+#include "appwindow.h"
 
-#include <Windows.h>
 #include <string>
-
-std::string ssWindowClassName("Test Window Class");
-::HWND shMainWindow = 0;
-
-static ::LRESULT CALLBACK WindowProc(::HWND hWnd, ::UINT Msg, ::WPARAM wParam, ::LPARAM lParam)
-{
-    Application *application = Application::GetInstance();
-    switch (Msg)
-    {
-    case WM_CREATE:
-        {
-            Renderer *renderer = new Renderer(hWnd);
-            renderer->Initialize();
-            application->SetRenderer(renderer);
-        }
-        break;
-
-    case WM_DESTROY:
-        {
-            Renderer *renderer = application->GetRenderer();
-            if (renderer != 0)
-            {
-                renderer->Release();
-                delete renderer;
-                application->SetRenderer(0);
-            }
-        }
-        break;
-
-    case WM_CLOSE:
-        {
-            Renderer *renderer = application->GetRenderer();
-            if (0 != renderer)
-            {
-                renderer->Exit();
-            }
-
-            REPORTERROR("Sending quit message");
-            ::PostQuitMessage(0);
-        }
-        return 0;
-    }
-
-    return ::DefWindowProc(hWnd, Msg, wParam, lParam);
-}
 
 Application *Application::spInstance = 0;
 Application *Application::GetInstance()
@@ -85,7 +42,11 @@ Application *Application::GetInstance()
 }
 
 Application::Application(int UNUSEDARG(argc), char *UNUSEDARG(argv)[])
-: mpRenderer(0), mhWin32Instance(0), mi32ExitCode(0)
+    :
+    mpRenderer(nullptr),
+    mpWindow(new AppWindow),
+    mhWin32Instance(0),
+    mi32ExitCode(0)
 {
     if (0 != spInstance)
     {
@@ -93,111 +54,30 @@ Application::Application(int UNUSEDARG(argc), char *UNUSEDARG(argv)[])
         return;
     }
 
+#ifdef D_BAM_PLATFORM_WINDOWS
+    mhWin32Instance = ::GetModuleHandle(nullptr);
+#endif
+
     spInstance = this;
 }
 
-void Application::SetWin32Instance(void *instance)
-{
-    mhWin32Instance = instance;
-}
+Application::~Application() = default;
 
 int Application::Run()
 {
-    this->RegisterWindowClass();
-    this->CreateMainWindow();
+#ifdef D_BAM_PLATFORM_WINDOWS
+    this->mpWindow->win32SetInstanceHandle(static_cast<::HINSTANCE>(mhWin32Instance));
+#endif
+    this->mpWindow->init(512, 512, "OpenGL triangle");
+    this->mpWindow->show();
     this->MainLoop();
-    this->DestroyMainWindow();
-    this->UnregisterWindowClass();
     return this->mi32ExitCode;
 }
 
-void Application::RegisterWindowClass()
-{
-    ::WNDCLASSEX windowClass;
-    ::ZeroMemory(&windowClass, sizeof(windowClass));
-    windowClass.cbSize = sizeof(windowClass);
-    windowClass.hInstance = static_cast< ::HINSTANCE>(this->mhWin32Instance);
-    windowClass.lpfnWndProc = WindowProc;
-    windowClass.lpszClassName = ssWindowClassName.c_str();
-    UINT style = CS_OWNDC;
-    windowClass.style = style;
-    windowClass.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BACKGROUND);
-
-    ::ATOM returnValue = ::RegisterClassEx(&windowClass);
-    if (0 == returnValue)
-    {
-        ::DWORD error = ::GetLastError();
-        REPORTWIN32ERROR("Failed to register class; error %d '%s'", error);
-        return;
-    }
-
-    return;
-}
-
-void Application::UnregisterWindowClass()
-{
-    ::BOOL result = ::UnregisterClass(ssWindowClassName.c_str(), static_cast< ::HINSTANCE>(this->mhWin32Instance));
-    if (0 == result)
-    {
-        ::DWORD error = ::GetLastError();
-        REPORTWIN32ERROR("Failed to unregister class; error %d, '%s'", error);
-        return;
-    }
-}
-
-void Application::CreateMainWindow()
-{
-    DWORD exStyle = 0;
-    std::string mainWindowName("OpenGL triangle");
-    DWORD style = WS_OVERLAPPEDWINDOW;
-    int x = CW_USEDEFAULT;
-    int y = CW_USEDEFAULT;
-    int width = 512;
-    int height = 512;
-    ::HWND parentWindow = 0;
-    ::HMENU menuHandle = 0;
-    ::LPVOID lpParam = 0;
-
-    shMainWindow = ::CreateWindowEx(
-        exStyle,
-        ssWindowClassName.c_str(),
-        mainWindowName.c_str(),
-        style,
-        x,
-        y,
-        width,
-        height,
-        parentWindow,
-        menuHandle,
-        static_cast< ::HINSTANCE>(this->mhWin32Instance),
-        lpParam);
-    if (0 == shMainWindow)
-    {
-        ::DWORD error = ::GetLastError();
-        REPORTWIN32ERROR("Failed to create window; error %d, '%s'", error);
-        return;
-    }
-
-    ::UpdateWindow(shMainWindow);
-    ::ShowWindow(shMainWindow, SW_SHOWDEFAULT);
-}
-
-void Application::DestroyMainWindow()
-{
-    if (0 != shMainWindow && ::IsWindow(shMainWindow))
-    {
-        BOOL result = ::DestroyWindow(shMainWindow);
-        if (0 == result)
-        {
-            ::DWORD error = ::GetLastError();
-            REPORTWIN32ERROR("Failed to destroy window; error %d, '%s'", error);
-            return;
-        }
-    }
-}
-
+#if defined(D_BAM_PLATFORM_WINDOWS) || defined(D_BAM_PLATFORM_LINUX)
 void Application::MainLoop()
 {
+#if defined(D_BAM_PLATFORM_WINDOWS)
     ::MSG msg;
 
     // loop until WM_QUIT(0) received
@@ -208,7 +88,30 @@ void Application::MainLoop()
     }
 
     this->mi32ExitCode = (int)msg.wParam;
+#elif defined(D_BAM_PLATFORM_LINUX)
+    auto display = this->mpWindow->linuxDisplay();
+    while (true)
+    {
+        while (::XPending(display) > 0)
+        {
+            ::XEvent event;
+            ::XNextEvent(display, &event);
+            switch (event.type)
+            {
+            case ClientMessage:
+                if (event.xclient.data.l[0] == static_cast<int long>(this->mpWindow->linuxDeleteWindowMessage()))
+                {
+                    this->mpWindow->onDestroy();
+                    this->mi32ExitCode = 0;
+                    return;
+                }
+                break;
+            }
+        }
+    }
+#endif
 }
+#endif // defined(D_BAM_PLATFORM_WINDOWS) || defined(D_BAM_PLATFORM_LINUX)
 
 void Application::SetRenderer(Renderer *renderer)
 {

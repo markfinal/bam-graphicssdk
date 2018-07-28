@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010-2015, Mark Final
+Copyright (c) 2010-2018, Mark Final
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // forward declarations
 class Renderer;
+class AppWindow;
+
+#include <memory>
 
 class Application
 {
@@ -39,23 +42,19 @@ public:
     static Application *GetInstance();
 
     Application(int argc, char *argv[]);
-    void SetWin32Instance(void *instance);
+    ~Application();
+
     int Run();
 
     void SetRenderer(Renderer *);
     Renderer *GetRenderer();
 
 private:
-    void RegisterWindowClass();
-    void UnregisterWindowClass();
-
-    void CreateMainWindow();
-    void DestroyMainWindow();
-
     void MainLoop();
 
 private:
     static Application *spInstance;
+    std::unique_ptr<AppWindow> mpWindow;
     Renderer *mpRenderer;
     void *mhWin32Instance;
     int mi32ExitCode;
