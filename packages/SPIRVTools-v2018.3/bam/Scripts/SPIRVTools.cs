@@ -78,8 +78,8 @@ namespace SPIRVTools
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-debuginfo-grammar=$(DebugGrammarFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--extension-enum-output=$(GrammarExtensionEnumIncFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--enum-string-mapping-output=$(GrammarEnumStringMappingIncFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--extension-enum-output=$(0)", this.GeneratedPaths["GrammarExtensionEnumIncFile"]));
+            this.Arguments.Add(this.CreateTokenizedString("--enum-string-mapping-output=$(0)", this.GeneratedPaths["GrammarEnumStringMappingIncFile"]));
         }
     }
 
@@ -130,7 +130,7 @@ namespace SPIRVTools
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-glsl-grammar=$(GrammarJsonFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--glsl-insts-output=$(GLSLHeader)"));
+            this.Arguments.Add(this.CreateTokenizedString("--glsl-insts-output=$(0)", this.GeneratedPaths["GLSLHeader"]));
         }
     }
 
@@ -155,7 +155,7 @@ namespace SPIRVTools
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-opencl-grammar=$(GrammarJsonFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--opencl-insts-output=$(OpenCLHeader)"));
+            this.Arguments.Add(this.CreateTokenizedString("--opencl-insts-output=$(0)", this.GeneratedPaths["OpenCLHeader"]));
         }
     }
 
@@ -179,7 +179,7 @@ namespace SPIRVTools
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-vendor-grammar=$(DebugGrammarFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--vendor-insts-output=$(VendorTable)"));
+            this.Arguments.Add(this.CreateTokenizedString("--vendor-insts-output=$(0)", this.GeneratedPaths["VendorTable"]));
         }
 
         public string TableName
@@ -215,8 +215,8 @@ namespace SPIRVTools
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--spirv-core-grammar=$(GrammarJsonFile)"));
             this.Arguments.Add(this.CreateTokenizedString("--extinst-debuginfo-grammar=$(DebugGrammarFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--core-insts-output=$(CoreInstIncFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--operand-kinds-output=$(GrammarKindsIncFile)"));
+            this.Arguments.Add(this.CreateTokenizedString("--core-insts-output=$(0)", this.GeneratedPaths["CoreInstIncFile"]));
+            this.Arguments.Add(this.CreateTokenizedString("--operand-kinds-output=$(0)", this.GeneratedPaths["GrammarKindsIncFile"]));
         }
     }
 
@@ -240,7 +240,7 @@ namespace SPIRVTools
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("--xml=$(XmlRegistryFile)"));
-            this.Arguments.Add(this.CreateTokenizedString("--generator-output=$(GeneratorsInc)"));
+            this.Arguments.Add(this.CreateTokenizedString("--generator-output=$(0)", this.GeneratedPaths["GeneratorsInc"]));
         }
     }
 
@@ -263,7 +263,7 @@ namespace SPIRVTools
 
             this.Arguments.Add(this.CreateTokenizedString("$(PyScript)"));
             this.Arguments.Add(this.CreateTokenizedString("$(packagedir)"));
-            this.Arguments.Add(this.CreateTokenizedString("$(BuildVersionInc)"));
+            this.Arguments.Add(this.GeneratedPaths["BuildVersionInc"]);
         }
     }
 
