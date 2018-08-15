@@ -136,7 +136,7 @@ namespace MetalTriangle
             Bam.Core.Module parent)
         {
             base.Init(parent);
-            this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<MetalShaderLibraryTool>();
+            this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<MetalShaderLinkerTool>();
             this.RegisterGeneratedFile(
                 ShaderLibraryKey,
                 this.CreateTokenizedString(
@@ -253,10 +253,10 @@ namespace MetalTriangle
 
     [CommandLineProcessor.OutputPath(MetalShaderLibrary.ShaderLibraryKey, "-o ")]
     [CommandLineProcessor.InputPaths(CompiledMetalShader.CompiledMetalShaderKey, "")]
-    class MetalShaderLibrarySettings :
+    class MetalShaderLinkerSettings :
         Bam.Core.Settings
     {
-        public MetalShaderLibrarySettings(
+        public MetalShaderLinkerSettings(
             Bam.Core.Module module)
         {
             this.InitializeAllInterfaces(module, false, true);
@@ -269,18 +269,18 @@ namespace MetalTriangle
         }
     }
 
-    class MetalShaderLibraryTool :
+    class MetalShaderLinkerTool :
         Bam.Core.PreBuiltTool
     {
         private static Bam.Core.TokenizedString executablePath;
         private Bam.Core.TokenizedStringArray arguments = new Bam.Core.TokenizedStringArray();
 
-        static MetalShaderLibraryTool()
+        static MetalShaderLinkerTool()
         {
             executablePath = Bam.Core.TokenizedString.CreateVerbatim(Bam.Core.OSUtilities.GetInstallLocation("xcrun").First());
         }
 
-        public MetalShaderLibraryTool()
+        public MetalShaderLinkerTool()
         {
             var clangMeta = Bam.Core.Graph.Instance.PackageMetaData<Bam.Core.PackageMetaData>("Clang");
             var discovery = clangMeta as C.IToolchainDiscovery;
@@ -292,7 +292,7 @@ namespace MetalTriangle
 
         public override Bam.Core.Settings CreateDefaultSettings<T>(T module)
         {
-            return new MetalShaderLibrarySettings(module);
+            return new MetalShaderLinkerSettings(module);
         }
 
         public override Bam.Core.TokenizedString Executable
