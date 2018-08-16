@@ -12,8 +12,12 @@
 @interface MetalViewController : NSViewController<MTKViewDelegate>
 {
     id<MTLDevice> _device;
+    id<MTLLibrary> _library;
+    id<MTLCommandQueue> _cmdQueue;
+    CAMetalLayer *_metalLayer;
 }
 -(void)configureMetal;
+-(void)renderScene;
 -(void)viewDidLoad;
 -(void)viewWillAppear;
 -(void)viewDidAppear;
@@ -29,13 +33,36 @@
 @implementation MetalViewController : NSViewController
 -(void)configureMetal
 {
+    // https://www.haroldserrano.com/blog/getting-started-with-metal-api (iOS)
+    // https://developer.apple.com/documentation/metal/hello_triangle
     self->_device = MTLCreateSystemDefaultDevice();
+    self->_library = [self->_device newDefaultLibrary];
+    self->_cmdQueue = [self->_device newCommandQueue];
 
-    auto metalLayer = [CAMetalLayer layer];
-    metalLayer.device = self->_device;
-    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    metalLayer.frame = self.view.bounds;
-    [self.view.layer addSublayer:metalLayer];
+    self->_metalLayer = [CAMetalLayer layer];
+    self->_metalLayer.device = self->_device;
+    self->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    self->_metalLayer.frame = self.view.bounds;
+    [self.view.layer addSublayer:self->_metalLayer];
+}
+-(void)renderScene
+{
+    auto drawable = [self->_metalLayer nextDrawable];
+    auto texture = drawable.texture;
+
+    auto passDescriptor = [[MTLRenderPassDescriptor alloc] init];
+    passDescriptor.colorAttachments[0].texture = texture;
+    passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+    passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
+
+    auto cmdBuffer = [self->_cmdQueue commandBuffer];
+    auto cmdEncoder =
+    [cmdBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+    [cmdEncoder endEncoding];
+
+    [cmdBuffer presentDrawable:drawable];
+    [cmdBuffer commit];
 }
 -(void)viewDidLoad
 {
@@ -52,60 +79,6 @@
     [super viewDidAppear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     [self configureMetal];
-    /*
-    // https://www.haroldserrano.com/blog/getting-started-with-metal-api (iOS)
-    // https://developer.apple.com/documentation/metal/hello_triangle
-    auto mtlDevice = MTLCreateSystemDefaultDevice();
-    auto metalLayer = [CAMetalLayer layer];
-    metalLayer.device = mtlDevice;
-    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    metalLayer.frame = self.view.bounds;
-    [self.view.layer addSublayer:metalLayer];
-
-    auto mtlCommandQueue = [mtlDevice newCommandQueue];
-    auto mtlCommandBuffer = [mtlCommandQueue commandBuffer];
-
-    auto renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-    auto mtlRenderEncoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-
-    auto mtlLibrary = [mtlDevice newDefaultLibrary];
-    auto vertexProgram = [mtlLibrary newFunctionWithName:@"clip_space_colour_vertex_function"];
-    auto fragmentProgram = [mtlLibrary newFunctionWithName:@"pass_through_colour_fragment_function"];
-
-    auto mtlRenderPipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    [mtlRenderPipelineDescriptor setVertexFunction:vertexProgram];
-    [mtlRenderPipelineDescriptor setFragmentFunction:fragmentProgram];
-    mtlRenderPipelineDescriptor.colorAttachments[0].pixelFormat=MTLPixelFormatBGRA8Unorm;
-
-    auto renderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor:mtlRenderPipelineDescriptor error:nil];
-    [mtlRenderEncoder setRenderPipelineState:renderPipelineState];
-
-    static float quadVertexData[] =
-    {
-        0.5, -0.5, 0.0, 1.0,
-        -0.5, -0.5, 0.0, 1.0,
-        -0.5,  0.5, 0.0, 1.0,
-
-        0.5,  0.5, 0.0, 1.0,
-        0.5, -0.5, 0.0, 1.0,
-        -0.5,  0.5, 0.0, 1.0
-    };
-
-    [mtlRenderEncoder setVertexBytes:quadVertexData
-                    length:sizeof(quadVertexData)
-                    atIndex:0];
-
-    [mtlRenderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                      vertexStart:0
-                      vertexCount:3];
-
-    //auto vertexBuffer = [mtlDevice newBufferWithBytes:quadVertexData length:sizeof(quadVertexData) options:MTLResourceOptionCPUCacheModeDefault];
-    //(void)vertexBuffer;
-
-    //auto displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(renderScene)];
-
-    //[displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    */
 }
 -(void)updateViewConstraints
 {
@@ -137,8 +110,9 @@
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
+    //NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     (void)view;
+    [self renderScene];
 }
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
