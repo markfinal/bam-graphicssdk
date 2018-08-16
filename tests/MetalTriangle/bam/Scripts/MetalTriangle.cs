@@ -23,9 +23,9 @@ namespace MetalTriangle
                         module.DependsOn(shaderSource);
                     }
             );
-            var shaderLibrary = Bam.Core.Module.Create<MetalUtilities.MetalShaderLibrary>();
+
+            var shaderLibrary = Bam.Core.Graph.Instance.FindReferencedModule<MetalUtilities.MetalShaderLibrary>();
             shaderLibrary.DependsOn(shaderCompiled);
-            shaderLibrary.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");
 
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
             source.PrivatePatch(settings =>

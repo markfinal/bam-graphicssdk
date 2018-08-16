@@ -12,6 +12,10 @@ namespace MetalUtilities
             Bam.Core.Module parent)
         {
             base.Init(parent);
+
+            // for consistency with what Xcode will generate
+            this.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");
+
             this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<MetalShaderLinkerTool>();
             this.RegisterGeneratedFile(
                 ShaderLibraryKey,
@@ -43,6 +47,11 @@ namespace MetalUtilities
                 case "Native":
                     NativeBuilder.Support.RunCommandLineTool(this, context);
                     break;
+#endif
+
+#if D_PACKAGE_XCODEBUILDER
+                    // Xcode automatically generates default.metallib into the application
+                    // bundle's Resources folder
 #endif
             }
         }
