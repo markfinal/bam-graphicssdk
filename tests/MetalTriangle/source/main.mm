@@ -10,7 +10,10 @@
 /* ---------------------------------------------------------------------- */
 
 @interface MetalViewController : NSViewController<MTKViewDelegate>
-{}
+{
+    id<MTLDevice> _device;
+}
+-(void)configureMetal;
 -(void)viewDidLoad;
 -(void)viewWillAppear;
 -(void)viewDidAppear;
@@ -24,6 +27,16 @@
 /* ---------------------------------------------------------------------- */
 
 @implementation MetalViewController : NSViewController
+-(void)configureMetal
+{
+    self->_device = MTLCreateSystemDefaultDevice();
+
+    auto metalLayer = [CAMetalLayer layer];
+    metalLayer.device = self->_device;
+    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalLayer.frame = self.view.bounds;
+    [self.view.layer addSublayer:metalLayer];
+}
 -(void)viewDidLoad
 {
     [super viewDidLoad];
@@ -38,6 +51,7 @@
 {
     [super viewDidAppear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
+    [self configureMetal];
     /*
     // https://www.haroldserrano.com/blog/getting-started-with-metal-api (iOS)
     // https://developer.apple.com/documentation/metal/hello_triangle
