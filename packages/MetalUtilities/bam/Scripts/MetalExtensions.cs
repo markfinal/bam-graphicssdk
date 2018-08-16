@@ -7,8 +7,8 @@ namespace MetalUtilities
             this Publisher.Collation collation)
         {
             collation.Mapping.Register(
-                typeof(MetalShaderLibrary),
-                MetalShaderLibrary.ShaderLibraryKey,
+                typeof(DefaultMetalShaderLibrary),
+                DefaultMetalShaderLibrary.ShaderLibraryKey,
                 collation.ResourceDir,
                 true
             );

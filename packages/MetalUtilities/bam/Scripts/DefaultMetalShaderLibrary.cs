@@ -1,7 +1,7 @@
 using System.Linq;
 namespace MetalUtilities
 {
-    class MetalShaderLibrary :
+    class DefaultMetalShaderLibrary :
         Bam.Core.Module,
         Bam.Core.IModuleGroup
     {
@@ -75,7 +75,7 @@ namespace MetalUtilities
         }
     }
 
-    [CommandLineProcessor.OutputPath(MetalShaderLibrary.ShaderLibraryKey, "-o ")]
+    [CommandLineProcessor.OutputPath(DefaultMetalShaderLibrary.ShaderLibraryKey, "-o ")]
     [CommandLineProcessor.InputPaths(CompiledMetalShader.CompiledMetalShaderKey, "")]
     class MetalShaderLinkerSettings :
         Bam.Core.Settings

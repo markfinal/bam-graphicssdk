@@ -24,8 +24,8 @@ namespace MetalTriangle
                     }
             );
 
-            var shaderLibrary = Bam.Core.Graph.Instance.FindReferencedModule<MetalUtilities.MetalShaderLibrary>();
-            shaderLibrary.DependsOn(shaderCompiled);
+            var defaultShaderLibrary = Bam.Core.Graph.Instance.FindReferencedModule<MetalUtilities.DefaultMetalShaderLibrary>();
+            defaultShaderLibrary.DependsOn(shaderCompiled);
 
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
             source.PrivatePatch(settings =>
@@ -44,7 +44,7 @@ namespace MetalTriangle
             });
 
             this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
-            this.DependsOn(shaderLibrary);
+            this.DependsOn(defaultShaderLibrary);
 
             this.PrivatePatch(settings =>
             {
@@ -58,8 +58,6 @@ namespace MetalTriangle
                 osxLinker.Frameworks.AddUnique("QuartzCore"); // including Core Animation
                 osxLinker.MacOSMinimumVersionSupported = "10.9";
             });
-
-            //this.addMetalResources(this.CreateTokenizedString("$(packagedir)/resources/*.metal"));
         }
     }
 
