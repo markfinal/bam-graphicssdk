@@ -7,6 +7,8 @@
 #import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
 
+/* ---------------------------------------------------------------------- */
+
 @interface MetalViewController : NSViewController
 {}
 -(void)viewDidLoad;
@@ -18,6 +20,8 @@
 -(void)viewWillDisappear;
 -(void)viewDidDisappear;
 @end
+
+/* ---------------------------------------------------------------------- */
 
 @implementation MetalViewController : NSViewController
 -(void)viewDidLoad
@@ -116,11 +120,15 @@
 }
 @end
 
+/* ---------------------------------------------------------------------- */
+
 @interface MetalViewDelegate : NSViewController<MTKViewDelegate>
 - (void)drawInMTKView:(nonnull MTKView *)view;
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder;
 @end
+
+/* ---------------------------------------------------------------------- */
 
 @implementation MetalViewDelegate : NSViewController
 - (void)drawInMTKView:(nonnull MTKView *)view
@@ -137,6 +145,8 @@
     (void)aCoder;
 }
 @end
+
+/* ---------------------------------------------------------------------- */
 
 int
 main()
