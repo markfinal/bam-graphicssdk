@@ -60,8 +60,7 @@
     passDescriptor.depthAttachment.clearDepth = 1.0f;
 
     auto cmdBuffer = [self->_cmdQueue commandBuffer];
-    auto cmdEncoder =
-    [cmdBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+    auto cmdEncoder = [cmdBuffer renderCommandEncoderWithDescriptor:passDescriptor];
     [cmdEncoder endEncoding];
 
     [cmdBuffer presentDrawable:drawable];
