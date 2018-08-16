@@ -53,10 +53,6 @@ namespace MetalTriangle
                         var workspace = Bam.Core.Graph.Instance.MetaData as XcodeBuilder.WorkspaceMeta;
                         var target = workspace.EnsureTargetExists(encapsulating);
                         var configuration = target.GetConfiguration(encapsulating);
-                        target.EnsureFileOfTypeExists(
-                            this.ShaderSource.GeneratedPaths[MetalShaderSource.ShaderSourceKey],
-                            XcodeBuilder.FileReference.EFileType.MetalShaderSource
-                        );
                         var buildFile = target.EnsureSourceBuildFileExists(
                             this.ShaderSource.GeneratedPaths[MetalShaderSource.ShaderSourceKey],
                             XcodeBuilder.FileReference.EFileType.MetalShaderSource

@@ -28,7 +28,22 @@ namespace MetalTriangle
         protected override void ExecuteInternal(
             Bam.Core.ExecutionContext context)
         {
-            // do nothing, as the file always exists
+            switch (Bam.Core.Graph.Instance.Mode)
+            {
+#if D_PACKAGE_XCODEBUILDER
+                case "Xcode":
+                    {
+                        var encapsulating = this.GetEncapsulatingReferencedModule();
+                        var workspace = Bam.Core.Graph.Instance.MetaData as XcodeBuilder.WorkspaceMeta;
+                        var target = workspace.EnsureTargetExists(encapsulating);
+                        target.EnsureFileOfTypeExists(
+                            this.GeneratedPaths[MetalShaderSource.ShaderSourceKey],
+                            XcodeBuilder.FileReference.EFileType.MetalShaderSource
+                        );
+                    }
+                    break;
+#endif
+            }
         }
 
         Bam.Core.TokenizedString Bam.Core.IInputPath.InputPath
