@@ -9,12 +9,25 @@
 
 /* ---------------------------------------------------------------------- */
 
+struct MBEVertex
+{
+    vector_float4 position;
+    vector_float4 colour;
+};
+
+typedef uint16_t MBEIndex;
+const MTLIndexType MBEIndexType = MTLIndexTypeUInt16;
+
+/* ---------------------------------------------------------------------- */
+
 @interface MetalViewController : NSViewController<MTKViewDelegate>
 {
     id<MTLDevice> _device;
     id<MTLLibrary> _library;
     id<MTLCommandQueue> _cmdQueue;
     CAMetalLayer *_metalLayer;
+    id<MTLDepthStencilState> _depthStencilState;
+    id<MTLRenderPipelineState> _renderPipelineState;
 }
 -(void)configureMetal;
 -(void)renderScene;
@@ -44,6 +57,20 @@
     self->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     self->_metalLayer.frame = self.view.bounds;
     [self.view.layer addSublayer:self->_metalLayer];
+
+    auto pipelineDescriptor = [MTLRenderPipelineDescriptor new];
+    pipelineDescriptor.vertexFunction = [self->_library newFunctionWithName:@"clip_space_colour_vertex_function"];
+    pipelineDescriptor.fragmentFunction = [self->_library newFunctionWithName:@"pass_through_colour_fragment_function"];
+    pipelineDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    //pipelineDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+
+    auto depthStencilDescriptor = [MTLDepthStencilDescriptor new];
+    depthStencilDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    depthStencilDescriptor.depthWriteEnabled = YES;
+    self->_depthStencilState = [self->_device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
+
+    NSError *error = nil;
+    self->_renderPipelineState = [self->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
 }
 -(void)renderScene
 {
@@ -54,13 +81,46 @@
     passDescriptor.colorAttachments[0].texture = texture;
     passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
     passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
-    passDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    passDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-    passDescriptor.depthAttachment.clearDepth = 1.0f;
+    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0);
+
+    static const MBEVertex vertices[] =
+    {
+        { { -0.5f, -0.5f, 0, 1 }, {1,0,0,1}, },
+        { { +0.5f, -0.5f, 0, 1 }, {0,1,0,1}, },
+        { { +0.5f, +0.5f, 0, 1 }, {0,0,1,1} }
+    };
+
+    static const MBEIndex indices[] =
+    {
+        0, 1, 2
+    };
+
+    auto _vertexBuffer = [self->_device newBufferWithBytes:vertices
+                                        length:sizeof(vertices)
+                                        options:MTLResourceOptionCPUCacheModeDefault];
+    [_vertexBuffer setLabel:@"Vertices"];
+
+    auto _indexBuffer = [self->_device newBufferWithBytes:indices
+                                       length:sizeof(indices)
+                                       options:MTLResourceOptionCPUCacheModeDefault];
+    [_indexBuffer setLabel:@"Indices"];
 
     auto cmdBuffer = [self->_cmdQueue commandBuffer];
     auto cmdEncoder = [cmdBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+
+    [cmdEncoder setRenderPipelineState:self->_renderPipelineState];
+    //[cmdEncoder setDepthStencilState:self->_depthStencilState];
+    [cmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [cmdEncoder setCullMode:MTLCullModeBack];
+
+    [cmdEncoder setVertexBuffer:_vertexBuffer offset:0 atIndex:0];
+
+    [cmdEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                indexCount:[_indexBuffer length] / sizeof(MBEIndex)
+                indexType:MBEIndexType
+                indexBuffer:_indexBuffer
+                indexBufferOffset:0];
+
     [cmdEncoder endEncoding];
 
     [cmdBuffer presentDrawable:drawable];
