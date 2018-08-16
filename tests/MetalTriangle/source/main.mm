@@ -19,9 +19,6 @@
 -(void)viewDidLayout;
 -(void)viewWillDisappear;
 -(void)viewDidDisappear;
-/* ---- */
-- (void)drawInMTKView:(nonnull MTKView *)view;
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
 @end
 
 /* ---------------------------------------------------------------------- */
@@ -122,7 +119,7 @@
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
 }
 
-/* ---- */
+/* -- MTKViewDelegate -- */
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
