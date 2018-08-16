@@ -6,6 +6,7 @@
     <Package name="Clang" version="Xcode9" default="true" />
     <Package name="Gcc" version="4.8" default="true" />
     <Package name="MakeFileBuilder" />
+    <Package name="MetalUtilities" />
     <Package name="NativeBuilder" />
     <Package name="Publisher" />
     <Package name="VisualC" version="15.0" default="true" />

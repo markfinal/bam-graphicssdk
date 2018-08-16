@@ -1,4 +1,4 @@
-using MetalExtensions;
+using MetalUtilities;
 namespace MetalTriangle
 {
     class MetalTest :
@@ -10,20 +10,20 @@ namespace MetalTriangle
         {
             base.Init(parent);
 
-            var shaderSource = Bam.Core.Module.Create<MetalShaderSource>(
+            var shaderSource = Bam.Core.Module.Create<MetalUtilities.MetalShaderSource>(
                 preInitCallback: module =>
                     {
                         (module as Bam.Core.IInputPath).InputPath = this.CreateTokenizedString("$(packagedir)/resources/shaders.metal");
                     }
             );
-            var shaderCompiled = Bam.Core.Module.Create<CompiledMetalShader>(
+            var shaderCompiled = Bam.Core.Module.Create<MetalUtilities.CompiledMetalShader>(
                 preInitCallback: module =>
                     {
                         module.ShaderSource = shaderSource;
                         module.DependsOn(shaderSource);
                     }
             );
-            var shaderLibrary = Bam.Core.Module.Create<MetalShaderLibrary>();
+            var shaderLibrary = Bam.Core.Module.Create<MetalUtilities.MetalShaderLibrary>();
             shaderLibrary.DependsOn(shaderCompiled);
             shaderLibrary.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");
 

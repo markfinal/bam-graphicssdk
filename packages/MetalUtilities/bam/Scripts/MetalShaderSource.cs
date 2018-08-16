@@ -1,4 +1,4 @@
-namespace MetalTriangle
+namespace MetalUtilities
 {
     class MetalShaderSource :
         Bam.Core.Module,

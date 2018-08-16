@@ -1,4 +1,4 @@
-namespace MetalExtensions
+namespace MetalUtilities
 {
     public static class MetalExtensions
     {
@@ -7,8 +7,8 @@ namespace MetalExtensions
             this Publisher.Collation collation)
         {
             collation.Mapping.Register(
-                typeof(MetalTriangle.MetalShaderLibrary),
-                MetalTriangle.MetalShaderLibrary.ShaderLibraryKey,
+                typeof(MetalShaderLibrary),
+                MetalShaderLibrary.ShaderLibraryKey,
                 collation.ResourceDir,
                 true
             );
