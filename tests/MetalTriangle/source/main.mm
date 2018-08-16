@@ -133,15 +133,18 @@
 @implementation MetalViewDelegate : NSViewController
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     (void)view;
 }
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
+    NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     (void)view;
     (void)size;
 }
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder
 {
+    NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     (void)aCoder;
 }
 @end
