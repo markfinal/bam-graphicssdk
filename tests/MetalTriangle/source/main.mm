@@ -22,7 +22,6 @@
 /* ---- */
 - (void)drawInMTKView:(nonnull MTKView *)view;
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
-- (void)encodeWithCoder:(nonnull NSCoder *)aCoder;
 @end
 
 /* ---------------------------------------------------------------------- */
@@ -135,11 +134,6 @@
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     (void)view;
     (void)size;
-}
-- (void)encodeWithCoder:(nonnull NSCoder *)aCoder
-{
-    NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
-    (void)aCoder;
 }
 
 @end
