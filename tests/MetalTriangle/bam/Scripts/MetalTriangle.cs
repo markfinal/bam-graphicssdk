@@ -337,6 +337,7 @@ namespace MetalTriangle
             );
             var shaderLibrary = Bam.Core.Module.Create<MetalShaderLibrary>();
             shaderLibrary.DependsOn(shaderCompiled);
+            shaderLibrary.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");
 
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
             source.PrivatePatch(settings =>
@@ -384,6 +385,8 @@ namespace MetalTriangle
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+            this.Mapping.Register(typeof(MetalShaderLibrary), MetalShaderLibrary.ShaderLibraryKey, this.ResourceDir, true);
+
             this.Include<MetalTest>(C.Cxx.GUIApplication.ExecutableKey);
         }
     }
