@@ -141,6 +141,9 @@ int
 main()
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+    NSLog(@"%@", [[NSProcessInfo processInfo] arguments]);
+
     [NSApplication sharedApplication];
 
     std::unique_ptr<WindowLibrary::GraphicsWindow> metalWindow(new WindowLibrary::GraphicsWindow);
