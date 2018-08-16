@@ -55,6 +55,9 @@
     passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
     passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
     passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
+    passDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    passDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+    passDescriptor.depthAttachment.clearDepth = 1.0f;
 
     auto cmdBuffer = [self->_cmdQueue commandBuffer];
     auto cmdEncoder =
