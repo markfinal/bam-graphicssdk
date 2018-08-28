@@ -64,7 +64,11 @@ namespace DirectXSDK
                     throw new DX9SDKNotInstalledException();
                 }
 
+#if DOTNETCORE
+                return dxInstallLocation.GetStringValue("InstallPath");
+#else
                 return dxInstallLocation.GetValue("InstallPath") as string;
+#endif
             }
         }
 
