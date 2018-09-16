@@ -87,15 +87,5 @@ namespace OpenGLSDK
         {
             // do nothing
         }
-
-#if BAM_V2
-#else
-        protected override void
-        GetExecutionPolicy(
-            string mode)
-        {
-            // do nothing
-        }
-#endif
     }
 }
