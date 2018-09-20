@@ -49,11 +49,17 @@ namespace DirectXSDK
                     System.Diagnostics.Debug.Assert(1 == vcEnv["WindowsSdkDir"].Count, "Only one WindowsSDK directory");
                     if (this.BitDepth == C.EBit.SixtyFour)
                     {
-                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
+                        this.RegisterGeneratedFile(
+                            C.DynamicLibrary.ExecutableKey,
+                            this.CreateTokenizedString("$(0)/Redist/D3D/x64/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray())
+                        );
                     }
                     else if (this.BitDepth == C.EBit.ThirtyTwo)
                     {
-                        this.GeneratedPaths[C.DynamicLibrary.Key] = this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray());
+                        this.RegisterGeneratedFile(
+                            C.DynamicLibrary.ExecutableKey,
+                            this.CreateTokenizedString("$(0)/Redist/D3D/x86/d3dcompiler_47$(dynamicext)", vcEnv["WindowsSdkDir"].ToArray())
+                        );
                     }
                 }
                 else

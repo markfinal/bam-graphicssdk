@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="SPIRVHeaders" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
-  <Description>A new package called SPIRVHeaders</Description>
+<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="MetalUtilities" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
+  <Dependents>
+    <Package name="Publisher" />
+  </Dependents>
   <BamAssemblies>
     <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />
   </BamAssemblies>

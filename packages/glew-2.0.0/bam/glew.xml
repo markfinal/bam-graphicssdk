@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="glew" version="2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
-  <PackageRepositories>
-    <Repo dir="../../../../bam-graphicssdk/packages/" />
-  </PackageRepositories>
   <Dependents>
     <Package name="C" />
     <Package name="Clang" version="Xcode4" />
@@ -25,7 +22,7 @@
     <Package name="VSSolutionBuilder" />
   </Dependents>
   <BamAssemblies>
-    <BamAssembly name="Bam.Core" major="1" minor="2" />
+    <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />
   </BamAssemblies>
   <DotNetAssemblies>
     <DotNetAssembly name="System" requiredTargetFramework="4.0.30319" />

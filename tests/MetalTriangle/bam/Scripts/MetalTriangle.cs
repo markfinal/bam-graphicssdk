@@ -1,4 +1,4 @@
-using MetalExtensions;
+using MetalUtilities;
 namespace MetalTriangle
 {
     class MetalTest :
@@ -10,8 +10,24 @@ namespace MetalTriangle
         {
             base.Init(parent);
 
+            var shaderSource = Bam.Core.Module.Create<MetalUtilities.MetalShaderSource>(
+                preInitCallback: module =>
+                    {
+                        (module as Bam.Core.IInputPath).InputPath = this.CreateTokenizedString("$(packagedir)/resources/shaders.metal");
+                    }
+            );
+            var shaderCompiled = Bam.Core.Module.Create<MetalUtilities.CompiledMetalShader>(
+                preInitCallback: module =>
+                    {
+                        module.ShaderSource = shaderSource;
+                        module.DependsOn(shaderSource);
+                    }
+            );
+
+            var defaultShaderLibrary = Bam.Core.Graph.Instance.FindReferencedModule<MetalUtilities.DefaultMetalShaderLibrary>();
+            defaultShaderLibrary.DependsOn(shaderCompiled);
+
             var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
-            source.AddFiles("$(packagedir)/resources/*.metal");
             source.PrivatePatch(settings =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;
@@ -28,6 +44,7 @@ namespace MetalTriangle
             });
 
             this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
+            this.DependsOn(defaultShaderLibrary);
 
             this.PrivatePatch(settings =>
             {
@@ -39,10 +56,8 @@ namespace MetalTriangle
                 osxLinker.Frameworks.AddUnique("Metal");
                 osxLinker.Frameworks.AddUnique("MetalKit");
                 osxLinker.Frameworks.AddUnique("QuartzCore"); // including Core Animation
-                osxLinker.MinimumVersionSupported = "macos10.9";
+                osxLinker.MacOSMinimumVersionSupported = "10.9";
             });
-
-            //this.addMetalResources(this.CreateTokenizedString("$(packagedir)/resources/*.metal"));
         }
     }
 
@@ -56,7 +71,13 @@ namespace MetalTriangle
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
-            this.Include<MetalTest>(C.Cxx.GUIApplication.Key);
+            if (Bam.Core.Graph.Instance.Mode != "Xcode")
+            {
+                // not on Xcode, since this auto-generates the Metal shader library
+                this.registerMetalMappings();
+            }
+
+            this.Include<MetalTest>(C.Cxx.GUIApplication.ExecutableKey);
         }
     }
 }

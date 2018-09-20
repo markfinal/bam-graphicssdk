@@ -3,8 +3,8 @@
   <Description>MoltenVK, Vulkan layer 0 over Metal for macOS, version 1.0.10</Description>
   <Dependents>
     <Package name="C" />
-    <Package name="Clang" version="Xcode9" default="true" />
     <Package name="cereal" version="1.2.2" />
+    <Package name="Clang" version="Xcode9" default="true" />
     <Package name="NativeBuilder" />
     <Package name="Publisher" />
     <Package name="SPIRVCross" />
@@ -13,7 +13,7 @@
     <Package name="XcodeBuilder" />
   </Dependents>
   <BamAssemblies>
-    <BamAssembly name="Bam.Core" major="1" minor="2" />
+    <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />
   </BamAssemblies>
   <DotNetAssemblies>
     <DotNetAssembly name="System" requiredTargetFramework="4.0.30319" />

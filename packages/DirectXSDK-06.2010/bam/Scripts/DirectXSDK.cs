@@ -88,12 +88,5 @@ namespace DirectXSDK
         {
             // do nothing
         }
-
-        protected override void
-        GetExecutionPolicy(
-            string mode)
-        {
-            // do nothing
-        }
     }
 }

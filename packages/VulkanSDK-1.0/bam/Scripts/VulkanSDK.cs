@@ -86,10 +86,16 @@ namespace VulkanSDK
             }
 
             this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
-            this.GeneratedPaths[Key] = this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)"); // note: 64-bit
+            this.RegisterGeneratedFile(
+                ExecutableKey,
+                this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)") // note: 64-bit
+            );
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
-                this.GeneratedPaths[ImportLibraryKey] = this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)");
+                this.RegisterGeneratedFile(
+                    ImportLibraryKey,
+                    this.CreateTokenizedString("$(VulkanLibDir)/$(libprefix)$(OutputName)$(libext)")
+                );
             }
 
             var headers = this.CreateHeaderContainer();
