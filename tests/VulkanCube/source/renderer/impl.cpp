@@ -408,6 +408,19 @@ Renderer::Impl::create_logical_device()
         throw Exception("Unable to find queue family with graphics support on this physical device");
     }
 
+    ::VkBool32 presentSupport = false;
+    auto getPDeviceSurfaceSupportFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceSupportKHR);
+    getPDeviceSurfaceSupportFn(
+        pDevice,
+        graphics_family_queue_index,
+        this->_surface.get(),
+        &presentSupport
+    );
+    if (!presentSupport)
+    {
+        throw Exception("Physical device cannot support presentation on the window surface");
+    }
+
     // logical devices need a queue
     VkDeviceQueueCreateInfo queue_info;
     memset(&queue_info, 0, sizeof(queue_info));
