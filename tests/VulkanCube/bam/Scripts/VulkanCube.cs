@@ -86,10 +86,14 @@ namespace VulkanCube
 
             this.PrivatePatch(settings =>
             {
-                var clang_linker = settings as ClangCommon.ICommonLinkerSettings;
-                if (null != clang_linker)
+                if (settings is ClangCommon.ICommonLinkerSettings clang_linker)
                 {
                     clang_linker.RPath.AddUnique(@"@executable_path/../Frameworks");
+                }
+
+                if (settings is C.ICommonLinkerSettingsOSX linkerOSX)
+                {
+                    linkerOSX.Frameworks.AddUnique("Cocoa");
                 }
 
                 var linker = settings as C.ICommonLinkerSettings;
