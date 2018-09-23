@@ -82,7 +82,7 @@ namespace VulkanCube
             else
             {
                 this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
-                source.AddFile("$(packagedir)/source/entry/windows/*.cpp");
+                source.AddFiles("$(packagedir)/source/entry/windows/*.cpp");
                 this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
             }
 
