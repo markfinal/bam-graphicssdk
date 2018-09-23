@@ -38,6 +38,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 
+namespace
+{
+
+int
+event_loop()
+{
+#if defined(D_BAM_PLATFORM_WINDOWS)
+    ::MSG msg;
+
+    // loop until WM_QUIT(0) received
+    while (::GetMessage(&msg, 0, 0, 0) > 0)
+    {
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
+    }
+
+    return static_cast<int>(msg.wParam);
+#endif
+}
+
+} // anonymous namespace
+
 #ifdef D_BAM_PLATFORM_WINDOWS
 int CALLBACK
 WinMain(
@@ -60,6 +82,10 @@ main()
         window->init(256, 256, "Vulkan Cube");
         std::unique_ptr<Renderer> renderer(new Renderer(window.get()));
         renderer->init();
+
+        window->show();
+
+        return event_loop();
     }
     catch (const std::exception &inEx)
     {
