@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Renderer::Impl::Impl()
     :
     _instance(nullptr, nullptr),
-    _logical_device(nullptr, nullptr),
-    _surface(nullptr, nullptr)
+    _surface(nullptr, nullptr),
+    _logical_device(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
