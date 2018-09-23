@@ -1,3 +1,6 @@
+#include "renderer/renderer.h"
+#include "appwindow.h"
+
 #include "windowlibrary/graphicswindow.h"
 
 #include <memory>
@@ -98,7 +101,7 @@ main()
     [appMenuItem setSubmenu:appMenu];
 
     /* -- add a Metal view -- */
-    std::unique_ptr<WindowLibrary::GraphicsWindow> metalWindow(new WindowLibrary::GraphicsWindow);
+    std::unique_ptr<AppWindow> metalWindow(new AppWindow);
     metalWindow->init(512, 512, "Vulkan Cube Example");
 
     auto metal_view = [[MTKView alloc] initWithFrame:NSMakeRect(0, 0, metalWindow->width(), metalWindow->height())];
@@ -107,6 +110,9 @@ main()
     view_controller.view = metal_view;
 
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
+
+    std::unique_ptr<Renderer> renderer(new Renderer(metalWindow.get()));
+    renderer->init();
 
     metalWindow->show();
 

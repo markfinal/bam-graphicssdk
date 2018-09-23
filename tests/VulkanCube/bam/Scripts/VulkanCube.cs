@@ -57,6 +57,23 @@ namespace VulkanCube
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
                 var objCxxSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/entry/macos/*.mm");
+                objCxxSource.PrivatePatch(settings =>
+                    {
+                        var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
+                        cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
+                        cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
+
+                        var compiler = settings as C.ICommonCompilerSettings;
+                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+
+                        var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
+                        if (null != clang_compiler)
+                        {
+                            clang_compiler.AllWarnings = true;
+                            clang_compiler.ExtraWarnings = true;
+                            clang_compiler.Pedantic = true;
+                        }
+                    });
 
                 this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source, objCxxSource);
                 this.CompileAndLinkAgainst<MoltenVK.MoltenVK>(source);
