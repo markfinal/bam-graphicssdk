@@ -118,18 +118,54 @@ Renderer::Impl::create_instance()
         Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
     }
 
-    auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
     {
-        return (0 == strcmp(extension.extensionName, "VK_KHR_surface"));
-    });
-    if (khr_surface_it == extensions.end())
-    {
-        throw Exception("Instance does not support the VK_KHR_surface extension");
+        auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
+        {
+            return (0 == strcmp(extension.extensionName, "VK_KHR_surface"));
+        });
+        if (khr_surface_it == extensions.end())
+        {
+            throw Exception("Instance does not support the VK_KHR_surface extension");
+        }
     }
-
-    const std::array<const char*, 1> instanceExtensionNames
+#if defined(D_BAM_PLATFORM_WINDOWS)
     {
-        { "VK_KHR_surface" }
+        auto khr_win32_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
+        {
+            return (0 == strcmp(extension.extensionName, "VK_KHR_win32_surface"));
+        });
+        if (khr_win32_surface_it == extensions.end())
+        {
+            throw Exception("Instance does not support the VK_KHR_win32_surface extension");
+        }
+    }
+#elif defined(D_BAM_PLATFORM_OSX)
+    {
+        auto mvk_macos_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
+        {
+            return (0 == strcmp(extension.extensionName, "VK_MVK_macos_surface"));
+        });
+        if (mvk_macos_surface_it == extensions.end())
+        {
+            throw Exception("Instance does not support the VK_MVK_macos_surface extension");
+        }
+}
+#else
+#error Unsupported platform
+#endif
+
+    const std::array<const char*, 2> instanceExtensionNames
+    {
+        {
+            "VK_KHR_surface",
+#if defined(D_BAM_PLATFORM_WINDOWS)
+            "VK_KHR_win32_surface"
+#elif defined(D_BAM_PLATFORM_OSX)
+            "VK_MVK_macos_surface"
+#else
+#error Unsupported platform
+#endif
+        }
     };
 
     ::VkInstanceCreateInfo createInfo;

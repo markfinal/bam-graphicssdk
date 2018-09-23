@@ -48,6 +48,7 @@ struct Renderer::Impl
     size_t                                                  _physical_device_index = -1;
     std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>     _logical_device;
     ::VkQueue                                               _graphics_queue;
+    ::VkSurfaceKHR                                          _surface;
 
     class VkFunctionTable
     {
