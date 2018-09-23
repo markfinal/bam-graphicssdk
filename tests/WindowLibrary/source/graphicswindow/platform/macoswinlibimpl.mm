@@ -74,7 +74,7 @@ GraphicsWindow::Impl::createWindow(
     const uint32_t inHeight,
     const std::string &inTitle)
 {
-    NSUInteger windowStyle = NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask;
+    NSUInteger windowStyle = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
 
     NSRect windowRect = NSMakeRect(0, 0, inWidth, inHeight);
     NSWindow *window = [[NSWindow alloc] initWithContentRect:windowRect
