@@ -40,9 +40,11 @@ namespace WindowLibrary
 
 #ifdef __OBJC__
 typedef NSWindow *WindowHandle;
+typedef NSView *ViewHandle;
 typedef CAMetalLayer *MetalLayerHandle;
 #else
 typedef void *WindowHandle;
+typedef void *ViewHandle;
 typedef void *MetalLayerHandle;
 #endif
 

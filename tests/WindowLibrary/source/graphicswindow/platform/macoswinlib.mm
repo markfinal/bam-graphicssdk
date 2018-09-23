@@ -58,18 +58,18 @@ GraphicsWindow::getNativeWindowHandle() const
 }
 
 void
-GraphicsWindow::macosSetCAMetalLayerHandle(
-    MetalLayerHandle inLayerHandle)
+GraphicsWindow::macosSetViewHandle(
+    ViewHandle inViewHandle)
 {
     auto impl = this->_impl.get();
-    impl->_metalLayer = inLayerHandle;
+    impl->_viewHandle = inViewHandle;
 }
 
-MetalLayerHandle
-GraphicsWindow::macosGetCAMetalLayerHandle() const
+ViewHandle
+GraphicsWindow::macosGetViewHandle() const
 {
     auto impl = this->_impl.get();
-    return impl->_metalLayer;
+    return impl->_viewHandle;
 }
 
 } // namespace WindowLibrary

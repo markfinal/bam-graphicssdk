@@ -45,7 +45,7 @@ struct GraphicsWindow::Impl
     uint32_t         _width;
     uint32_t         _height;
     WindowHandle     _window = nullptr;
-    MetalLayerHandle _metalLayer = nullptr;
+    ViewHandle       _viewHandle = nullptr;
 
     Impl(
         GraphicsWindow *inParent);

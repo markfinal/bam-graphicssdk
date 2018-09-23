@@ -19,9 +19,7 @@ std::unique_ptr<Renderer> renderer;
 
 @interface MetalViewController : NSViewController
 {
-    CAMetalLayer *_metalLayer;
 }
--(void)configureMetal;
 -(void)viewDidLoad;
 -(void)viewWillAppear;
 -(void)viewDidAppear;
@@ -35,10 +33,6 @@ std::unique_ptr<Renderer> renderer;
 /* ---------------------------------------------------------------------- */
 
 @implementation MetalViewController : NSViewController
--(void)configureMetal
-{
-    self->_metalLayer = [CAMetalLayer layer];
-}
 -(void)viewDidLoad
 {
     [super viewDidLoad];
@@ -53,9 +47,8 @@ std::unique_ptr<Renderer> renderer;
 {
     [super viewDidAppear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
-    [self configureMetal];
 
-    metalWindow->macosSetCAMetalLayerHandle(self->_metalLayer);
+    metalWindow->macosSetViewHandle([self view]);
 
     renderer.reset(new Renderer(metalWindow.get()));
     renderer->init();
@@ -114,9 +107,14 @@ main()
     metalWindow.reset(new AppWindow);
     metalWindow->init(512, 512, "Vulkan Cube Example");
 
-    auto metal_view = [[MTKView alloc] initWithFrame:NSMakeRect(0, 0, metalWindow->width(), metalWindow->height())];
-    auto view_controller = [[MetalViewController alloc] init];
+    auto metal_view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, metalWindow->width(), metalWindow->height())];
+    if (![metal_view.layer isKindOfClass:[CAMetalLayer class]])
+    {
+        [metal_view setLayer:[CAMetalLayer layer]];
+        [metal_view setWantsLayer:YES];
+    }
 
+    auto view_controller = [[MetalViewController alloc] init];
     view_controller.view = metal_view;
 
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
