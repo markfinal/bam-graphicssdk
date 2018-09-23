@@ -244,7 +244,7 @@ Renderer::Impl::create_logical_device()
     Log().get() << "Found " << numDeviceExtensions << " device extensions" << std::endl;
     std::vector<::VkExtensionProperties> deviceExtensions(numDeviceExtensions);
     enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, deviceExtensions.data());
-    for (auto i = 0; i < numDeviceExtensions; ++i)
+    for (auto i = 0u; i < numDeviceExtensions; ++i)
     {
         const auto &ext = deviceExtensions[i];
         Log().get() << "\t" << i << ": " << ext.extensionName << ", " << ext.specVersion << std::endl;
@@ -257,7 +257,7 @@ Renderer::Impl::create_logical_device()
     Log().get() << "Found " << numDeviceLayers << " device layers" << std::endl;
     std::vector<::VkLayerProperties> deviceLayers(numDeviceLayers);
     enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, deviceLayers.data());
-    for (auto i = 0; i < numDeviceLayers; ++i)
+    for (auto i = 0u; i < numDeviceLayers; ++i)
     {
         const auto &layer = deviceLayers[i];
         Log().get() << "\t" << i << ": " << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
