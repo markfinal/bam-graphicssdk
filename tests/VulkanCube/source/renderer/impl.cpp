@@ -92,9 +92,28 @@ Renderer::Impl::create_instance()
         &num_extensions,
         extensions.data()
     );
+    Log().get() << "Instance extensions:" << std::endl;
     for (const auto &ext : extensions)
     {
-        Log().get() << "Extension: " << ext.extensionName << ", v" << ext.specVersion << std::endl;
+        Log().get() << "\t" << ext.extensionName << ", v" << ext.specVersion << std::endl;
+    }
+
+    // query layers
+    auto query_layers_fn = GETFN(vkEnumerateInstanceLayerProperties);
+    uint32_t num_layers;
+    auto layer_query_res = query_layers_fn(
+        &num_layers,
+        nullptr
+    );
+    std::vector<::VkLayerProperties> layers(num_layers);
+    layer_query_res = query_layers_fn(
+        &num_layers,
+        layers.data()
+    );
+    Log().get() << "Instance layers:" << std::endl;
+    for (const auto &layer : layers)
+    {
+        Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
     }
 
     ::VkInstanceCreateInfo createInfo;
