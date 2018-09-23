@@ -132,7 +132,7 @@ Renderer::Impl::create_instance()
         throw Exception("Unable to create instance");
     }
     this->_function_table.get_instance_functions(instance);
-    this->_instance = decltype(this->_instance)(instance, this->_function_table.destroy_instance_wrapper);
+    this->_instance = { instance, this->_function_table.destroy_instance_wrapper };
 }
 
 void
@@ -279,7 +279,7 @@ Renderer::Impl::create_logical_device()
     {
         throw Exception("Unable to find create logical device");
     }
-    this->_logical_device = decltype(this->_logical_device)(device, this->_function_table.destroy_device_wrapper);
+    this->_logical_device = { device, this->_function_table.destroy_device_wrapper };
 
     auto graphics_queue_index = 0;
 
