@@ -56,15 +56,18 @@ namespace VulkanCube
 
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
+                var objCxxSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/entry/macos/*.mm");
+
+                this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source, objCxxSource);
                 this.CompileAndLinkAgainst<MoltenVK.MoltenVK>(source);
                 this.CompileAgainst<VulkanHeaders.VkHeaders>(source);
             }
             else
             {
+                this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
+                source.AddFile("$(packagedir)/source/entry/windows/*.cpp");
                 this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
             }
-
-            this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
 
             source.PrivatePatch(settings =>
                 {
@@ -94,6 +97,9 @@ namespace VulkanCube
                 if (settings is C.ICommonLinkerSettingsOSX linkerOSX)
                 {
                     linkerOSX.Frameworks.AddUnique("Cocoa");
+                    linkerOSX.Frameworks.AddUnique("Metal");
+                    linkerOSX.Frameworks.AddUnique("MetalKit");
+                    linkerOSX.Frameworks.AddUnique("QuartzCore");
                 }
 
                 var linker = settings as C.ICommonLinkerSettings;
