@@ -57,4 +57,19 @@ GraphicsWindow::getNativeWindowHandle() const
     return impl->_window;
 }
 
+MetalLayerHandle
+GraphicsWindow::metalLayer() const
+{
+    auto impl = this->_impl.get();
+    for (NSView *view : [[impl->_window contentView] subviews])
+    {
+        auto responder = [view nextResponder];
+        if ([responder isKindOfClass:[NSViewController class]])
+        {
+        }
+        break;
+    }
+    return nullptr; // this is an error
+}
+
 } // namespace WindowLibrary

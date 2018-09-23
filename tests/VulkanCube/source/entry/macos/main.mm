@@ -111,6 +111,7 @@ main()
 
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
 
+    // TODO: this has to happen after Metal has been configured
     std::unique_ptr<Renderer> renderer(new Renderer(metalWindow.get()));
     renderer->init();
 

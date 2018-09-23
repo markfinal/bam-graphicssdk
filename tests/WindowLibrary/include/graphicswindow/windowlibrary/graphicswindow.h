@@ -94,7 +94,8 @@ public:
     Atom
     linuxDeleteWindowMessage() const;
 #elif defined(D_BAM_PLATFORM_OSX)
-    // TODO
+    MetalLayerHandle
+    metalLayer() const;
 #else
 #error Unsupported platform
 #endif // D_BAM_PLATFORM_WINDOWS

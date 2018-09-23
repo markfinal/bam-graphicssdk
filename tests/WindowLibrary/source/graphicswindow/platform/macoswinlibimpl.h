@@ -44,11 +44,7 @@ struct GraphicsWindow::Impl
     GraphicsWindow *_parent = nullptr;
     uint32_t        _width;
     uint32_t        _height;
-#ifdef __OBJC__
-    NSWindow *_window = nullptr;
-#else
-    void     *_window = nullptr;
-#endif
+    WindowHandle    _window = nullptr;
 
     Impl(
         GraphicsWindow *inParent);

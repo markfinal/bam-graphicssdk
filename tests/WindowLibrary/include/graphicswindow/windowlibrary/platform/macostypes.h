@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
+#import <QuartzCore/CAMetalLayer.h>
 #endif
 
 namespace WindowLibrary
@@ -39,8 +40,10 @@ namespace WindowLibrary
 
 #ifdef __OBJC__
 typedef NSWindow *WindowHandle;
+typedef CAMetalLayer *MetalLayerHandle;
 #else
 typedef void *WindowHandle;
+typedef void *MetalLayerHandle;
 #endif
 
 } // namespace WindowLibrary
