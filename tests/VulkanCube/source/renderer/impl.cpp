@@ -117,12 +117,12 @@ Renderer::Impl::create_instance()
     }
 
     ::VkInstanceCreateInfo createInfo;
-    //::VkAllocationCallbacks allocCbs;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = 0;
     createInfo.enabledExtensionCount = 0;
+    //::VkAllocationCallbacks allocCbs;
     //memset(&allocCbs, 0, sizeof(allocCbs));
     ::VkInstance instance;
     auto createInstanceFn = GETFN(vkCreateInstance);
@@ -168,8 +168,65 @@ Renderer::Impl::enumerate_physics_devices()
         VkPhysicalDeviceFeatures features;
         getPhysDeviceFeaturesFn(device, &features);
         Log().get() << "Features of physical device " << i << std::endl;
-        Log().get() << "\tGeometry shader: " << features.geometryShader << std::endl;
-        Log().get() << "\tTessellation shader: " << features.tessellationShader << std::endl;
+
+#define LOG_FEATURE(_feature) Log().get() << "\t"#_feature << ": " << features._feature << std::endl
+
+        LOG_FEATURE(alphaToOne);
+        LOG_FEATURE(depthBiasClamp);
+        LOG_FEATURE(depthBounds);
+        LOG_FEATURE(depthClamp);
+        LOG_FEATURE(drawIndirectFirstInstance);
+        LOG_FEATURE(dualSrcBlend);
+        LOG_FEATURE(fillModeNonSolid);
+        LOG_FEATURE(fragmentStoresAndAtomics);
+        LOG_FEATURE(fullDrawIndexUint32);
+        LOG_FEATURE(geometryShader);
+        LOG_FEATURE(imageCubeArray);
+        LOG_FEATURE(independentBlend);
+        LOG_FEATURE(inheritedQueries);
+        LOG_FEATURE(largePoints);
+        LOG_FEATURE(logicOp);
+        LOG_FEATURE(multiDrawIndirect);
+        LOG_FEATURE(multiViewport);
+        LOG_FEATURE(occlusionQueryPrecise);
+        LOG_FEATURE(pipelineStatisticsQuery);
+        LOG_FEATURE(robustBufferAccess);
+        LOG_FEATURE(samplerAnisotropy);
+        LOG_FEATURE(sampleRateShading);
+        LOG_FEATURE(shaderClipDistance);
+        LOG_FEATURE(shaderCullDistance);
+        LOG_FEATURE(shaderFloat64);
+        LOG_FEATURE(shaderImageGatherExtended);
+        LOG_FEATURE(shaderInt16);
+        LOG_FEATURE(shaderInt64);
+        LOG_FEATURE(shaderResourceMinLod);
+        LOG_FEATURE(shaderResourceResidency);
+        LOG_FEATURE(shaderSampledImageArrayDynamicIndexing);
+        LOG_FEATURE(shaderStorageBufferArrayDynamicIndexing);
+        LOG_FEATURE(shaderStorageImageArrayDynamicIndexing);
+        LOG_FEATURE(shaderStorageImageExtendedFormats);
+        LOG_FEATURE(shaderStorageImageMultisample);
+        LOG_FEATURE(shaderStorageImageReadWithoutFormat);
+        LOG_FEATURE(shaderStorageImageWriteWithoutFormat);
+        LOG_FEATURE(shaderTessellationAndGeometryPointSize);
+        LOG_FEATURE(shaderUniformBufferArrayDynamicIndexing);
+        LOG_FEATURE(sparseBinding);
+        LOG_FEATURE(sparseResidency16Samples);
+        LOG_FEATURE(sparseResidency2Samples);
+        LOG_FEATURE(sparseResidency4Samples);
+        LOG_FEATURE(sparseResidency8Samples);
+        LOG_FEATURE(sparseResidencyAliased);
+        LOG_FEATURE(sparseResidencyBuffer);
+        LOG_FEATURE(sparseResidencyImage2D);
+        LOG_FEATURE(sparseResidencyImage3D);
+        LOG_FEATURE(tessellationShader);
+        LOG_FEATURE(textureCompressionASTC_LDR);
+        LOG_FEATURE(textureCompressionBC);
+        LOG_FEATURE(textureCompressionETC2);
+        LOG_FEATURE(variableMultisampleRate);
+        LOG_FEATURE(vertexPipelineStoresAndAtomics);
+
+#undef LOG_FEATURE
     }
 
     // arbitrary choice
