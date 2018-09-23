@@ -31,6 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.h"
 #include "log.h"
 
+#if defined(D_BAM_PLATFORM_OSX)
+#include "vulkan/vulkan_macos.h"
+#endif
+
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -225,6 +229,24 @@ Renderer::Impl::create_window_surface()
 
     this->_surface = { surface, this->_function_table.destroy_surface_khr_wrapper };
 #elif defined(D_BAM_PLATFORM_OSX)
+    ::VkMacOSSurfaceCreateInfoMVK createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+
+    auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateMacOSSurfaceMVK);
+    ::VkSurfaceKHR surface;
+    auto createWindowSurfaceRes = createWindowSurfaceFn(
+        this->_instance.get(),
+        &createInfo,
+        nullptr,
+        &surface
+    );
+    if (VK_SUCCESS != createWindowSurfaceRes)
+    {
+        throw Exception("Unable to create window surface");
+    }
+
+    this->_surface = { surface, this->_function_table.destroy_surface_khr_wrapper };
 #else
 #error Unsupported platform
 #endif
