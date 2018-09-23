@@ -129,7 +129,7 @@ Renderer::Impl::create_instance()
 
     const std::array<const char*, 1> instanceExtensionNames
     {
-        "VK_KHR_surface"
+        { "VK_KHR_surface" }
     };
 
     ::VkInstanceCreateInfo createInfo;
