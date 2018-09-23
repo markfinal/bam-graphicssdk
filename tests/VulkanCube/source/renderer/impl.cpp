@@ -476,4 +476,57 @@ Renderer::Impl::create_logical_device()
         present_queue_index,
         &this->_present_queue
     );
+
+    auto getSurfaceCapsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+    ::VkSurfaceCapabilitiesKHR surfaceCaps;
+    getSurfaceCapsFn(
+        pDevice,
+        this->_surface.get(),
+        &surfaceCaps
+    );
+    Log().get() << "Surface capabilities" << std::endl;
+    Log().get() << "Image count: [" << surfaceCaps.minImageCount << ", " << surfaceCaps.maxImageCount << "]" << std::endl;
+    Log().get() << "Image extent: [(" << surfaceCaps.minImageExtent.width << "x" << surfaceCaps.minImageExtent.height << "), (" << surfaceCaps.maxImageExtent.width << "x" << surfaceCaps.maxImageExtent.height << ")]" << std::endl;
+
+    uint32_t surfaceFormatCount = 0;
+    auto getSurfaceFormatsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceFormatsKHR);
+    getSurfaceFormatsFn(
+        pDevice,
+        this->_surface.get(),
+        &surfaceFormatCount,
+        nullptr
+    );
+    std::vector<::VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
+    getSurfaceFormatsFn(
+        pDevice,
+        this->_surface.get(),
+        &surfaceFormatCount,
+        surfaceFormats.data()
+    );
+    Log().get() << surfaceFormatCount << " surface formats" << std::endl;
+    for (const auto format : surfaceFormats)
+    {
+        Log().get() << format.format << " " << format.colorSpace << std::endl;
+    }
+
+    uint32_t presentModeCount = 0;
+    auto getPresentModesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfacePresentModesKHR);
+    getPresentModesFn(
+        pDevice,
+        this->_surface.get(),
+        &presentModeCount,
+        nullptr
+    );
+    std::vector<::VkPresentModeKHR> presentModes(presentModeCount);
+    getPresentModesFn(
+        pDevice,
+        this->_surface.get(),
+        &presentModeCount,
+        presentModes.data()
+    );
+    Log().get() << presentModeCount << " present modes" << std::endl;
+    for (const auto pMode : presentModes)
+    {
+        Log().get() << pMode << std::endl;
+    }
 }
