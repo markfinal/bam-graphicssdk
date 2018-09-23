@@ -30,9 +30,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "impl.h"
 #include "exception.h"
 
-Renderer::Renderer()
+#include "../appwindow.h"
+
+Renderer::Renderer(
+    AppWindow *inWindow)
     :
-    _impl(new Impl)
+    _impl(new Impl(inWindow))
 {}
 
 Renderer::~Renderer() = default;

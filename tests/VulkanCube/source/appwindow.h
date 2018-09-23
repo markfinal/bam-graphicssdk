@@ -27,26 +27,23 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef VULKAN_RENDERER_H
-#define VULKAN_RENDERER_H
+#ifndef APPWINDOW_H
+#define APPWINDOW_H
 
-#include <memory>
+#include "windowlibrary/graphicswindow.h"
 
-class AppWindow;
-
-class Renderer
+class AppWindow :
+    public WindowLibrary::GraphicsWindow
 {
 public:
-    Renderer(
-        AppWindow *inWindow);
-    ~Renderer();
+    void
+    onCreate() override;
 
     void
-    init();
+    onDestroy() override;
 
-private:
-    struct Impl;
-    std::unique_ptr<Impl> _impl;
+    void
+    onClose() override;
 };
 
-#endif // VULKAN_RENDERER_H
+#endif // APPWINDOW_H

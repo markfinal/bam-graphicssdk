@@ -4,6 +4,7 @@
   <Dependents>
     <Package name="C" />
     <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="Gcc" version="4.8" default="true" />
     <Package name="MakeFileBuilder" />
     <Package name="MoltenVK" version="1.0.10" />
     <Package name="NativeBuilder" />
@@ -12,6 +13,7 @@
     <Package name="VisualC" version="15.0" default="true" />
     <Package name="VSSolutionBuilder" />
     <Package name="VulkanSDK" version="1.0" />
+    <Package name="WindowLibrary" />
     <Package name="XcodeBuilder" />
   </Dependents>
   <BamAssemblies>

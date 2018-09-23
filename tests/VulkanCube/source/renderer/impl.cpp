@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.h"
 #include "log.h"
 
+#include "../appwindow.h"
+
 #if defined(D_BAM_PLATFORM_OSX)
 #include "vulkan/vulkan_macos.h"
 #endif
@@ -39,9 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 #include <functional>
 
-Renderer::Impl::Impl()
+Renderer::Impl::Impl(
+    AppWindow *inWindow)
     :
     _instance(nullptr, nullptr),
+    _window(inWindow),
     _surface(nullptr, nullptr),
     _logical_device(nullptr, nullptr)
 {}
@@ -211,7 +215,7 @@ Renderer::Impl::create_window_surface()
     ::VkWin32SurfaceCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    createInfo.hwnd = 0; // TODO
+    createInfo.hwnd = this->_window->getNativeWindowHandle();
     createInfo.hinstance = ::GetModuleHandle(nullptr);
 
     auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateWin32SurfaceKHR);

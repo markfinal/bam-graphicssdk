@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "renderer/renderer.h"
 #include "log.h"
+#include "appwindow.h"
 
 #ifdef D_BAM_PLATFORM_WINDOWS
 #include <Windows.h>
@@ -52,7 +53,12 @@ main()
     Log().get() << "Vulkan cube test starting up..." << std::endl;
     try
     {
-        std::unique_ptr<Renderer> renderer(new Renderer);
+        std::unique_ptr<AppWindow> window(new AppWindow);
+#ifdef D_BAM_PLATFORM_WINDOWS
+        window->win32SetInstanceHandle(hInstance);
+#endif
+        window->init(256, 256, "Vulkan Cube");
+        std::unique_ptr<Renderer> renderer(new Renderer(window.get()));
         renderer->init();
     }
     catch (const std::exception &inEx)

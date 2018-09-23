@@ -44,12 +44,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct Renderer::Impl
 {
-    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>     _instance;
-    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)> _surface;
-    std::vector< ::VkPhysicalDevice>                            _physical_devices;
-    size_t                                                      _physical_device_index = -1;
-    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>         _logical_device;
-    ::VkQueue                                                   _graphics_queue;
+    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>      _instance;
+    AppWindow                                                   *_window = nullptr;
+    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>  _surface;
+    std::vector< ::VkPhysicalDevice>                             _physical_devices;
+    size_t                                                       _physical_device_index = -1;
+    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>          _logical_device;
+    ::VkQueue                                                    _graphics_queue;
 
     class VkFunctionTable
     {
@@ -78,7 +79,8 @@ struct Renderer::Impl
     };
     VkFunctionTable                                        _function_table;
 
-    Impl();
+    Impl(
+        AppWindow *inWindow);
     ~Impl();
 
     void

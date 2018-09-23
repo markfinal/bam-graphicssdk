@@ -64,6 +64,8 @@ namespace VulkanCube
                 this.CompileAndLinkAgainst<VulkanSDK.Vulkan>(source);
             }
 
+            this.CompileAndLinkAgainst<WindowLibrary.GraphicsWindow>(source);
+
             source.PrivatePatch(settings =>
                 {
                     var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;
@@ -88,6 +90,12 @@ namespace VulkanCube
                 if (null != clang_linker)
                 {
                     clang_linker.RPath.AddUnique(@"@executable_path/../Frameworks");
+                }
+
+                var linker = settings as C.ICommonLinkerSettings;
+                if (settings is VisualCCommon.ICommonLinkerSettings)
+                {
+                    linker.Libraries.Add("user32.lib");
                 }
             });
         }
