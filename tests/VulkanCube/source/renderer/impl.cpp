@@ -237,6 +237,32 @@ Renderer::Impl::create_logical_device()
 {
     auto pDevice = this->_physical_devices[this->_physical_device_index];
 
+    // enumerate physical device extensions
+    auto enumDeviceExtensionPropertiesFn = GETIFN(this->_instance.get(), vkEnumerateDeviceExtensionProperties);
+    uint32_t numDeviceExtensions = 0;
+    enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, nullptr);
+    Log().get() << "Found " << numDeviceExtensions << " device extensions" << std::endl;
+    std::vector<::VkExtensionProperties> deviceExtensions(numDeviceExtensions);
+    enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, deviceExtensions.data());
+    for (auto i = 0; i < numDeviceExtensions; ++i)
+    {
+        const auto &ext = deviceExtensions[i];
+        Log().get() << "\t" << i << ": " << ext.extensionName << ", " << ext.specVersion << std::endl;
+    }
+
+    // enumerate physical device layers
+    auto enumDeviceLayerPropertiesFn = GETIFN(this->_instance.get(), vkEnumerateDeviceLayerProperties);
+    uint32_t numDeviceLayers = 0;
+    enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, nullptr);
+    Log().get() << "Found " << numDeviceLayers << " device layers" << std::endl;
+    std::vector<::VkLayerProperties> deviceLayers(numDeviceLayers);
+    enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, deviceLayers.data());
+    for (auto i = 0; i < numDeviceLayers; ++i)
+    {
+        const auto &layer = deviceLayers[i];
+        Log().get() << "\t" << i << ": " << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
+    }
+
     // query the family of queues available
     auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceQueueFamilyProperties);
     uint32_t numQueueFamilyProperties = 0;
