@@ -71,6 +71,7 @@ void
 Renderer::Impl::VkFunctionTable::destroy_instance_wrapper(
     ::VkInstance inInstance)
 {
+    Log().get() << "Destroying VkInstance 0x" << std::hex << inInstance << std::endl;
     _destroy_instance(inInstance, nullptr);
 }
 
@@ -78,6 +79,7 @@ void
 Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
     ::VkDevice inDevice)
 {
+    Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
     _destroy_device(inDevice, nullptr);
 }
 
@@ -85,6 +87,7 @@ void
 Renderer::Impl::VkFunctionTable::destroy_surface_khr_wrapper(
     ::VkSurfaceKHR inSurface)
 {
+    Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
     _destroy_surface_khr_boundinstance(inSurface, nullptr);
 }
 
