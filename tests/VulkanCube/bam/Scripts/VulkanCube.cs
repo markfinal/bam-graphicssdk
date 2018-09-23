@@ -37,7 +37,7 @@ namespace VulkanCube
         Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>.Configure(
             Clang.MetaData instance)
         {
-            instance.MacOSXMinimumVersionSupported = "10.9";
+            instance.MacOSXMinimumVersionSupported = "10.13";
         }
     }
 
