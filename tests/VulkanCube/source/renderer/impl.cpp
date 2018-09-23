@@ -400,6 +400,8 @@ Renderer::Impl::create_logical_device()
 
     // assume that the first queue family is capable of graphics
     auto graphics_family_queue_index = 0;
+    // assume that the same queue family is capable of presentation
+    auto present_family_queue_index = 0;
 
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
@@ -412,7 +414,7 @@ Renderer::Impl::create_logical_device()
     auto getPDeviceSurfaceSupportFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceSupportKHR);
     getPDeviceSurfaceSupportFn(
         pDevice,
-        graphics_family_queue_index,
+        present_family_queue_index,
         this->_surface.get(),
         &presentSupport
     );
@@ -445,13 +447,19 @@ Renderer::Impl::create_logical_device()
     }
     this->_logical_device = { device, this->_function_table.destroy_device_wrapper };
 
-    auto graphics_queue_index = 0;
-
     auto getQueueFn = GETIFN(this->_instance.get(), vkGetDeviceQueue);
+    auto graphics_queue_index = 0;
     getQueueFn(
         this->_logical_device.get(),
         graphics_family_queue_index,
         graphics_queue_index,
         &this->_graphics_queue
+    );
+    auto present_queue_index = 0;
+    getQueueFn(
+        this->_logical_device.get(),
+        present_family_queue_index,
+        present_queue_index,
+        &this->_present_queue
     );
 }
