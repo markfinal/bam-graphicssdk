@@ -144,33 +144,33 @@ Renderer::Impl::create_instance()
     {
         auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
         {
-            return (0 == strcmp(extension.extensionName, "VK_KHR_surface"));
+            return (0 == strcmp(extension.extensionName, VK_KHR_SURFACE_EXTENSION_NAME));
         });
         if (khr_surface_it == extensions.end())
         {
-            throw Exception("Instance does not support the VK_KHR_surface extension");
+            throw Exception("Instance does not support the " VK_KHR_SURFACE_EXTENSION_NAME " extension");
         }
     }
 #if defined(D_BAM_PLATFORM_WINDOWS)
     {
         auto khr_win32_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
         {
-            return (0 == strcmp(extension.extensionName, "VK_KHR_win32_surface"));
+            return (0 == strcmp(extension.extensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME));
         });
         if (khr_win32_surface_it == extensions.end())
         {
-            throw Exception("Instance does not support the VK_KHR_win32_surface extension");
+            throw Exception("Instance does not support the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME " extension");
         }
     }
 #elif defined(D_BAM_PLATFORM_OSX)
     {
         auto mvk_macos_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
         {
-            return (0 == strcmp(extension.extensionName, "VK_MVK_macos_surface"));
+            return (0 == strcmp(extension.extensionName, VK_MVK_MACOS_SURFACE_EXTENSION_NAME));
         });
         if (mvk_macos_surface_it == extensions.end())
         {
-            throw Exception("Instance does not support the VK_MVK_macos_surface extension");
+            throw Exception("Instance does not support the " VK_MVK_MACOS_SURFACE_EXTENSION_NAME " extension");
         }
 }
 #else
@@ -180,11 +180,11 @@ Renderer::Impl::create_instance()
     const std::array<const char*, 2> instanceExtensionNames
     {
         {
-            "VK_KHR_surface",
+            VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(D_BAM_PLATFORM_WINDOWS)
-            "VK_KHR_win32_surface"
+            VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #elif defined(D_BAM_PLATFORM_OSX)
-            "VK_MVK_macos_surface"
+            VK_MVK_MACOS_SURFACE_EXTENSION_NAME
 #else
 #error Unsupported platform
 #endif
