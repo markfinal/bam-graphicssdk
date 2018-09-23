@@ -423,6 +423,18 @@ Renderer::Impl::create_logical_device()
         throw Exception("Physical device cannot support presentation on the window surface");
     }
 
+    std::vector<const char *> deviceExtensionsRequired;
+    auto swap_chain_ext_it = std::find_if(deviceExtensions.begin(), deviceExtensions.end(), [](const ::VkExtensionProperties &extProp)
+    {
+        return (0 == strcmp(extProp.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME));
+    });
+    if (swap_chain_ext_it == deviceExtensions.end())
+    {
+        throw Exception("Device does not support extension " VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+    Log().get() << "Device extension " << VK_KHR_SWAPCHAIN_EXTENSION_NAME << " requested" << std::endl;
+    deviceExtensionsRequired.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
     // logical devices need a queue
     VkDeviceQueueCreateInfo queue_info;
     memset(&queue_info, 0, sizeof(queue_info));
@@ -439,6 +451,8 @@ Renderer::Impl::create_logical_device()
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queue_info;
+    deviceCreateInfo.enabledExtensionCount = deviceExtensionsRequired.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsRequired.data();
     ::VkDevice device;
     auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
     if (VK_SUCCESS != createDeviceRes)
