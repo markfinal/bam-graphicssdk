@@ -97,6 +97,19 @@ namespace MoltenVK
                 }
             }));
 
+            var objc_source = this.CreateObjectiveCSourceContainer();
+            objc_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/OS/*.m");
+
+            objc_source.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                if (this.BuildEnvironment.Configuration.HasFlag(Bam.Core.EConfiguration.Debug))
+                {
+                    compiler.PreprocessorDefines.Add("MVK_DEBUG", "1");
+                }
+                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Common"));
+            });
+
             var objcxx_source = this.CreateObjectiveCxxSourceContainer();
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
@@ -130,6 +143,7 @@ namespace MoltenVK
 
                 compiler.DisableWarnings.AddUnique("unguarded-availability-new"); // MoltenVK-1.0.10/MoltenVK/MoltenVK/Commands/MVKCmdTransfer.mm:582:19: error: 'dispatchThreads:threadsPerThreadgroup:' is only available on macOS 10_13 or newer [-Werror,-Wunguarded-availability-new]
                 compiler.DisableWarnings.AddUnique("nonportable-include-path"); // MoltenVK-1.0.10/MoltenVK/MoltenVK/Vulkan/vulkan.mm:33:10: error: non-portable path to file '"MVKRenderPass.h"'; specified path differs in case from file name on disk [-Werror,-Wnonportable-include-path]
+                compiler.DisableWarnings.AddUnique("deprecated-declarations");
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
