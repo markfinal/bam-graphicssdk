@@ -41,10 +41,11 @@ namespace WindowLibrary
 
 struct GraphicsWindow::Impl
 {
-    GraphicsWindow *_parent = nullptr;
-    uint32_t        _width;
-    uint32_t        _height;
-    WindowHandle    _window = nullptr;
+    GraphicsWindow  *_parent = nullptr;
+    uint32_t         _width;
+    uint32_t         _height;
+    WindowHandle     _window = nullptr;
+    MetalLayerHandle _metalLayer = nullptr;
 
     Impl(
         GraphicsWindow *inParent);

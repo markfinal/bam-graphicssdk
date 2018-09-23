@@ -12,6 +12,11 @@
 
 /* ---------------------------------------------------------------------- */
 
+std::unique_ptr<AppWindow> metalWindow;
+std::unique_ptr<Renderer> renderer;
+
+/* ---------------------------------------------------------------------- */
+
 @interface MetalViewController : NSViewController
 {
     CAMetalLayer *_metalLayer;
@@ -49,6 +54,11 @@
     [super viewDidAppear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
     [self configureMetal];
+
+    metalWindow->macosSetCAMetalLayerHandle(self->_metalLayer);
+
+    renderer.reset(new Renderer(metalWindow.get()));
+    renderer->init();
 }
 -(void)updateViewConstraints
 {
@@ -101,7 +111,7 @@ main()
     [appMenuItem setSubmenu:appMenu];
 
     /* -- add a Metal view -- */
-    std::unique_ptr<AppWindow> metalWindow(new AppWindow);
+    metalWindow.reset(new AppWindow);
     metalWindow->init(512, 512, "Vulkan Cube Example");
 
     auto metal_view = [[MTKView alloc] initWithFrame:NSMakeRect(0, 0, metalWindow->width(), metalWindow->height())];
@@ -110,10 +120,6 @@ main()
     view_controller.view = metal_view;
 
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
-
-    // TODO: this has to happen after Metal has been configured
-    std::unique_ptr<Renderer> renderer(new Renderer(metalWindow.get()));
-    renderer->init();
 
     metalWindow->show();
 

@@ -236,7 +236,7 @@ Renderer::Impl::create_window_surface()
     ::VkMacOSSurfaceCreateInfoMVK createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-    createInfo.pView = this->_window->metalLayer();
+    createInfo.pView = this->_window->macosGetCAMetalLayerHandle();
 
     auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateMacOSSurfaceMVK);
     ::VkSurfaceKHR surface;
