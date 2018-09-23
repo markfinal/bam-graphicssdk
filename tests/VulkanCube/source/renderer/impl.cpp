@@ -38,13 +38,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Renderer::Impl::Impl()
     :
     _instance(nullptr, nullptr),
-    _logical_device(nullptr, nullptr)
+    _logical_device(nullptr, nullptr),
+    _surface(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
 
 PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
+PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = nullptr;
+std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -52,6 +55,8 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
 {
     _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
+    _destroy_surface_khr = GETIFN(inInstance, vkDestroySurfaceKHR);
+    _destroy_surface_khr_boundinstance = std::bind(_destroy_surface_khr, inInstance, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -66,6 +71,13 @@ Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
     ::VkDevice inDevice)
 {
     _destroy_device(inDevice, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_surface_khr_wrapper(
+    ::VkSurfaceKHR inSurface)
+{
+    _destroy_surface_khr_boundinstance(inSurface, nullptr);
 }
 
 void
@@ -186,6 +198,36 @@ Renderer::Impl::create_instance()
     }
     this->_function_table.get_instance_functions(instance);
     this->_instance = { instance, this->_function_table.destroy_instance_wrapper };
+}
+
+void
+Renderer::Impl::create_window_surface()
+{
+#if defined(D_BAM_PLATFORM_WINDOWS)
+    ::VkWin32SurfaceCreateInfoKHR createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    createInfo.hwnd = 0; // TODO
+    createInfo.hinstance = ::GetModuleHandle(nullptr);
+
+    auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateWin32SurfaceKHR);
+    ::VkSurfaceKHR surface;
+    auto createWindowSurfaceRes = createWindowSurfaceFn(
+        this->_instance.get(),
+        &createInfo,
+        nullptr,
+        &surface
+    );
+    if (VK_SUCCESS != createWindowSurfaceRes)
+    {
+        throw Exception("Unable to create window surface");
+    }
+
+    this->_surface = { surface, this->_function_table.destroy_surface_khr_wrapper };
+#elif defined(D_BAM_PLATFORM_OSX)
+#else
+#error Unsupported platform
+#endif
 }
 
 void

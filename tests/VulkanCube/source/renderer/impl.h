@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 // these macros avoid repetition between stating the name of the function and the PFN_* type
 #define GETPFN(_name) PFN_##_name
@@ -43,18 +44,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct Renderer::Impl
 {
-    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)> _instance;
-    std::vector< ::VkPhysicalDevice>                        _physical_devices;
-    size_t                                                  _physical_device_index = -1;
-    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>     _logical_device;
-    ::VkQueue                                               _graphics_queue;
-    ::VkSurfaceKHR                                          _surface;
+    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>     _instance;
+    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)> _surface;
+    std::vector< ::VkPhysicalDevice>                            _physical_devices;
+    size_t                                                      _physical_device_index = -1;
+    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>         _logical_device;
+    ::VkQueue                                                   _graphics_queue;
 
     class VkFunctionTable
     {
     private:
-        static PFN_vkDestroyInstance _destroy_instance;
-        static PFN_vkDestroyDevice   _destroy_device;
+        static PFN_vkDestroyInstance   _destroy_instance;
+        static PFN_vkDestroyDevice     _destroy_device;
+        static PFN_vkDestroySurfaceKHR _destroy_surface_khr;
+        static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;
 
     public:
         static void
@@ -67,7 +70,11 @@ struct Renderer::Impl
 
         static void
         destroy_device_wrapper(
-            ::VkDevice inInstance);
+            ::VkDevice inDevice);
+
+        static void
+        destroy_surface_khr_wrapper(
+            ::VkSurfaceKHR inSurface);
     };
     VkFunctionTable                                        _function_table;
 
@@ -76,6 +83,9 @@ struct Renderer::Impl
 
     void
     create_instance();
+
+    void
+    create_window_surface();
 
     void
     enumerate_physics_devices();
