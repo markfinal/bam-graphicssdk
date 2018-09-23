@@ -50,7 +50,7 @@ namespace VulkanSDK
                     {
                         throw new Bam.Core.Exception("Unable to locate any Vulkan SDK installations");
                     }
-                    var linearised_paths = key.GetValue("VK_SDK_PATHs") as string;
+                    var linearised_paths = key.GetStringValue("VK_SDK_PATHs");
                     var paths = new Bam.Core.StringArray(linearised_paths.Split(new[] { ';' }, System.StringSplitOptions.RemoveEmptyEntries));
                     System.Diagnostics.Debug.Assert(paths.Count > 0);
                     var applicable_paths = new System.Collections.Generic.SortedDictionary<string, string>();
