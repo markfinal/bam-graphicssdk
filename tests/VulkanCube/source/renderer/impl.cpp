@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.h"
 #include "log.h"
 
+#include <algorithm>
+#include <array>
 #include <functional>
 
 Renderer::Impl::Impl()
@@ -116,12 +118,27 @@ Renderer::Impl::create_instance()
         Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
     }
 
+    auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
+    {
+        return (0 == strcmp(extension.extensionName, "VK_KHR_surface"));
+    });
+    if (khr_surface_it == extensions.end())
+    {
+        throw Exception("Instance does not support the VK_KHR_surface extension");
+    }
+
+    const std::array<const char*, 1> instanceExtensionNames
+    {
+        "VK_KHR_surface"
+    };
+
     ::VkInstanceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = 0;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = instanceExtensionNames.size();
+    createInfo.ppEnabledExtensionNames = instanceExtensionNames.data();
     //::VkAllocationCallbacks allocCbs;
     //memset(&allocCbs, 0, sizeof(allocCbs));
     ::VkInstance instance;
