@@ -161,6 +161,7 @@ Renderer::Impl::create_instance()
         Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
     }
 
+    // now look for extensions we want to use
     {
         auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
         {
@@ -211,11 +212,24 @@ Renderer::Impl::create_instance()
         }
     };
 
+    // now look for layers we want to use
+    const std::array<const char *, 1> instanceLayerNames
+    {
+        {
+#if defined(D_BAM_PLATFORM_OSX)
+            "MoltenVK"
+#else
+            "VK_LAYER_LUNARG_standard_validation"
+#endif
+        }
+    };
+
     ::VkInstanceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledLayerCount = 0;
+    createInfo.enabledLayerCount = instanceLayerNames.size();
+    createInfo.ppEnabledLayerNames = instanceLayerNames.data();
     createInfo.enabledExtensionCount = instanceExtensionNames.size();
     createInfo.ppEnabledExtensionNames = instanceExtensionNames.data();
     //::VkAllocationCallbacks allocCbs;
