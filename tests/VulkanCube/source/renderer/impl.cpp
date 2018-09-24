@@ -175,6 +175,7 @@ Renderer::Impl::create_instance()
     }
 
     // now look for extensions we want to use
+    std::vector<const char *> instanceExtensionNames;
     {
         auto khr_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
         {
@@ -184,6 +185,7 @@ Renderer::Impl::create_instance()
         {
             throw Exception("Instance does not support the " VK_KHR_SURFACE_EXTENSION_NAME " extension");
         }
+        instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     }
     {
         auto it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
@@ -192,7 +194,11 @@ Renderer::Impl::create_instance()
         });
         if (it == extensions.end())
         {
-            throw Exception("Instance does not support the " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " extension");
+            Log().get() << "Instance does not support the " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " extension" << std::endl;
+        }
+        else
+        {
+            instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         }
     }
 #if defined(D_BAM_PLATFORM_WINDOWS)
@@ -205,6 +211,7 @@ Renderer::Impl::create_instance()
         {
             throw Exception("Instance does not support the " VK_KHR_WIN32_SURFACE_EXTENSION_NAME " extension");
         }
+        instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     }
 #elif defined(D_BAM_PLATFORM_OSX)
     {
@@ -216,37 +223,45 @@ Renderer::Impl::create_instance()
         {
             throw Exception("Instance does not support the " VK_MVK_MACOS_SURFACE_EXTENSION_NAME " extension");
         }
-}
+        instanceExtensionNames.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+    }
 #else
 #error Unsupported platform
 #endif
-
-    const std::array<const char*, 3> instanceExtensionNames
-    {
-        {
-            VK_KHR_SURFACE_EXTENSION_NAME,
-            VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-#if defined(D_BAM_PLATFORM_WINDOWS)
-            VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#elif defined(D_BAM_PLATFORM_OSX)
-            VK_MVK_MACOS_SURFACE_EXTENSION_NAME
-#else
-#error Unsupported platform
-#endif
-        }
-    };
 
     // now look for layers we want to use
-    const std::array<const char *, 1> instanceLayerNames
-    {
-        {
+    std::vector<const char *> instanceLayerNames;
 #if defined(D_BAM_PLATFORM_OSX)
-            "MoltenVK"
-#else
-            "VK_LAYER_LUNARG_standard_validation"
-#endif
+    {
+        auto it = std::find_if(layers.begin(), layers.end(), [](::VkLayerProperties &layer)
+        {
+            return (0 == strcmp(layer.layerName, "MoltenVK"));
+        });
+        if (it == layers.end())
+        {
+            Log().get() << "Instance does not support the " "MoltenVK" " layer" << std::endl;
         }
-    };
+        else
+        {
+            instanceLayerNames.push_back("MoltenVK");
+        }
+    }
+#else
+    {
+        auto it = std::find_if(layers.begin(), layers.end(), [](::VkLayerProperties &layer)
+        {
+            return (0 == strcmp(layer.layerName, "VK_LAYER_LUNARG_standard_validation"));
+        });
+        if (it == layers.end())
+        {
+            Log().get() << "Instance does not support the " "VK_LAYER_LUNARG_standard_validation" " layer" << std::endl;
+        }
+        else
+        {
+            instanceLayerNames.push_back("VK_LAYER_LUNARG_standard_validation");
+        }
+    }
+#endif
 
     ::VkInstanceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
@@ -272,6 +287,12 @@ Renderer::Impl::create_instance()
 void
 Renderer::Impl::init_debug_callback()
 {
+    auto fn = GETIFN(this->_instance.get(), vkCreateDebugReportCallbackEXT);
+    if (nullptr == fn)
+    {
+        return;
+    }
+
     ::VkDebugReportCallbackCreateInfoEXT createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -282,7 +303,6 @@ Renderer::Impl::init_debug_callback()
         VK_DEBUG_REPORT_ERROR_BIT_EXT ||
         VK_DEBUG_REPORT_DEBUG_BIT_EXT;
     createInfo.pfnCallback = debug_callback;
-    auto fn = GETIFN(this->_instance.get(), vkCreateDebugReportCallbackEXT);
     ::VkDebugReportCallbackEXT callback;
     fn(
         this->_instance.get(),
