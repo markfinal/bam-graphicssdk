@@ -95,12 +95,21 @@ namespace VulkanCube
                     var compiler = settings as C.ICommonCompilerSettings;
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
-                    var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                    if (null != clang_compiler)
+                    switch (settings)
                     {
-                        clang_compiler.AllWarnings = true;
-                        clang_compiler.ExtraWarnings = true;
-                        clang_compiler.Pedantic = true;
+                        case ClangCommon.ICommonCompilerSettings clang_compiler:
+                            clang_compiler.AllWarnings = true;
+                            clang_compiler.ExtraWarnings = true;
+                            clang_compiler.Pedantic = true;
+                            break;
+                        case GccCommon.ICommonCompilerSettings gcc_compiler:
+                            gcc_compiler.AllWarnings = true;
+                            gcc_compiler.ExtraWarnings = true;
+                            gcc_compiler.Pedantic = true;
+                            break;
+                        case VisualCCommon.ICommonCompilerSettings vc_compiler:
+                            vc_compiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
+                            break;
                     }
                 });
 

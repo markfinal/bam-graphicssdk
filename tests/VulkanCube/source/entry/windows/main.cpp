@@ -77,6 +77,9 @@ main()
     {
         std::unique_ptr<AppWindow> window(new AppWindow);
 #ifdef D_BAM_PLATFORM_WINDOWS
+        (void)nCmdShow;
+        (void)lpCmdLine;
+        (void)hPrevInstance;
         window->win32SetInstanceHandle(hInstance);
 #endif
         window->init(256, 256, "Vulkan Cube");
@@ -85,6 +88,7 @@ main()
 
         window->show();
 
+        Log().get() << "Vulkan cube test finished successfully" << std::endl;
         return event_loop();
     }
     catch (const std::exception &inEx)
@@ -97,6 +101,4 @@ main()
         Log().get() << "ERROR: Unhandled exception" << std::endl;
         return -2;
     }
-    Log().get() << "Vulkan cube test finished successfully" << std::endl;
-    return 0;
 }

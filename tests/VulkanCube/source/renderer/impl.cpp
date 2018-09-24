@@ -252,9 +252,9 @@ Renderer::Impl::create_instance()
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledLayerCount = instanceLayerNames.size();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(instanceLayerNames.size());
     createInfo.ppEnabledLayerNames = instanceLayerNames.data();
-    createInfo.enabledExtensionCount = instanceExtensionNames.size();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensionNames.size());
     createInfo.ppEnabledExtensionNames = instanceExtensionNames.data();
     //::VkAllocationCallbacks allocCbs;
     //memset(&allocCbs, 0, sizeof(allocCbs));
@@ -554,7 +554,7 @@ Renderer::Impl::create_logical_device()
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queue_info;
-    deviceCreateInfo.enabledExtensionCount = deviceExtensionsRequired.size();
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionsRequired.size());
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsRequired.data();
     ::VkDevice device;
     auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);

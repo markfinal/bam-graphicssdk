@@ -49,7 +49,7 @@ struct Renderer::Impl
     AppWindow                                                                           *_window = nullptr;
     std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>                          _surface;
     std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
-    size_t                                                                               _physical_device_index = -1;
+    size_t                                                                               _physical_device_index = static_cast<size_t>(-1);
     std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;
     ::VkQueue                                                                            _graphics_queue;
     ::VkQueue                                                                            _present_queue;
