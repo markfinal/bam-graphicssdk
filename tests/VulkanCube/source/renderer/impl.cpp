@@ -304,6 +304,12 @@ Renderer::Impl::debug_callback(
     const char*                                 pMessage,
     void*                                       pUserData)
 {
+    (void)flags;
+    (void)objectType;
+    (void)object;
+    (void)location;
+    (void)messageCode;
+    (void)pUserData;
     Log().get() << pLayerPrefix << ": " << pMessage << std::endl;
     return VK_FALSE;
 }
