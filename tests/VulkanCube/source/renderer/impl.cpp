@@ -587,4 +587,20 @@ Renderer::Impl::create_swapchain()
         throw Exception("Unable to create swapchain");
     }
     this->_swapchain = { swapchain, this->_function_table.destroy_swapchain_khr_wrapper };
+
+    auto getswapchainimagesFn = GETIFN(this->_instance.get(), vkGetSwapchainImagesKHR);
+    uint32_t swapchain_imagecount = 0;
+    getswapchainimagesFn(
+        this->_logical_device.get(),
+        this->_swapchain.get(),
+        &swapchain_imagecount,
+        nullptr
+    );
+    this->_swapchain_images.resize(swapchain_imagecount);
+    getswapchainimagesFn(
+        this->_logical_device.get(),
+        this->_swapchain.get(),
+        &swapchain_imagecount,
+        this->_swapchain_images.data()
+    );
 }

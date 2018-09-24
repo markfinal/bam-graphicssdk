@@ -53,6 +53,7 @@ struct Renderer::Impl
     ::VkQueue                                                      _graphics_queue;
     ::VkQueue                                                      _present_queue;
     std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)> _swapchain;
+    std::vector<::VkImage>                                         _swapchain_images;
 
     class VkFunctionTable
     {
