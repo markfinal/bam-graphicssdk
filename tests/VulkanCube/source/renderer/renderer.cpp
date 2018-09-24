@@ -48,4 +48,5 @@ Renderer::init()
     impl->create_window_surface();
     impl->enumerate_physics_devices();
     impl->create_logical_device();
+    impl->create_swapchain();
 }

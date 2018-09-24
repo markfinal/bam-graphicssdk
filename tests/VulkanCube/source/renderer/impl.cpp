@@ -47,7 +47,8 @@ Renderer::Impl::Impl(
     _instance(nullptr, nullptr),
     _window(inWindow),
     _surface(nullptr, nullptr),
-    _logical_device(nullptr, nullptr)
+    _logical_device(nullptr, nullptr),
+    _swapchain(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
@@ -56,6 +57,8 @@ PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullp
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = nullptr;
 std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
+PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
+std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -65,6 +68,15 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
     _destroy_surface_khr = GETIFN(inInstance, vkDestroySurfaceKHR);
     _destroy_surface_khr_boundinstance = std::bind(_destroy_surface_khr, inInstance, std::placeholders::_1, std::placeholders::_2);
+}
+
+void
+Renderer::Impl::VkFunctionTable::get_device_functions(
+    ::VkInstance inInstance,
+    ::VkDevice inDevice)
+{
+    _destroy_swapchain_khr = GETIFN(inInstance, vkDestroySwapchainKHR);
+    _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -89,6 +101,14 @@ Renderer::Impl::VkFunctionTable::destroy_surface_khr_wrapper(
 {
     Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
     _destroy_surface_khr_boundinstance(inSurface, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_swapchain_khr_wrapper(
+    ::VkSwapchainKHR inSwapchain)
+{
+    Log().get() << "Destroying VkSwapchainKHR 0x" << std::hex << inSwapchain << std::endl;
+    _destroy_swapchain_khr_bounddevice(inSwapchain, nullptr);
 }
 
 void
@@ -460,6 +480,7 @@ Renderer::Impl::create_logical_device()
         throw Exception("Unable to find create logical device");
     }
     this->_logical_device = { device, this->_function_table.destroy_device_wrapper };
+    this->_function_table.get_device_functions(this->_instance.get(), this->_logical_device.get());
 
     auto getQueueFn = GETIFN(this->_instance.get(), vkGetDeviceQueue);
     auto graphics_queue_index = 0;
@@ -476,6 +497,12 @@ Renderer::Impl::create_logical_device()
         present_queue_index,
         &this->_present_queue
     );
+}
+
+void
+Renderer::Impl::create_swapchain()
+{
+    auto pDevice = this->_physical_devices[this->_physical_device_index];
 
     auto getSurfaceCapsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     ::VkSurfaceCapabilitiesKHR surfaceCaps;
@@ -529,4 +556,35 @@ Renderer::Impl::create_logical_device()
     {
         Log().get() << pMode << std::endl;
     }
+
+    ::VkSwapchainCreateInfoKHR createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface = this->_surface.get();
+    createInfo.minImageCount = surfaceCaps.minImageCount;
+    createInfo.imageFormat = surfaceFormats[0].format;
+    createInfo.imageColorSpace = surfaceFormats[0].colorSpace;
+    createInfo.imageExtent = surfaceCaps.maxImageExtent;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.queueFamilyIndexCount = 0;
+    createInfo.pQueueFamilyIndices = nullptr;
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    createInfo.presentMode = presentModes[0];
+    createInfo.clipped = VK_TRUE;
+    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    ::VkSwapchainKHR swapchain;
+    auto createSwapchainFn = GETIFN(this->_instance.get(), vkCreateSwapchainKHR);
+    auto createSwapchainRes = createSwapchainFn(
+        this->_logical_device.get(),
+        &createInfo,
+        nullptr,
+        &swapchain
+    );
+    if (VK_SUCCESS != createSwapchainRes)
+    {
+        throw Exception("Unable to create swapchain");
+    }
+    this->_swapchain = { swapchain, this->_function_table.destroy_swapchain_khr_wrapper };
 }

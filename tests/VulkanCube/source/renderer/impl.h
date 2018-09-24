@@ -44,14 +44,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct Renderer::Impl
 {
-    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>      _instance;
-    AppWindow                                                   *_window = nullptr;
-    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>  _surface;
-    std::vector< ::VkPhysicalDevice>                             _physical_devices;
-    size_t                                                       _physical_device_index = -1;
-    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>          _logical_device;
-    ::VkQueue                                                    _graphics_queue;
-    ::VkQueue                                                    _present_queue;
+    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>        _instance;
+    AppWindow                                                     *_window = nullptr;
+    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>    _surface;
+    std::vector< ::VkPhysicalDevice>                               _physical_devices;
+    size_t                                                         _physical_device_index = -1;
+    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>            _logical_device;
+    ::VkQueue                                                      _graphics_queue;
+    ::VkQueue                                                      _present_queue;
+    std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)> _swapchain;
 
     class VkFunctionTable
     {
@@ -60,11 +61,18 @@ struct Renderer::Impl
         static PFN_vkDestroyDevice     _destroy_device;
         static PFN_vkDestroySurfaceKHR _destroy_surface_khr;
         static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;
+        static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
+        static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
 
     public:
         static void
         get_instance_functions(
             ::VkInstance inInstance);
+
+        static void
+        get_device_functions(
+            ::VkInstance inInstance,
+            ::VkDevice inDevice);
 
         static void
         destroy_instance_wrapper(
@@ -77,6 +85,10 @@ struct Renderer::Impl
         static void
         destroy_surface_khr_wrapper(
             ::VkSurfaceKHR inSurface);
+
+        static void
+        destroy_swapchain_khr_wrapper(
+            ::VkSwapchainKHR inSwapchain);
     };
     VkFunctionTable                                        _function_table;
 
@@ -95,6 +107,9 @@ struct Renderer::Impl
 
     void
     create_logical_device();
+
+    void
+    create_swapchain();
 };
 
 #endif // VULKAN_RENDERER_IMPL_H
