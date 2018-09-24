@@ -45,6 +45,7 @@ Renderer::Impl::Impl(
     AppWindow *inWindow)
     :
     _instance(nullptr, nullptr),
+    _debug_callback(nullptr, nullptr),
     _window(inWindow),
     _surface(nullptr, nullptr),
     _logical_device(nullptr, nullptr),
@@ -54,6 +55,8 @@ Renderer::Impl::Impl(
 Renderer::Impl::~Impl() = default;
 
 PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
+PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_debug_callback = nullptr;
+std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_debug_callback_boundinstance;
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = nullptr;
 std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
@@ -65,6 +68,8 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
     ::VkInstance inInstance)
 {
     _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
+    _destroy_debug_callback = GETIFN(inInstance, vkDestroyDebugReportCallbackEXT);
+    _destroy_debug_callback_boundinstance = std::bind(_destroy_debug_callback, inInstance, std::placeholders::_1, std::placeholders::_2);
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
     _destroy_surface_khr = GETIFN(inInstance, vkDestroySurfaceKHR);
     _destroy_surface_khr_boundinstance = std::bind(_destroy_surface_khr, inInstance, std::placeholders::_1, std::placeholders::_2);
@@ -85,6 +90,14 @@ Renderer::Impl::VkFunctionTable::destroy_instance_wrapper(
 {
     Log().get() << "Destroying VkInstance 0x" << std::hex << inInstance << std::endl;
     _destroy_instance(inInstance, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_debug_callback_wrapper(
+    ::VkDebugReportCallbackEXT inDebugCallback)
+{
+    Log().get() << "Destroying VkDebugReportCallbackEXT 0x" << std::hex << inDebugCallback << std::endl;
+    _destroy_debug_callback_boundinstance(inDebugCallback, nullptr);
 }
 
 void
@@ -172,6 +185,16 @@ Renderer::Impl::create_instance()
             throw Exception("Instance does not support the " VK_KHR_SURFACE_EXTENSION_NAME " extension");
         }
     }
+    {
+        auto it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
+        {
+            return (0 == strcmp(extension.extensionName, VK_EXT_DEBUG_REPORT_EXTENSION_NAME));
+        });
+        if (it == extensions.end())
+        {
+            throw Exception("Instance does not support the " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " extension");
+        }
+    }
 #if defined(D_BAM_PLATFORM_WINDOWS)
     {
         auto khr_win32_surface_it = std::find_if(extensions.begin(), extensions.end(), [](::VkExtensionProperties &extension)
@@ -198,10 +221,11 @@ Renderer::Impl::create_instance()
 #error Unsupported platform
 #endif
 
-    const std::array<const char*, 2> instanceExtensionNames
+    const std::array<const char*, 3> instanceExtensionNames
     {
         {
             VK_KHR_SURFACE_EXTENSION_NAME,
+            VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 #if defined(D_BAM_PLATFORM_WINDOWS)
             VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #elif defined(D_BAM_PLATFORM_OSX)
@@ -243,6 +267,45 @@ Renderer::Impl::create_instance()
     }
     this->_function_table.get_instance_functions(instance);
     this->_instance = { instance, this->_function_table.destroy_instance_wrapper };
+}
+
+void
+Renderer::Impl::init_debug_callback()
+{
+    ::VkDebugReportCallbackCreateInfoEXT createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+    createInfo.flags =
+        VK_DEBUG_REPORT_INFORMATION_BIT_EXT ||
+        VK_DEBUG_REPORT_WARNING_BIT_EXT ||
+        VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT ||
+        VK_DEBUG_REPORT_ERROR_BIT_EXT ||
+        VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+    createInfo.pfnCallback = debug_callback;
+    auto fn = GETIFN(this->_instance.get(), vkCreateDebugReportCallbackEXT);
+    ::VkDebugReportCallbackEXT callback;
+    fn(
+        this->_instance.get(),
+        &createInfo,
+        nullptr,
+        &callback
+    );
+    this->_debug_callback = { callback, this->_function_table.destroy_debug_callback_wrapper };
+}
+
+VkBool32
+Renderer::Impl::debug_callback(
+    VkDebugReportFlagsEXT                       flags,
+    VkDebugReportObjectTypeEXT                  objectType,
+    uint64_t                                    object,
+    size_t                                      location,
+    int32_t                                     messageCode,
+    const char*                                 pLayerPrefix,
+    const char*                                 pMessage,
+    void*                                       pUserData)
+{
+    Log().get() << pLayerPrefix << ": " << pMessage << std::endl;
+    return VK_FALSE;
 }
 
 void

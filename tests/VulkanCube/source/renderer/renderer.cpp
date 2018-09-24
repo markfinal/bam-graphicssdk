@@ -45,6 +45,7 @@ Renderer::init()
 {
     auto impl = this->_impl.get();
     impl->create_instance();
+    impl->init_debug_callback();
     impl->create_window_surface();
     impl->enumerate_physics_devices();
     impl->create_logical_device();

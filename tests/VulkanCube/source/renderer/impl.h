@@ -44,21 +44,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct Renderer::Impl
 {
-    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>        _instance;
-    AppWindow                                                     *_window = nullptr;
-    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>    _surface;
-    std::vector< ::VkPhysicalDevice>                               _physical_devices;
-    size_t                                                         _physical_device_index = -1;
-    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>            _logical_device;
-    ::VkQueue                                                      _graphics_queue;
-    ::VkQueue                                                      _present_queue;
-    std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)> _swapchain;
-    std::vector<::VkImage>                                         _swapchain_images;
+    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>                              _instance;
+    std::unique_ptr< ::VkDebugReportCallbackEXT_T, void(*)(::VkDebugReportCallbackEXT)>  _debug_callback;
+    AppWindow                                                                           *_window = nullptr;
+    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>                          _surface;
+    std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
+    size_t                                                                               _physical_device_index = -1;
+    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;
+    ::VkQueue                                                                            _graphics_queue;
+    ::VkQueue                                                                            _present_queue;
+    std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)>                       _swapchain;
+    std::vector<::VkImage>                                                               _swapchain_images;
 
     class VkFunctionTable
     {
     private:
         static PFN_vkDestroyInstance   _destroy_instance;
+        static PFN_vkDestroyDebugReportCallbackEXT _destroy_debug_callback;
+        static std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> _destroy_debug_callback_boundinstance;
         static PFN_vkDestroyDevice     _destroy_device;
         static PFN_vkDestroySurfaceKHR _destroy_surface_khr;
         static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;
@@ -80,6 +83,10 @@ struct Renderer::Impl
             ::VkInstance inInstance);
 
         static void
+        destroy_debug_callback_wrapper(
+            ::VkDebugReportCallbackEXT inDebugCallback);
+
+        static void
         destroy_device_wrapper(
             ::VkDevice inDevice);
 
@@ -99,6 +106,20 @@ struct Renderer::Impl
 
     void
     create_instance();
+
+    void
+    init_debug_callback();
+
+    static VkBool32
+    debug_callback(
+        VkDebugReportFlagsEXT                       flags,
+        VkDebugReportObjectTypeEXT                  objectType,
+        uint64_t                                    object,
+        size_t                                      location,
+        int32_t                                     messageCode,
+        const char*                                 pLayerPrefix,
+        const char*                                 pMessage,
+        void*                                       pUserData);
 
     void
     create_window_surface();
