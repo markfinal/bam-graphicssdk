@@ -558,6 +558,39 @@ Renderer::Impl::create_logical_device()
     Log().get() << "Device extension " << VK_KHR_SWAPCHAIN_EXTENSION_NAME << " requested" << std::endl;
     deviceExtensionsRequired.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
+    std::vector<const char *> deviceLayersRequired;
+#if defined(D_BAM_PLATFORM_OSX)
+    {
+        auto it = std::find_if(deviceLayers.begin(), deviceLayers.end(), [](::VkLayerProperties &layer)
+        {
+            return (0 == strcmp(layer.layerName, "MoltenVK"));
+        });
+        if (it == deviceLayers.end())
+        {
+            Log().get() << "Instance does not support the " "MoltenVK" " layer" << std::endl;
+        }
+        else
+        {
+            deviceLayersRequired.push_back("MoltenVK");
+        }
+    }
+#else
+    {
+        auto it = std::find_if(deviceLayers.begin(), deviceLayers.end(), [](::VkLayerProperties &layer)
+        {
+            return (0 == strcmp(layer.layerName, "VK_LAYER_LUNARG_standard_validation"));
+        });
+        if (it == deviceLayers.end())
+        {
+            Log().get() << "Instance does not support the " "VK_LAYER_LUNARG_standard_validation" " layer" << std::endl;
+        }
+        else
+        {
+            deviceLayersRequired.push_back("VK_LAYER_LUNARG_standard_validation");
+        }
+    }
+#endif
+
     // logical devices need a queue
     VkDeviceQueueCreateInfo queue_info;
     memset(&queue_info, 0, sizeof(queue_info));
@@ -576,6 +609,8 @@ Renderer::Impl::create_logical_device()
     deviceCreateInfo.pQueueCreateInfos = &queue_info;
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionsRequired.size());
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsRequired.data();
+    deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(deviceLayersRequired.size());
+    deviceCreateInfo.ppEnabledLayerNames = deviceLayersRequired.data();
     ::VkDevice device;
     auto createDeviceRes = createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device);
     if (VK_SUCCESS != createDeviceRes)
