@@ -408,6 +408,25 @@ Renderer::Impl::enumerate_physical_devices()
         throw Exception("Unable to enumerate physical devices");
     }
 
+    // enumerate physical device properties
+    auto enumeratePhysicalDevicePropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceProperties);
+    for (auto i = 0u; i < numPhysicalDevices; ++i)
+    {
+        auto device = this->_physical_devices[i];
+        ::VkPhysicalDeviceProperties props;
+        enumeratePhysicalDevicePropsFn(device, &props);
+        Log().get() << "Properties of physical device " << i << std::endl;
+        Log().get() << "\tAPI version : " << props.apiVersion << std::endl;
+        Log().get() << "\tDevice ID : " << props.deviceID << std::endl;
+        Log().get() << "\tDevice name : " << props.deviceName << std::endl;
+        Log().get() << "\tDevice type : " << props.deviceType << std::endl;
+        Log().get() << "\tDriver version : " << props.driverVersion << std::endl;
+        Log().get() << "\tPipeline Cache UUID : " << props.pipelineCacheUUID << std::endl;
+        Log().get() << "\tLimits..." << std::endl;
+        Log().get() << "\tSparse properties..." << std::endl;
+    }
+
+    // enumerate physical device features
     auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
     for (auto i = 0u; i < numPhysicalDevices; ++i)
     {
