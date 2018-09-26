@@ -444,7 +444,7 @@ Renderer::Impl::enumerate_physical_devices()
         for (auto i = 0u; i < memProps.memoryTypeCount; ++i)
         {
             Log().get() << "\tMemory type " << i << std::endl;
-            Log().get() << "\t\tIndex : " << memProps.memoryTypes[i].heapIndex << std::endl;
+            Log().get() << "\t\tHeap index : " << memProps.memoryTypes[i].heapIndex << std::endl;
             Log().get() << "\t\tProperties : " << to_string(memProps.memoryTypes[i].propertyFlags) << std::endl;
         }
     }
