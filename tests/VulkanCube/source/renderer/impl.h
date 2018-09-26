@@ -140,6 +140,10 @@ struct Renderer::Impl
     static std::string
     VkMemoryHeapFlags_to_string(
         ::VkMemoryHeapFlags inFlags);
+
+    static std::string
+    VkQueueFlags_to_string(
+        ::VkQueueFlags inFlags);
 };
 
 #endif // VULKAN_RENDERER_IMPL_H

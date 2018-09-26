@@ -563,13 +563,22 @@ Renderer::Impl::create_logical_device()
     }
     Log().get() << "Found " << numQueueFamilyProperties << " queue families on this physical device" << std::endl;
 
+    std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
+    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
+
+    for (auto i = 0u; i < numQueueFamilyProperties; ++i)
+    {
+        Log().get() << "Queue family " << i << std::endl;
+        Log().get() << "\tFlags : " << VkQueueFlags_to_string(queueFamilyProperties[i].queueFlags) << std::endl;
+        Log().get() << "\tCount : " << queueFamilyProperties[i].queueCount << std::endl;
+        Log().get() << "\tTimestampValidBits : " << queueFamilyProperties[i].timestampValidBits << std::endl;
+    }
+
     // assume that the first queue family is capable of graphics
     auto graphics_family_queue_index = 0;
     // assume that the same queue family is capable of presentation
     auto present_family_queue_index = 0;
 
-    std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
-    getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
     if (0 == (queueFamilyProperties[graphics_family_queue_index].queueFlags & VK_QUEUE_GRAPHICS_BIT))
     {
         throw Exception("Unable to find queue family with graphics support on this physical device");
@@ -841,6 +850,42 @@ Renderer::Impl::VkMemoryHeapFlags_to_string(
         else
         {
             throw Exception("Unknown memory heap bit");
+        }
+        stream << " | ";
+    }
+    return stream.str();
+}
+
+std::string
+Renderer::Impl::VkQueueFlags_to_string(
+    ::VkQueueFlags inFlags)
+{
+    std::stringstream stream;
+    while (inFlags != 0)
+    {
+        if (inFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
+            stream << "VK_QUEUE_GRAPHICS_BIT";
+            inFlags &= ~VK_QUEUE_GRAPHICS_BIT;
+        }
+        else if (inFlags & VK_QUEUE_COMPUTE_BIT)
+        {
+            stream << "VK_QUEUE_COMPUTE_BIT";
+            inFlags &= ~VK_QUEUE_COMPUTE_BIT;
+        }
+        else if (inFlags & VK_QUEUE_TRANSFER_BIT)
+        {
+            stream << "VK_QUEUE_TRANSFER_BIT";
+            inFlags &= ~VK_QUEUE_TRANSFER_BIT;
+        }
+        else if (inFlags & VK_QUEUE_SPARSE_BINDING_BIT)
+        {
+            stream << "VK_QUEUE_SPARSE_BINDING_BIT";
+            inFlags &= ~VK_QUEUE_SPARSE_BINDING_BIT;
+        }
+        else
+        {
+            throw Exception("Unknown queue bit");
         }
         stream << " | ";
     }
