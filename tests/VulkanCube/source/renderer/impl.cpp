@@ -445,7 +445,7 @@ Renderer::Impl::enumerate_physical_devices()
         {
             Log().get() << "\tMemory type " << i << std::endl;
             Log().get() << "\t\tIndex : " << memProps.memoryTypes[i].heapIndex << std::endl;
-            Log().get() << "\t\tFlags : " << memProps.memoryTypes[i].propertyFlags << std::endl;
+            Log().get() << "\t\tProperties : " << to_string(memProps.memoryTypes[i].propertyFlags) << std::endl;
         }
     }
 
@@ -783,4 +783,46 @@ Renderer::Impl::create_swapchain()
         &swapchain_imagecount,
         this->_swapchain_images.data()
     );
+}
+
+std::string
+Renderer::Impl::to_string(
+    const ::VkMemoryPropertyFlags inMemPropFlags)
+{
+    ::VkMemoryPropertyFlags copy = inMemPropFlags;
+    std::stringstream stream;
+    while (copy != 0)
+    {
+        if (copy & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        {
+            stream << "VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT";
+            copy &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        }
+        else if (copy & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        {
+            stream << "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT";
+            copy &= ~VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        }
+        else if (copy & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+        {
+            stream << "VK_MEMORY_PROPERTY_HOST_COHERENT_BIT";
+            copy &= ~VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        }
+        else if (copy & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
+        {
+            stream << "VK_MEMORY_PROPERTY_HOST_CACHED_BIT";
+            copy &= ~VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+        }
+        else if (copy & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
+        {
+            stream << "VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT";
+            copy &= ~VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
+        }
+        else
+        {
+            throw Exception("Unknown memory property bit");
+        }
+        stream << " | ";
+    }
+    return stream.str();
 }
