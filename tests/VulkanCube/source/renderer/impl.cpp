@@ -437,7 +437,7 @@ Renderer::Impl::enumerate_physical_devices()
         for (auto i = 0u; i < memProps.memoryHeapCount; ++i)
         {
             Log().get() << "\tHeap " << i << std::endl;
-            Log().get() << "\t\tFlags : " << memProps.memoryHeaps[i].flags << std::endl;
+            Log().get() << "\t\tFlags : " << VkMemoryHeapFlags_to_string(memProps.memoryHeaps[i].flags) << std::endl;
             Log().get() << "\t\tSize : " << memProps.memoryHeaps[i].size << std::endl;
         }
         Log().get() << "\tMemory type count : " << memProps.memoryTypeCount << std::endl;
@@ -445,7 +445,7 @@ Renderer::Impl::enumerate_physical_devices()
         {
             Log().get() << "\tMemory type " << i << std::endl;
             Log().get() << "\t\tHeap index : " << memProps.memoryTypes[i].heapIndex << std::endl;
-            Log().get() << "\t\tProperties : " << to_string(memProps.memoryTypes[i].propertyFlags) << std::endl;
+            Log().get() << "\t\tProperties : " << VkMemoryPropertyFlags_to_string(memProps.memoryTypes[i].propertyFlags) << std::endl;
         }
     }
 
@@ -786,41 +786,61 @@ Renderer::Impl::create_swapchain()
 }
 
 std::string
-Renderer::Impl::to_string(
-    const ::VkMemoryPropertyFlags inMemPropFlags)
+Renderer::Impl::VkMemoryPropertyFlags_to_string(
+    ::VkMemoryPropertyFlags inFlags)
 {
-    ::VkMemoryPropertyFlags copy = inMemPropFlags;
     std::stringstream stream;
-    while (copy != 0)
+    while (inFlags != 0)
     {
-        if (copy & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        if (inFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
         {
             stream << "VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT";
-            copy &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            inFlags &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         }
-        else if (copy & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        else if (inFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
         {
             stream << "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT";
-            copy &= ~VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+            inFlags &= ~VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
         }
-        else if (copy & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+        else if (inFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
         {
             stream << "VK_MEMORY_PROPERTY_HOST_COHERENT_BIT";
-            copy &= ~VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            inFlags &= ~VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         }
-        else if (copy & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
+        else if (inFlags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
         {
             stream << "VK_MEMORY_PROPERTY_HOST_CACHED_BIT";
-            copy &= ~VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            inFlags &= ~VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
         }
-        else if (copy & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
+        else if (inFlags & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
         {
             stream << "VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT";
-            copy &= ~VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
+            inFlags &= ~VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         }
         else
         {
             throw Exception("Unknown memory property bit");
+        }
+        stream << " | ";
+    }
+    return stream.str();
+}
+
+std::string
+Renderer::Impl::VkMemoryHeapFlags_to_string(
+    ::VkMemoryHeapFlags inFlags)
+{
+    std::stringstream stream;
+    while (inFlags != 0)
+    {
+        if (inFlags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+        {
+            stream << "VK_MEMORY_HEAP_DEVICE_LOCAL_BIT";
+            inFlags &= ~VK_MEMORY_HEAP_DEVICE_LOCAL_BIT;
+        }
+        else
+        {
+            throw Exception("Unknown memory heap bit");
         }
         stream << " | ";
     }
