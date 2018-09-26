@@ -437,7 +437,7 @@ Renderer::Impl::enumerate_physical_devices()
         for (auto i = 0u; i < memProps.memoryHeapCount; ++i)
         {
             Log().get() << "\tHeap " << i << std::endl;
-            Log().get() << "\t\tFlags : " << VkMemoryHeapFlags_to_string(memProps.memoryHeaps[i].flags) << std::endl;
+            Log().get() << "\t\tFlags : " << to_string(static_cast<::VkMemoryHeapFlagBits>(memProps.memoryHeaps[i].flags)) << std::endl;
             Log().get() << "\t\tSize : " << memProps.memoryHeaps[i].size << std::endl;
         }
         Log().get() << "\tMemory type count : " << memProps.memoryTypeCount << std::endl;
@@ -445,7 +445,7 @@ Renderer::Impl::enumerate_physical_devices()
         {
             Log().get() << "\tMemory type " << i << std::endl;
             Log().get() << "\t\tHeap index : " << memProps.memoryTypes[i].heapIndex << std::endl;
-            Log().get() << "\t\tProperties : " << VkMemoryPropertyFlags_to_string(memProps.memoryTypes[i].propertyFlags) << std::endl;
+            Log().get() << "\t\tProperties : " << to_string(static_cast<::VkMemoryPropertyFlagBits>(memProps.memoryTypes[i].propertyFlags)) << std::endl;
         }
     }
 
@@ -569,7 +569,7 @@ Renderer::Impl::create_logical_device()
     for (auto i = 0u; i < numQueueFamilyProperties; ++i)
     {
         Log().get() << "Queue family " << i << std::endl;
-        Log().get() << "\tFlags : " << VkQueueFlags_to_string(queueFamilyProperties[i].queueFlags) << std::endl;
+        Log().get() << "\tFlags : " << to_string(static_cast<::VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)) << std::endl;
         Log().get() << "\tCount : " << queueFamilyProperties[i].queueCount << std::endl;
         Log().get() << "\tTimestampValidBits : " << queueFamilyProperties[i].timestampValidBits << std::endl;
     }
@@ -794,25 +794,25 @@ Renderer::Impl::create_swapchain()
     );
 }
 
-#define LOG_FLAG(_flag) \
+#define LOG_FLAG(_type,_flag) \
 if (inFlags & _flag)\
 {\
     stream << #_flag;\
-    inFlags &= ~_flag;\
+    inFlags = static_cast<_type>(inFlags & ~_flag);\
 }
 
 std::string
-Renderer::Impl::VkMemoryPropertyFlags_to_string(
-    ::VkMemoryPropertyFlags inFlags)
+Renderer::Impl::to_string(
+    ::VkMemoryPropertyFlagBits inFlags)
 {
     std::stringstream stream;
     while (inFlags != 0)
     {
-        LOG_FLAG(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
-        else LOG_FLAG(VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
+        LOG_FLAG(::VkMemoryPropertyFlagBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        else LOG_FLAG(::VkMemoryPropertyFlagBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        else LOG_FLAG(::VkMemoryPropertyFlagBits, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+        else LOG_FLAG(::VkMemoryPropertyFlagBits, VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
+        else LOG_FLAG(::VkMemoryPropertyFlagBits, VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
         else
         {
             throw Exception("Unknown memory property bit");
@@ -823,13 +823,13 @@ Renderer::Impl::VkMemoryPropertyFlags_to_string(
 }
 
 std::string
-Renderer::Impl::VkMemoryHeapFlags_to_string(
-    ::VkMemoryHeapFlags inFlags)
+Renderer::Impl::to_string(
+    ::VkMemoryHeapFlagBits inFlags)
 {
     std::stringstream stream;
     while (inFlags != 0)
     {
-        LOG_FLAG(VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+        LOG_FLAG(::VkMemoryHeapFlagBits, VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
         else
         {
             throw Exception("Unknown memory heap bit");
@@ -840,16 +840,16 @@ Renderer::Impl::VkMemoryHeapFlags_to_string(
 }
 
 std::string
-Renderer::Impl::VkQueueFlags_to_string(
-    ::VkQueueFlags inFlags)
+Renderer::Impl::to_string(
+    ::VkQueueFlagBits inFlags)
 {
     std::stringstream stream;
     while (inFlags != 0)
     {
-        LOG_FLAG(VK_QUEUE_GRAPHICS_BIT)
-        else LOG_FLAG(VK_QUEUE_COMPUTE_BIT)
-        else LOG_FLAG(VK_QUEUE_TRANSFER_BIT)
-        else LOG_FLAG(VK_QUEUE_SPARSE_BINDING_BIT)
+        LOG_FLAG(::VkQueueFlagBits, VK_QUEUE_GRAPHICS_BIT)
+        else LOG_FLAG(::VkQueueFlagBits, VK_QUEUE_COMPUTE_BIT)
+        else LOG_FLAG(::VkQueueFlagBits, VK_QUEUE_TRANSFER_BIT)
+        else LOG_FLAG(::VkQueueFlagBits, VK_QUEUE_SPARSE_BINDING_BIT)
         else
         {
             throw Exception("Unknown queue bit");

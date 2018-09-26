@@ -134,16 +134,16 @@ struct Renderer::Impl
     create_swapchain();
 
     static std::string
-    VkMemoryPropertyFlags_to_string(
-        ::VkMemoryPropertyFlags inFlags);
+    to_string(
+        ::VkMemoryPropertyFlagBits inFlags);
 
     static std::string
-    VkMemoryHeapFlags_to_string(
-        ::VkMemoryHeapFlags inFlags);
+    to_string(
+        ::VkMemoryHeapFlagBits inFlags);
 
     static std::string
-    VkQueueFlags_to_string(
-        ::VkQueueFlags inFlags);
+    to_string(
+        ::VkQueueFlagBits inFlags);
 };
 
 #endif // VULKAN_RENDERER_IMPL_H
