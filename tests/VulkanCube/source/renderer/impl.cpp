@@ -794,6 +794,13 @@ Renderer::Impl::create_swapchain()
     );
 }
 
+#define LOG_FLAG(_flag) \
+if (inFlags & _flag)\
+{\
+    stream << #_flag;\
+    inFlags &= ~_flag;\
+}
+
 std::string
 Renderer::Impl::VkMemoryPropertyFlags_to_string(
     ::VkMemoryPropertyFlags inFlags)
@@ -801,31 +808,11 @@ Renderer::Impl::VkMemoryPropertyFlags_to_string(
     std::stringstream stream;
     while (inFlags != 0)
     {
-        if (inFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-        {
-            stream << "VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT";
-            inFlags &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-        }
-        else if (inFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-        {
-            stream << "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT";
-            inFlags &= ~VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-        }
-        else if (inFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-        {
-            stream << "VK_MEMORY_PROPERTY_HOST_COHERENT_BIT";
-            inFlags &= ~VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        }
-        else if (inFlags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
-        {
-            stream << "VK_MEMORY_PROPERTY_HOST_CACHED_BIT";
-            inFlags &= ~VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-        }
-        else if (inFlags & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
-        {
-            stream << "VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT";
-            inFlags &= ~VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
-        }
+        LOG_FLAG(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+        else LOG_FLAG(VK_MEMORY_PROPERTY_HOST_CACHED_BIT)
+        else LOG_FLAG(VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)
         else
         {
             throw Exception("Unknown memory property bit");
@@ -842,11 +829,7 @@ Renderer::Impl::VkMemoryHeapFlags_to_string(
     std::stringstream stream;
     while (inFlags != 0)
     {
-        if (inFlags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
-        {
-            stream << "VK_MEMORY_HEAP_DEVICE_LOCAL_BIT";
-            inFlags &= ~VK_MEMORY_HEAP_DEVICE_LOCAL_BIT;
-        }
+        LOG_FLAG(VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
         else
         {
             throw Exception("Unknown memory heap bit");
@@ -863,26 +846,10 @@ Renderer::Impl::VkQueueFlags_to_string(
     std::stringstream stream;
     while (inFlags != 0)
     {
-        if (inFlags & VK_QUEUE_GRAPHICS_BIT)
-        {
-            stream << "VK_QUEUE_GRAPHICS_BIT";
-            inFlags &= ~VK_QUEUE_GRAPHICS_BIT;
-        }
-        else if (inFlags & VK_QUEUE_COMPUTE_BIT)
-        {
-            stream << "VK_QUEUE_COMPUTE_BIT";
-            inFlags &= ~VK_QUEUE_COMPUTE_BIT;
-        }
-        else if (inFlags & VK_QUEUE_TRANSFER_BIT)
-        {
-            stream << "VK_QUEUE_TRANSFER_BIT";
-            inFlags &= ~VK_QUEUE_TRANSFER_BIT;
-        }
-        else if (inFlags & VK_QUEUE_SPARSE_BINDING_BIT)
-        {
-            stream << "VK_QUEUE_SPARSE_BINDING_BIT";
-            inFlags &= ~VK_QUEUE_SPARSE_BINDING_BIT;
-        }
+        LOG_FLAG(VK_QUEUE_GRAPHICS_BIT)
+        else LOG_FLAG(VK_QUEUE_COMPUTE_BIT)
+        else LOG_FLAG(VK_QUEUE_TRANSFER_BIT)
+        else LOG_FLAG(VK_QUEUE_SPARSE_BINDING_BIT)
         else
         {
             throw Exception("Unknown queue bit");
@@ -891,3 +858,5 @@ Renderer::Impl::VkQueueFlags_to_string(
     }
     return stream.str();
 }
+
+#undef LOG_FLAG
