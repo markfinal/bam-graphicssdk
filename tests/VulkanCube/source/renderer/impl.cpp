@@ -384,7 +384,7 @@ Renderer::Impl::create_window_surface()
 }
 
 void
-Renderer::Impl::enumerate_physics_devices()
+Renderer::Impl::enumerate_physical_devices()
 {
     // enumerate physical devices
     auto enumPhysDevicesFn = GETIFN(this->_instance.get(), vkEnumeratePhysicalDevices);

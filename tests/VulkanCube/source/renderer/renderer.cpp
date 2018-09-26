@@ -47,7 +47,7 @@ Renderer::init()
     impl->create_instance();
     impl->init_debug_callback();
     impl->create_window_surface();
-    impl->enumerate_physics_devices();
+    impl->enumerate_physical_devices();
     impl->create_logical_device();
     impl->create_swapchain();
 }

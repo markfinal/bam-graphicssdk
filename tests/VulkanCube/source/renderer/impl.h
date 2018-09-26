@@ -125,7 +125,7 @@ struct Renderer::Impl
     create_window_surface();
 
     void
-    enumerate_physics_devices();
+    enumerate_physical_devices();
 
     void
     create_logical_device();
