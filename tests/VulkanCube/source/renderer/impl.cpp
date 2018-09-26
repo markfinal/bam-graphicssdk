@@ -426,6 +426,29 @@ Renderer::Impl::enumerate_physical_devices()
         Log().get() << "\tSparse properties..." << std::endl;
     }
 
+    // enumerate physical device memory properties
+    auto enumeratePhysicalMemoryDeviceFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceMemoryProperties);
+    for (auto device : this->_physical_devices)
+    {
+        ::VkPhysicalDeviceMemoryProperties memProps;
+        enumeratePhysicalMemoryDeviceFn(device, &memProps);
+        Log().get() << "Memory properties of physical device " << std::endl;
+        Log().get() << "\tMemory heap count : " << memProps.memoryHeapCount << std::endl;
+        for (auto i = 0u; i < memProps.memoryHeapCount; ++i)
+        {
+            Log().get() << "\tHeap " << i << std::endl;
+            Log().get() << "\t\tFlags : " << memProps.memoryHeaps[i].flags << std::endl;
+            Log().get() << "\t\tSize : " << memProps.memoryHeaps[i].size << std::endl;
+        }
+        Log().get() << "\tMemory type count : " << memProps.memoryTypeCount << std::endl;
+        for (auto i = 0u; i < memProps.memoryTypeCount; ++i)
+        {
+            Log().get() << "\tMemory type " << i << std::endl;
+            Log().get() << "\t\tIndex : " << memProps.memoryTypes[i].heapIndex << std::endl;
+            Log().get() << "\t\tFlags : " << memProps.memoryTypes[i].propertyFlags << std::endl;
+        }
+    }
+
     // enumerate physical device features
     auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
     for (auto i = 0u; i < numPhysicalDevices; ++i)
