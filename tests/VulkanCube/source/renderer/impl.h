@@ -59,6 +59,7 @@ struct Renderer::Impl
     std::vector<::VkImage>                                                               _swapchain_images;
     std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView1;
     std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView2;
+    std::unique_ptr<::VkRenderPass_T, void(*)(::VkRenderPass)>                           _renderPass;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer1;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;
 
@@ -76,6 +77,8 @@ struct Renderer::Impl
         static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
         static PFN_vkDestroyImageView _destroy_imageview;
         static std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> _destroy_imageview_bounddevice;
+        static PFN_vkDestroyRenderPass _destroy_renderpass;
+        static std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> _destroy_renderpass_bounddevice;
         static PFN_vkDestroyFramebuffer _destroy_framebuffer;
         static std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> _destroy_framebuffer_bounddevice;
 
@@ -116,6 +119,10 @@ struct Renderer::Impl
         static void
         destroy_framebuffer_wrapper(
             ::VkFramebuffer inFrameBuffer);
+
+        static void
+        destroy_renderpass_wrapper(
+            ::VkRenderPass inRenderPass);
     };
     VkFunctionTable                                        _function_table;
 
@@ -154,6 +161,9 @@ struct Renderer::Impl
 
     void
     create_imageviews();
+
+    void
+    create_renderpass();
 
     void
     create_framebuffers();

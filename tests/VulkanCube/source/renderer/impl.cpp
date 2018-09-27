@@ -52,18 +52,12 @@ Renderer::Impl::Impl(
     _swapchain(nullptr, nullptr),
     _swapchain_imageView1(nullptr, nullptr),
     _swapchain_imageView2(nullptr, nullptr),
+    _renderPass(nullptr, nullptr),
     _framebuffer1(nullptr, nullptr),
     _framebuffer2(nullptr, nullptr)
 {}
 
-Renderer::Impl::~Impl()
-{
-    this->_swapchain.reset();
-    this->_logical_device.reset();
-    this->_surface.reset();
-    this->_debug_callback.reset();
-    this->_instance.reset();
-}
+Renderer::Impl::~Impl() = default;
 
 PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_debug_callback = nullptr;
@@ -76,6 +70,8 @@ PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_kh
 std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
 std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_imageview_bounddevice;
+PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = nullptr;
+std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_renderpass_bounddevice;
 PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
 std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
 
@@ -101,6 +97,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_imageview = GETIFN(inInstance, vkDestroyImageView);
     _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_renderpass = GETIFN(inInstance, vkDestroyRenderPass);
+    _destroy_renderpass_bounddevice = std::bind(_destroy_renderpass, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_framebuffer = GETIFN(inInstance, vkDestroyFramebuffer);
     _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
@@ -152,6 +150,14 @@ Renderer::Impl::VkFunctionTable::destroy_imageview_wrapper(
 {
     Log().get() << "Destroying VkImageView 0x" << std::hex << inImageView << std::endl;
     _destroy_imageview_bounddevice(inImageView, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_renderpass_wrapper(
+    ::VkRenderPass inRenderPass)
+{
+    Log().get() << "Destroying VkRenderPass 0x" << std::hex << inRenderPass << std::endl;
+    _destroy_renderpass_bounddevice(inRenderPass, nullptr);
 }
 
 void
@@ -877,6 +883,50 @@ Renderer::Impl::create_imageviews()
 }
 
 void
+Renderer::Impl::create_renderpass()
+{
+    ::VkAttachmentDescription colorAttachment;
+    memset(&colorAttachment, 0, sizeof(colorAttachment));
+    colorAttachment.format = this->_swapchain_imageFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    ::VkAttachmentReference colorAttachmentRef;
+    memset(&colorAttachmentRef, 0, sizeof(colorAttachmentRef));
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    ::VkSubpassDescription subpass;
+    memset(&subpass, 0, sizeof(subpass));
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    ::VkRenderPassCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    createInfo.attachmentCount = 1;
+    createInfo.pAttachments = &colorAttachment;
+    createInfo.subpassCount = 1;
+    createInfo.pSubpasses = &subpass;
+
+    auto createRenderPassFn = GETIFN(this->_instance.get(), vkCreateRenderPass);
+    ::VkRenderPass renderPass;
+    createRenderPassFn(
+        this->_logical_device.get(),
+        &createInfo,
+        nullptr,
+        &renderPass
+    );
+    this->_renderPass = { renderPass, this->_function_table.destroy_renderpass_wrapper };
+}
+
+void
 Renderer::Impl::create_framebuffers()
 {
     auto createFrameBufferFn = GETIFN(this->_instance.get(), vkCreateFramebuffer);
@@ -888,7 +938,7 @@ Renderer::Impl::create_framebuffers()
         ::VkFramebufferCreateInfo createInfo;
         memset(&createInfo, 0, sizeof(createInfo));
         createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        createInfo.renderPass = 0; // TODO
+        createInfo.renderPass = this->_renderPass.get();
         createInfo.attachmentCount = 1;
         createInfo.pAttachments = attachments;
         createInfo.width = this->_swapchain_extent.width;
