@@ -50,4 +50,5 @@ Renderer::init()
     impl->enumerate_physical_devices();
     impl->create_logical_device();
     impl->create_swapchain();
+    impl->create_imageviews();
 }

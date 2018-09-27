@@ -53,8 +53,11 @@ struct Renderer::Impl
     std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;
     ::VkQueue                                                                            _graphics_queue;
     ::VkQueue                                                                            _present_queue;
+    ::VkFormat                                                                           _swapchain_imageFormat;
     std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)>                       _swapchain;
     std::vector<::VkImage>                                                               _swapchain_images;
+    std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView1;
+    std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView2;
 
     class VkFunctionTable
     {
@@ -68,6 +71,8 @@ struct Renderer::Impl
         static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;
         static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
         static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
+        static PFN_vkDestroyImageView _destroy_imageview;
+        static std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> _destroy_imageview_bounddevice;
 
     public:
         static void
@@ -98,6 +103,10 @@ struct Renderer::Impl
         static void
         destroy_swapchain_khr_wrapper(
             ::VkSwapchainKHR inSwapchain);
+
+        static void
+        destroy_imageview_wrapper(
+            ::VkImageView inImageView);
     };
     VkFunctionTable                                        _function_table;
 
@@ -133,6 +142,9 @@ struct Renderer::Impl
 
     void
     create_swapchain();
+
+    void
+    create_imageviews();
 
     static std::string
     to_string(

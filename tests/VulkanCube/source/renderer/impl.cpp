@@ -49,7 +49,9 @@ Renderer::Impl::Impl(
     _window(inWindow),
     _surface(nullptr, nullptr),
     _logical_device(nullptr, nullptr),
-    _swapchain(nullptr, nullptr)
+    _swapchain(nullptr, nullptr),
+    _swapchain_imageView1(nullptr, nullptr),
+    _swapchain_imageView2(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl()
@@ -70,6 +72,8 @@ PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = 
 std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
 PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
 std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
+PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
+std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_imageview_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -91,6 +95,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
 {
     _destroy_swapchain_khr = GETIFN(inInstance, vkDestroySwapchainKHR);
     _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_imageview = GETIFN(inInstance, vkDestroyImageView);
+    _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -132,6 +138,14 @@ Renderer::Impl::VkFunctionTable::destroy_swapchain_khr_wrapper(
 {
     Log().get() << "Destroying VkSwapchainKHR 0x" << std::hex << inSwapchain << std::endl;
     _destroy_swapchain_khr_bounddevice(inSwapchain, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_imageview_wrapper(
+    ::VkImageView inImageView)
+{
+    Log().get() << "Destroying VkImageView 0x" << std::hex << inImageView << std::endl;
+    _destroy_imageview_bounddevice(inImageView, nullptr);
 }
 
 void
@@ -756,12 +770,14 @@ Renderer::Impl::create_swapchain()
         Log().get() << pMode << std::endl;
     }
 
+    this->_swapchain_imageFormat = surfaceFormats[0].format;
+
     ::VkSwapchainCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = this->_surface.get();
     createInfo.minImageCount = surfaceCaps.minImageCount;
-    createInfo.imageFormat = surfaceFormats[0].format;
+    createInfo.imageFormat = this->_swapchain_imageFormat;
     createInfo.imageColorSpace = surfaceFormats[0].colorSpace;
     createInfo.imageExtent = surfaceCaps.maxImageExtent;
     createInfo.imageArrayLayers = 1;
@@ -802,6 +818,47 @@ Renderer::Impl::create_swapchain()
         &swapchain_imagecount,
         this->_swapchain_images.data()
     );
+}
+
+void
+Renderer::Impl::create_imageviews()
+{
+    auto createImageViewFn = GETIFN(this->_instance.get(), vkCreateImageView);
+
+    for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
+    {
+        ::VkImageViewCreateInfo createInfo;
+        memset(&createInfo, 0, sizeof(createInfo));
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        createInfo.image = this->_swapchain_images[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = this->_swapchain_imageFormat;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        ::VkImageView view;
+        createImageViewFn(
+            this->_logical_device.get(),
+            &createInfo,
+            nullptr,
+            &view
+        );
+        if (0 == i)
+        {
+            this->_swapchain_imageView1 = { view, this->_function_table.destroy_imageview_wrapper };
+        }
+        else
+        {
+            this->_swapchain_imageView2 = { view, this->_function_table.destroy_imageview_wrapper };
+        }
+    }
 }
 
 #define LOG_FLAG(_type,_flag) \
