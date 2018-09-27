@@ -54,7 +54,8 @@ Renderer::Impl::Impl(
     _swapchain_imageView2(nullptr, nullptr),
     _renderPass(nullptr, nullptr),
     _framebuffer1(nullptr, nullptr),
-    _framebuffer2(nullptr, nullptr)
+    _framebuffer2(nullptr, nullptr),
+    _commandPool(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
@@ -74,6 +75,8 @@ PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = n
 std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_renderpass_bounddevice;
 PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
 std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
+PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool = nullptr;
+std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_commandpool_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -101,6 +104,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_renderpass_bounddevice = std::bind(_destroy_renderpass, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_framebuffer = GETIFN(inInstance, vkDestroyFramebuffer);
     _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_commandpool = GETIFN(inInstance, vkDestroyCommandPool);
+    _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -166,6 +171,14 @@ Renderer::Impl::VkFunctionTable::destroy_framebuffer_wrapper(
 {
     Log().get() << "Destroying VkFrameBuffer 0x" << std::hex << inFrameBuffer << std::endl;
     _destroy_framebuffer_bounddevice(inFrameBuffer, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_commandpool_wrapper(
+    ::VkCommandPool inCommandPool)
+{
+    Log().get() << "Destroying VkCommandPool 0x" << std::hex << inCommandPool << std::endl;
+    _destroy_commandpool_bounddevice(inCommandPool, nullptr);
 }
 
 void
@@ -961,6 +974,26 @@ Renderer::Impl::create_framebuffers()
             this->_framebuffer2 = { frameBuffer, this->_function_table.destroy_framebuffer_wrapper };
         }
     }
+}
+
+void
+Renderer::Impl::create_commandpool()
+{
+    ::VkCommandPoolCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    createInfo.queueFamilyIndex = 0; // TODO: hook up
+    createInfo.flags = 0;
+
+    auto createCommandPoolFn = GETIFN(this->_instance.get(), vkCreateCommandPool);
+    ::VkCommandPool commandPool;
+    createCommandPoolFn(
+        this->_logical_device.get(),
+        &createInfo,
+        nullptr,
+        &commandPool
+    );
+    this->_commandPool = { commandPool, this->_function_table.destroy_commandpool_wrapper };
 }
 
 #define LOG_FLAG(_type,_flag) \

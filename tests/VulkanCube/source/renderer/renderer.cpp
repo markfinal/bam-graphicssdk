@@ -53,4 +53,5 @@ Renderer::init()
     impl->create_imageviews();
     impl->create_renderpass();
     impl->create_framebuffers();
+    impl->create_commandpool();
 }

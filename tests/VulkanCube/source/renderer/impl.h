@@ -62,6 +62,7 @@ struct Renderer::Impl
     std::unique_ptr<::VkRenderPass_T, void(*)(::VkRenderPass)>                           _renderPass;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer1;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;
+    std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
 
     class VkFunctionTable
     {
@@ -81,6 +82,8 @@ struct Renderer::Impl
         static std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> _destroy_renderpass_bounddevice;
         static PFN_vkDestroyFramebuffer _destroy_framebuffer;
         static std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> _destroy_framebuffer_bounddevice;
+        static PFN_vkDestroyCommandPool _destroy_commandpool;
+        static std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> _destroy_commandpool_bounddevice;
 
     public:
         static void
@@ -117,12 +120,16 @@ struct Renderer::Impl
             ::VkImageView inImageView);
 
         static void
+        destroy_renderpass_wrapper(
+            ::VkRenderPass inRenderPass);
+
+        static void
         destroy_framebuffer_wrapper(
             ::VkFramebuffer inFrameBuffer);
 
         static void
-        destroy_renderpass_wrapper(
-            ::VkRenderPass inRenderPass);
+        destroy_commandpool_wrapper(
+            ::VkCommandPool inCommandPool);
     };
     VkFunctionTable                                        _function_table;
 
@@ -167,6 +174,9 @@ struct Renderer::Impl
 
     void
     create_framebuffers();
+
+    void
+    create_commandpool();
 
     static std::string
     to_string(
