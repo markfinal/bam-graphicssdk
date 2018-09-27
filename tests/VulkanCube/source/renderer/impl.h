@@ -62,6 +62,7 @@ struct Renderer::Impl
         static PFN_vkDestroyInstance   _destroy_instance;
         static PFN_vkDestroyDebugReportCallbackEXT _destroy_debug_callback;
         static std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> _destroy_debug_callback_boundinstance;
+        static PFN_vkDeviceWaitIdle    _device_waitidle;
         static PFN_vkDestroyDevice     _destroy_device;
         static PFN_vkDestroySurfaceKHR _destroy_surface_khr;
         static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;

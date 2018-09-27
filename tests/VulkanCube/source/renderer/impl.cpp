@@ -52,11 +52,19 @@ Renderer::Impl::Impl(
     _swapchain(nullptr, nullptr)
 {}
 
-Renderer::Impl::~Impl() = default;
+Renderer::Impl::~Impl()
+{
+    this->_swapchain.reset();
+    this->_logical_device.reset();
+    this->_surface.reset();
+    this->_debug_callback.reset();
+    this->_instance.reset();
+}
 
 PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_debug_callback = nullptr;
 std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_debug_callback_boundinstance;
+PFN_vkDeviceWaitIdle Renderer::Impl::VkFunctionTable::_device_waitidle = nullptr;
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = nullptr;
 std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
@@ -70,6 +78,7 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
     _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
     _destroy_debug_callback = GETIFN(inInstance, vkDestroyDebugReportCallbackEXT);
     _destroy_debug_callback_boundinstance = std::bind(_destroy_debug_callback, inInstance, std::placeholders::_1, std::placeholders::_2);
+    _device_waitidle = GETIFN(inInstance, vkDeviceWaitIdle);
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
     _destroy_surface_khr = GETIFN(inInstance, vkDestroySurfaceKHR);
     _destroy_surface_khr_boundinstance = std::bind(_destroy_surface_khr, inInstance, std::placeholders::_1, std::placeholders::_2);
@@ -105,6 +114,7 @@ Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
     ::VkDevice inDevice)
 {
     Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
+    _device_waitidle(inDevice);
     _destroy_device(inDevice, nullptr);
 }
 
