@@ -996,6 +996,26 @@ Renderer::Impl::create_commandpool()
     this->_commandPool = { commandPool, this->_function_table.destroy_commandpool_wrapper };
 }
 
+void
+Renderer::Impl::create_commandbuffers()
+{
+    this->_commandBuffers.resize(this->_swapchain_images.size());
+
+    ::VkCommandBufferAllocateInfo allocateInfo;
+    memset(&allocateInfo, 0, sizeof(allocateInfo));
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.commandPool = this->_commandPool.get();
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = this->_commandBuffers.size();
+
+    auto allocateCommandBuffersFn = GETIFN(this->_instance.get(), vkAllocateCommandBuffers);
+    allocateCommandBuffersFn(
+        this->_logical_device.get(),
+        &allocateInfo,
+        this->_commandBuffers.data()
+    );
+}
+
 #define LOG_FLAG(_type,_flag) \
 if (inFlags & _flag)\
 {\

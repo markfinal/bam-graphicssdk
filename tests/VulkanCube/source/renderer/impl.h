@@ -63,6 +63,7 @@ struct Renderer::Impl
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer1;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;
     std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
+    std::vector<::VkCommandBuffer>                                                       _commandBuffers;
 
     class VkFunctionTable
     {
@@ -177,6 +178,9 @@ struct Renderer::Impl
 
     void
     create_commandpool();
+
+    void
+    create_commandbuffers();
 
     static std::string
     to_string(
