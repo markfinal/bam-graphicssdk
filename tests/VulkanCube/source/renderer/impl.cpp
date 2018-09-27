@@ -51,7 +51,9 @@ Renderer::Impl::Impl(
     _logical_device(nullptr, nullptr),
     _swapchain(nullptr, nullptr),
     _swapchain_imageView1(nullptr, nullptr),
-    _swapchain_imageView2(nullptr, nullptr)
+    _swapchain_imageView2(nullptr, nullptr),
+    _framebuffer1(nullptr, nullptr),
+    _framebuffer2(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl()
@@ -74,6 +76,8 @@ PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_kh
 std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
 std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_imageview_bounddevice;
+PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
+std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -97,6 +101,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_imageview = GETIFN(inInstance, vkDestroyImageView);
     _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_framebuffer = GETIFN(inInstance, vkDestroyFramebuffer);
+    _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -146,6 +152,14 @@ Renderer::Impl::VkFunctionTable::destroy_imageview_wrapper(
 {
     Log().get() << "Destroying VkImageView 0x" << std::hex << inImageView << std::endl;
     _destroy_imageview_bounddevice(inImageView, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_framebuffer_wrapper(
+    ::VkFramebuffer inFrameBuffer)
+{
+    Log().get() << "Destroying VkFrameBuffer 0x" << std::hex << inFrameBuffer << std::endl;
+    _destroy_framebuffer_bounddevice(inFrameBuffer, nullptr);
 }
 
 void
@@ -771,6 +785,7 @@ Renderer::Impl::create_swapchain()
     }
 
     this->_swapchain_imageFormat = surfaceFormats[0].format;
+    this->_swapchain_extent = surfaceCaps.maxImageExtent;
 
     ::VkSwapchainCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
@@ -779,7 +794,7 @@ Renderer::Impl::create_swapchain()
     createInfo.minImageCount = surfaceCaps.minImageCount;
     createInfo.imageFormat = this->_swapchain_imageFormat;
     createInfo.imageColorSpace = surfaceFormats[0].colorSpace;
-    createInfo.imageExtent = surfaceCaps.maxImageExtent;
+    createInfo.imageExtent = this->_swapchain_extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -857,6 +872,43 @@ Renderer::Impl::create_imageviews()
         else
         {
             this->_swapchain_imageView2 = { view, this->_function_table.destroy_imageview_wrapper };
+        }
+    }
+}
+
+void
+Renderer::Impl::create_framebuffers()
+{
+    auto createFrameBufferFn = GETIFN(this->_instance.get(), vkCreateFramebuffer);
+
+    for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
+    {
+        ::VkImageView attachments[] = { (0 == i) ? this->_swapchain_imageView1.get() : this->_swapchain_imageView2.get() };
+
+        ::VkFramebufferCreateInfo createInfo;
+        memset(&createInfo, 0, sizeof(createInfo));
+        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        createInfo.renderPass = 0; // TODO
+        createInfo.attachmentCount = 1;
+        createInfo.pAttachments = attachments;
+        createInfo.width = this->_swapchain_extent.width;
+        createInfo.height = this->_swapchain_extent.height;
+        createInfo.layers = 1;
+
+        ::VkFramebuffer frameBuffer;
+        createFrameBufferFn(
+            this->_logical_device.get(),
+            &createInfo,
+            nullptr,
+            &frameBuffer
+        );
+        if (0 == i)
+        {
+            this->_framebuffer1 = { frameBuffer, this->_function_table.destroy_framebuffer_wrapper };
+        }
+        else
+        {
+            this->_framebuffer2 = { frameBuffer, this->_function_table.destroy_framebuffer_wrapper };
         }
     }
 }
