@@ -99,7 +99,7 @@ DisplayLinkCallback(
     (void)flagsIn;
     (void)flagsOut;
     (void)target;
-    // TODO: draw
+    renderer->draw_frame();
     return kCVReturnSuccess;
 }
 

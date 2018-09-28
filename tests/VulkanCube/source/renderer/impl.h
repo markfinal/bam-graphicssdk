@@ -64,6 +64,8 @@ struct Renderer::Impl
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;
     std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
     std::vector<::VkCommandBuffer>                                                       _commandBuffers;
+    std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>                             _image_available;
+    std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>                             _render_finished;
 
     class VkFunctionTable
     {
@@ -85,6 +87,8 @@ struct Renderer::Impl
         static std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> _destroy_framebuffer_bounddevice;
         static PFN_vkDestroyCommandPool _destroy_commandpool;
         static std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> _destroy_commandpool_bounddevice;
+        static PFN_vkDestroySemaphore _destroy_semaphore;
+        static std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> _destroy_semaphore_bounddevice;
 
     public:
         static void
@@ -131,6 +135,10 @@ struct Renderer::Impl
         static void
         destroy_commandpool_wrapper(
             ::VkCommandPool inCommandPool);
+
+        static void
+        destroy_semaphore_wrapper(
+            ::VkSemaphore inSemaphore);
     };
     VkFunctionTable                                        _function_table;
 
@@ -181,6 +189,9 @@ struct Renderer::Impl
 
     void
     create_commandbuffers();
+
+    void
+    create_semaphores();
 
     static std::string
     to_string(

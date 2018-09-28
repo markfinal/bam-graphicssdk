@@ -55,4 +55,44 @@ Renderer::init()
     impl->create_framebuffers();
     impl->create_commandpool();
     impl->create_commandbuffers();
+    impl->create_semaphores();
+}
+
+void
+Renderer::draw_frame() const
+{
+    auto impl = this->_impl.get();
+    auto acquireNextImageFn = GETIFN(impl->_instance.get(), vkAcquireNextImageKHR);
+    uint32_t imageIndex;
+    acquireNextImageFn(
+        impl->_logical_device.get(),
+        impl->_swapchain.get(),
+        std::numeric_limits<uint64_t>::max(),
+        impl->_image_available.get(),
+        VK_NULL_HANDLE,
+        &imageIndex
+    );
+
+    ::VkSemaphore waitSemaphores[] = { impl->_image_available.get() };
+    ::VkSemaphore signalSemaphores[] = { impl->_render_finished.get() };
+    ::VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+    ::VkSubmitInfo submitInfo;
+    memset(&submitInfo, 0, sizeof(submitInfo));
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &impl->_commandBuffers[imageIndex];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    auto queueSubmitFn = GETIFN(impl->_instance.get(), vkQueueSubmit);
+    queueSubmitFn(
+        impl->_graphics_queue,
+        1,
+        &submitInfo,
+        VK_NULL_HANDLE
+    );
 }

@@ -55,7 +55,9 @@ Renderer::Impl::Impl(
     _renderPass(nullptr, nullptr),
     _framebuffer1(nullptr, nullptr),
     _framebuffer2(nullptr, nullptr),
-    _commandPool(nullptr, nullptr)
+    _commandPool(nullptr, nullptr),
+    _image_available(nullptr, nullptr),
+    _render_finished(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
@@ -77,6 +79,8 @@ PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer =
 std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
 PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool = nullptr;
 std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_commandpool_bounddevice;
+PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nullptr;
+std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_semaphore_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -106,6 +110,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_commandpool = GETIFN(inInstance, vkDestroyCommandPool);
     _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_semaphore = GETIFN(inInstance, vkDestroySemaphore);
+    _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -179,6 +185,14 @@ Renderer::Impl::VkFunctionTable::destroy_commandpool_wrapper(
 {
     Log().get() << "Destroying VkCommandPool 0x" << std::hex << inCommandPool << std::endl;
     _destroy_commandpool_bounddevice(inCommandPool, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_semaphore_wrapper(
+    ::VkSemaphore inSemaphore)
+{
+    Log().get() << "Destroying VkSemaphore 0x" << std::hex << inSemaphore << std::endl;
+    _destroy_semaphore_bounddevice(inSemaphore, nullptr);
 }
 
 void
@@ -1065,6 +1079,23 @@ Renderer::Impl::create_commandbuffers()
             this->_commandBuffers[i]
         );
     }
+}
+
+void
+Renderer::Impl::create_semaphores()
+{
+    ::VkSemaphoreCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    auto createSemaphoreFn = GETIFN(this->_instance.get(), vkCreateSemaphore);
+    ::VkSemaphore sem;
+    createSemaphoreFn(
+        this->_logical_device.get(),
+        &createInfo,
+        nullptr,
+        &sem
+    );
 }
 
 #define LOG_FLAG(_type,_flag) \
