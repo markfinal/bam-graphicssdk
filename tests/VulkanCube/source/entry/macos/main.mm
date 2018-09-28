@@ -19,6 +19,7 @@ std::unique_ptr<Renderer> renderer;
 
 @interface MetalViewController : NSViewController
 {
+    CVDisplayLinkRef _displayLink;
 }
 -(void)viewDidLoad;
 -(void)viewWillAppear;
@@ -37,6 +38,10 @@ std::unique_ptr<Renderer> renderer;
 {
     [super viewDidLoad];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
+
+    CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
+    CVDisplayLinkSetOutputCallback(_displayLink, &DisplayLinkCallback, NULL);
+    CVDisplayLinkStart(_displayLink);
 }
 -(void)viewWillAppear
 {
@@ -78,6 +83,26 @@ std::unique_ptr<Renderer> renderer;
     [super viewDidDisappear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
 }
+
+static CVReturn
+DisplayLinkCallback(
+    CVDisplayLinkRef displayLink,
+    const CVTimeStamp* now,
+    const CVTimeStamp* outputTime,
+    CVOptionFlags flagsIn,
+    CVOptionFlags* flagsOut,
+    void* target)
+{
+    (void)displayLink;
+    (void)now;
+    (void)outputTime;
+    (void)flagsIn;
+    (void)flagsOut;
+    (void)target;
+    // TODO: draw
+    return kCVReturnSuccess;
+}
+
 @end
 
 /* ---------------------------------------------------------------------- */
