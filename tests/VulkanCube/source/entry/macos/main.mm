@@ -77,6 +77,7 @@ std::unique_ptr<Renderer> renderer;
 {
     [super viewWillDisappear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
+    CVDisplayLinkStop(_displayLink);
 }
 -(void)viewDidDisappear
 {
