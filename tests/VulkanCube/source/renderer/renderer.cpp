@@ -64,14 +64,14 @@ Renderer::draw_frame() const
     auto impl = this->_impl.get();
     auto acquireNextImageFn = GETIFN(impl->_instance.get(), vkAcquireNextImageKHR);
     uint32_t imageIndex;
-    acquireNextImageFn(
+    VK_ERR_CHECK(acquireNextImageFn(
         impl->_logical_device.get(),
         impl->_swapchain.get(),
         std::numeric_limits<uint64_t>::max(),
         impl->_image_available.get(),
         VK_NULL_HANDLE,
         &imageIndex
-    );
+    ));
 
     ::VkSemaphore waitSemaphores[] = { impl->_image_available.get() };
     ::VkSemaphore signalSemaphores[] = { impl->_render_finished.get() };
@@ -89,12 +89,12 @@ Renderer::draw_frame() const
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     auto queueSubmitFn = GETIFN(impl->_instance.get(), vkQueueSubmit);
-    queueSubmitFn(
+    VK_ERR_CHECK(queueSubmitFn(
         impl->_graphics_queue,
         1,
         &submitInfo,
         VK_NULL_HANDLE
-    );
+    ));
 
     ::VkSwapchainKHR swapchains[] = { impl->_swapchain.get() };
     ::VkPresentInfoKHR presentInfo;
@@ -108,8 +108,8 @@ Renderer::draw_frame() const
     presentInfo.pResults = nullptr;
 
     auto queuePresentFn = GETIFN(impl->_instance.get(), vkQueuePresentKHR);
-    queuePresentFn(
+    VK_ERR_CHECK(queuePresentFn(
         impl->_present_queue,
         &presentInfo
-    );
+    ));
 }

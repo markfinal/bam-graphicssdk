@@ -36,11 +36,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <memory>
 #include <functional>
+#include <cassert>
 
 // these macros avoid repetition between stating the name of the function and the PFN_* type
 #define GETPFN(_name) PFN_##_name
 #define GETFN(_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(nullptr, #_name))
 #define GETIFN(_instance,_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(_instance, #_name))
+
+#ifdef NDEBUG
+#define VK_ERR_CHECK(_fn_call) _fn_call
+#else
+#define VK_ERR_CHECK(_fn_call) \
+do{\
+auto result = _fn_call;\
+assert(VK_SUCCESS == result);\
+} while(0)
+#endif
 
 struct Renderer::Impl
 {
