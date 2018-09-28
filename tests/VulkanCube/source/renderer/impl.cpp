@@ -1044,7 +1044,14 @@ Renderer::Impl::create_commandbuffers()
         renderPassInfo.renderArea.extent = this->_swapchain_extent;
 
         ::VkClearValue clearColour;
-        clearColour.color = {{1, 0, 0, 1}};
+        if (0 == i)
+        {
+            clearColour.color = {{1, 0, 0, 1}};
+        }
+        else
+        {
+            clearColour.color = {{0, 0, 1, 1}};
+        }
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColour;
 
