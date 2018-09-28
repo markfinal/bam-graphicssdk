@@ -38,10 +38,6 @@ std::unique_ptr<Renderer> renderer;
 {
     [super viewDidLoad];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
-
-    CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-    CVDisplayLinkSetOutputCallback(_displayLink, &DisplayLinkCallback, NULL);
-    CVDisplayLinkStart(_displayLink);
 }
 -(void)viewWillAppear
 {
@@ -57,6 +53,10 @@ std::unique_ptr<Renderer> renderer;
 
     renderer.reset(new Renderer(metalWindow.get()));
     renderer->init();
+
+    CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
+    CVDisplayLinkSetOutputCallback(_displayLink, &DisplayLinkCallback, NULL);
+    CVDisplayLinkStart(_displayLink);
 }
 -(void)updateViewConstraints
 {
