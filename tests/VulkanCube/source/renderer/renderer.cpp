@@ -95,4 +95,21 @@ Renderer::draw_frame() const
         &submitInfo,
         VK_NULL_HANDLE
     );
+
+    ::VkSwapchainKHR swapchains[] = { impl->_swapchain.get() };
+    ::VkPresentInfoKHR presentInfo;
+    memset(&presentInfo, 0, sizeof(presentInfo));
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapchains;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr;
+
+    auto queuePresentFn = GETIFN(impl->_instance.get(), vkQueuePresentKHR);
+    queuePresentFn(
+        impl->_present_queue,
+        &presentInfo
+    );
 }
