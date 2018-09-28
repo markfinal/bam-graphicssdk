@@ -1081,6 +1081,14 @@ Renderer::Impl::create_semaphores()
         nullptr,
         &sem
     ));
+    this->_image_available = { sem, this->_function_table.destroy_semaphore_wrapper };
+    VK_ERR_CHECK(createSemaphoreFn(
+        this->_logical_device.get(),
+        &createInfo,
+        nullptr,
+        &sem
+    ));
+    this->_render_finished = { sem, this->_function_table.destroy_semaphore_wrapper };
 }
 
 #define LOG_FLAG(_type,_flag) \
