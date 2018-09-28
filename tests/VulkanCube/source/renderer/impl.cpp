@@ -1014,6 +1014,57 @@ Renderer::Impl::create_commandbuffers()
         &allocateInfo,
         this->_commandBuffers.data()
     );
+
+    auto beginCommandBufferFn = GETIFN(this->_instance.get(), vkBeginCommandBuffer);
+    auto cmdBeginRenderPassFn = GETIFN(this->_instance.get(), vkCmdBeginRenderPass);
+    auto cmdEndRenderPassFn = GETIFN(this->_instance.get(), vkCmdEndRenderPass);
+    auto endCommandBufferFn = GETIFN(this->_instance.get(), vkEndCommandBuffer);
+    for (auto i = 0u; i < this->_commandBuffers.size(); ++i)
+    {
+        ::VkCommandBufferBeginInfo beginInfo;
+        memset(&beginInfo, 0, sizeof(beginInfo));
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+        beginCommandBufferFn(
+            this->_commandBuffers[i],
+            &beginInfo
+        );
+
+        ::VkRenderPassBeginInfo renderPassInfo;
+        memset(&renderPassInfo, 0, sizeof(renderPassInfo));
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = this->_renderPass.get();
+        if (0 == i)
+        {
+            renderPassInfo.framebuffer = this->_framebuffer1.get();
+        }
+        else
+        {
+            renderPassInfo.framebuffer = this->_framebuffer2.get();
+        }
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = this->_swapchain_extent;
+
+        ::VkClearValue clearColour;
+        clearColour.color = {{1, 0, 0, 1}};
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColour;
+
+        cmdBeginRenderPassFn(
+            this->_commandBuffers[i],
+            &renderPassInfo,
+            VK_SUBPASS_CONTENTS_INLINE
+        );
+
+        cmdEndRenderPassFn(
+            this->_commandBuffers[i]
+        );
+
+        endCommandBufferFn(
+            this->_commandBuffers[i]
+        );
+    }
 }
 
 #define LOG_FLAG(_type,_flag) \
