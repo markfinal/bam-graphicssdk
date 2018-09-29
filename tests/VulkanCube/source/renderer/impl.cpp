@@ -51,9 +51,7 @@ Renderer::Impl::Impl(
     _logical_device(nullptr, nullptr),
     _swapchain(nullptr, nullptr),
     _renderPass(nullptr, nullptr),
-    _commandPool(nullptr, nullptr),
-    _image_available(nullptr, nullptr),
-    _render_finished(nullptr, nullptr)
+    _commandPool(nullptr, nullptr)
 {}
 
 Renderer::Impl::~Impl() = default;
@@ -77,6 +75,8 @@ PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool =
 std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_commandpool_bounddevice;
 PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nullptr;
 std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_semaphore_bounddevice;
+PFN_vkDestroyFence Renderer::Impl::VkFunctionTable::_destroy_fence = nullptr;
+std::function<void(::VkFence, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_fence_bounddevice;
 
 void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
@@ -108,6 +108,8 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_semaphore = GETIFN(inInstance, vkDestroySemaphore);
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
+    _destroy_fence = GETIFN(inInstance, vkDestroyFence);
+    _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -189,6 +191,14 @@ Renderer::Impl::VkFunctionTable::destroy_semaphore_wrapper(
 {
     Log().get() << "Destroying VkSemaphore 0x" << std::hex << inSemaphore << std::endl;
     _destroy_semaphore_bounddevice(inSemaphore, nullptr);
+}
+
+void
+Renderer::Impl::VkFunctionTable::destroy_fence_wrapper(
+    ::VkFence inFence)
+{
+    Log().get() << "Destroying VkFence 0x" << std::hex << inFence << std::endl;
+    _destroy_fence_bounddevice(inFence, nullptr);
 }
 
 void
@@ -1053,26 +1063,47 @@ Renderer::Impl::create_commandbuffers()
 void
 Renderer::Impl::create_semaphores()
 {
-    ::VkSemaphoreCreateInfo createInfo;
-    memset(&createInfo, 0, sizeof(createInfo));
-    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    ::VkSemaphoreCreateInfo semaphoreCreateInfo;
+    memset(&semaphoreCreateInfo, 0, sizeof(semaphoreCreateInfo));
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    ::VkFenceCreateInfo fenceCreateInfo;
+    memset(&fenceCreateInfo, 0, sizeof(fenceCreateInfo));
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     auto createSemaphoreFn = GETIFN(this->_instance.get(), vkCreateSemaphore);
     ::VkSemaphore sem;
-    VK_ERR_CHECK(createSemaphoreFn(
-        this->_logical_device.get(),
-        &createInfo,
-        nullptr,
-        &sem
-    ));
-    this->_image_available = { sem, this->_function_table.destroy_semaphore_wrapper };
-    VK_ERR_CHECK(createSemaphoreFn(
-        this->_logical_device.get(),
-        &createInfo,
-        nullptr,
-        &sem
-    ));
-    this->_render_finished = { sem, this->_function_table.destroy_semaphore_wrapper };
+
+    auto createFenceFn = GETIFN(this->_instance.get(), vkCreateFence);
+    ::VkFence fence;
+
+    for (auto i = 0u; i < this->MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        VK_ERR_CHECK(createSemaphoreFn(
+            this->_logical_device.get(),
+            &semaphoreCreateInfo,
+            nullptr,
+            &sem
+        ));
+        this->_image_available.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
+
+        VK_ERR_CHECK(createSemaphoreFn(
+            this->_logical_device.get(),
+            &semaphoreCreateInfo,
+            nullptr,
+            &sem
+        ));
+        this->_render_finished.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
+
+        VK_ERR_CHECK(createFenceFn(
+            this->_logical_device.get(),
+            &fenceCreateInfo,
+            nullptr,
+            &fence
+        ));
+        this->_inflight_fence.emplace_back(fence, this->_function_table.destroy_fence_wrapper);
+    }
 }
 
 #define LOG_FLAG(_type,_flag) \

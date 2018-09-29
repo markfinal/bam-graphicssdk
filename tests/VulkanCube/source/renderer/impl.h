@@ -55,6 +55,8 @@ assert(VK_SUCCESS == result);\
 
 struct Renderer::Impl
 {
+    const uint32_t MAX_FRAMES_IN_FLIGHT = 2u;
+
     std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>                              _instance;
     std::unique_ptr< ::VkDebugReportCallbackEXT_T, void(*)(::VkDebugReportCallbackEXT)>  _debug_callback;
     AppWindow                                                                           *_window = nullptr;
@@ -73,8 +75,10 @@ struct Renderer::Impl
     std::vector<std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>>            _framebuffers;
     std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
     std::vector<::VkCommandBuffer>                                                       _commandBuffers;
-    std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>                             _image_available;
-    std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>                             _render_finished;
+    std::vector<std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>>                _image_available;
+    std::vector<std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>>                _render_finished;
+    std::vector<std::unique_ptr<::VkFence_T, void(*)(::VkFence)>>                        _inflight_fence;
+    uint32_t                                                                             _current_frame = 0;
 
     class VkFunctionTable
     {
@@ -98,6 +102,8 @@ struct Renderer::Impl
         static std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> _destroy_commandpool_bounddevice;
         static PFN_vkDestroySemaphore _destroy_semaphore;
         static std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> _destroy_semaphore_bounddevice;
+        static PFN_vkDestroyFence _destroy_fence;
+        static std::function<void(::VkFence, const ::VkAllocationCallbacks*)> _destroy_fence_bounddevice;
 
     public:
         static void
@@ -148,6 +154,10 @@ struct Renderer::Impl
         static void
         destroy_semaphore_wrapper(
             ::VkSemaphore inSemaphore);
+
+        static void
+        destroy_fence_wrapper(
+            ::VkFence inFence);
     };
     VkFunctionTable                                        _function_table;
 

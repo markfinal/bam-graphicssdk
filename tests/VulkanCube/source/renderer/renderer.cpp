@@ -62,19 +62,35 @@ void
 Renderer::draw_frame() const
 {
     auto impl = this->_impl.get();
+    auto waitForFencesFn = GETIFN(impl->_instance.get(), vkWaitForFences);
+    auto resetFencesFn = GETIFN(impl->_instance.get(), vkResetFences);
+    auto fence = impl->_inflight_fence[impl->_current_frame].get();
+    VK_ERR_CHECK(waitForFencesFn(
+        impl->_logical_device.get(),
+        1,
+        &fence,
+        VK_TRUE,
+        std::numeric_limits<uint64_t>::max()
+    ));
+    VK_ERR_CHECK(resetFencesFn(
+        impl->_logical_device.get(),
+        1,
+        &fence
+    ));
+
     auto acquireNextImageFn = GETIFN(impl->_instance.get(), vkAcquireNextImageKHR);
     uint32_t imageIndex;
     VK_ERR_CHECK(acquireNextImageFn(
         impl->_logical_device.get(),
         impl->_swapchain.get(),
         std::numeric_limits<uint64_t>::max(),
-        impl->_image_available.get(),
+        impl->_image_available[impl->_current_frame].get(),
         VK_NULL_HANDLE,
         &imageIndex
     ));
 
-    ::VkSemaphore waitSemaphores[] = { impl->_image_available.get() };
-    ::VkSemaphore signalSemaphores[] = { impl->_render_finished.get() };
+    ::VkSemaphore waitSemaphores[] = { impl->_image_available[impl->_current_frame].get() };
+    ::VkSemaphore signalSemaphores[] = { impl->_render_finished[impl->_current_frame].get() };
     ::VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
     ::VkSubmitInfo submitInfo;
@@ -93,7 +109,7 @@ Renderer::draw_frame() const
         impl->_graphics_queue,
         1,
         &submitInfo,
-        VK_NULL_HANDLE
+        impl->_inflight_fence[impl->_current_frame].get()
     ));
 
     ::VkSwapchainKHR swapchains[] = { impl->_swapchain.get() };
@@ -112,6 +128,8 @@ Renderer::draw_frame() const
         impl->_present_queue,
         &presentInfo
     ));
+
+    impl->_current_frame = (impl->_current_frame + 1) % impl->MAX_FRAMES_IN_FLIGHT;
 
 #if 0
     // naive way of not queueing too much work for the GPU
