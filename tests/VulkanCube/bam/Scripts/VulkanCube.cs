@@ -109,6 +109,7 @@ namespace VulkanCube
                             break;
                         case VisualCCommon.ICommonCompilerSettings vc_compiler:
                             vc_compiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
+                            compiler.PreprocessorDefines.Add("NOMINMAX"); // so std::numeric_limits<type>::max() will work
                             break;
                     }
                 });
