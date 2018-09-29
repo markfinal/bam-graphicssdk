@@ -51,8 +51,6 @@ Renderer::Impl::Impl(
     _logical_device(nullptr, nullptr),
     _swapchain(nullptr, nullptr),
     _renderPass(nullptr, nullptr),
-    _framebuffer1(nullptr, nullptr),
-    _framebuffer2(nullptr, nullptr),
     _commandPool(nullptr, nullptr),
     _image_available(nullptr, nullptr),
     _render_finished(nullptr, nullptr)
@@ -931,8 +929,9 @@ Renderer::Impl::create_renderpass()
 void
 Renderer::Impl::create_framebuffers()
 {
+    // no resize of this->_framebuffers since there is no default constructor for
+    // std::unique_ptr with a custom deleter
     auto createFrameBufferFn = GETIFN(this->_instance.get(), vkCreateFramebuffer);
-
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageView attachments[] = { this->_swapchain_imageViews[i].get() };
@@ -954,14 +953,7 @@ Renderer::Impl::create_framebuffers()
             nullptr,
             &frameBuffer
         ));
-        if (0 == i)
-        {
-            this->_framebuffer1 = { frameBuffer, this->_function_table.destroy_framebuffer_wrapper };
-        }
-        else
-        {
-            this->_framebuffer2 = { frameBuffer, this->_function_table.destroy_framebuffer_wrapper };
-        }
+        this->_framebuffers.emplace_back(frameBuffer, this->_function_table.destroy_framebuffer_wrapper);
     }
 }
 
@@ -1024,14 +1016,7 @@ Renderer::Impl::create_commandbuffers()
         memset(&renderPassInfo, 0, sizeof(renderPassInfo));
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = this->_renderPass.get();
-        if (0 == i)
-        {
-            renderPassInfo.framebuffer = this->_framebuffer1.get();
-        }
-        else
-        {
-            renderPassInfo.framebuffer = this->_framebuffer2.get();
-        }
+        renderPassInfo.framebuffer = this->_framebuffers[i].get();
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = this->_swapchain_extent;
 

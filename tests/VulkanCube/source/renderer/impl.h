@@ -70,8 +70,7 @@ struct Renderer::Impl
     std::vector<::VkImage>                                                               _swapchain_images;
     std::vector<std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>>                _swapchain_imageViews;
     std::unique_ptr<::VkRenderPass_T, void(*)(::VkRenderPass)>                           _renderPass;
-    std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer1;
-    std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;
+    std::vector<std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>>            _framebuffers;
     std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
     std::vector<::VkCommandBuffer>                                                       _commandBuffers;
     std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>                             _image_available;
