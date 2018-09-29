@@ -112,4 +112,12 @@ Renderer::draw_frame() const
         impl->_present_queue,
         &presentInfo
     ));
+
+#if 0
+    // naive way of not queueing too much work for the GPU
+    auto waitIdleFn = GETIFN(impl->_instance.get(), vkDeviceWaitIdle);
+    VK_ERR_CHECK(waitIdleFn(
+        impl->_logical_device.get()
+    ));
+#endif
 }
