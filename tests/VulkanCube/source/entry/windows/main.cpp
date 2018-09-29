@@ -47,13 +47,23 @@ event_loop(
 {
 #if defined(D_BAM_PLATFORM_WINDOWS)
     ::MSG msg;
-
-    // loop until WM_QUIT(0) received
-    while (::GetMessage(&msg, 0, 0, 0) > 0)
+    for (;;)
     {
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
+        // get all messages
+        while (::PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
+        {
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
 
+            inRenderer->draw_frame();
+        }
+
+        if (WM_QUIT == msg.message)
+        {
+            break;
+        }
+
+        // after all messages are processed, draw frames
         inRenderer->draw_frame();
     }
 
