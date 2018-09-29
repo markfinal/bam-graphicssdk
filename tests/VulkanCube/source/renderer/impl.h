@@ -68,8 +68,7 @@ struct Renderer::Impl
     ::VkExtent2D                                                                         _swapchain_extent;
     std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)>                       _swapchain;
     std::vector<::VkImage>                                                               _swapchain_images;
-    std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView1;
-    std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>                             _swapchain_imageView2;
+    std::vector<std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>>                _swapchain_imageViews;
     std::unique_ptr<::VkRenderPass_T, void(*)(::VkRenderPass)>                           _renderPass;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer1;
     std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>                         _framebuffer2;

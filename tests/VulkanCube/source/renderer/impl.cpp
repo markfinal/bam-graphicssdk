@@ -50,8 +50,6 @@ Renderer::Impl::Impl(
     _surface(nullptr, nullptr),
     _logical_device(nullptr, nullptr),
     _swapchain(nullptr, nullptr),
-    _swapchain_imageView1(nullptr, nullptr),
-    _swapchain_imageView2(nullptr, nullptr),
     _renderPass(nullptr, nullptr),
     _framebuffer1(nullptr, nullptr),
     _framebuffer2(nullptr, nullptr),
@@ -843,8 +841,9 @@ Renderer::Impl::create_swapchain()
 void
 Renderer::Impl::create_imageviews()
 {
+    // no resize of this->_swapchain_imageViews, since there is no valid
+    // default constructor of a std::unique_ptr with a custom deleter
     auto createImageViewFn = GETIFN(this->_instance.get(), vkCreateImageView);
-
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageViewCreateInfo createInfo;
@@ -870,14 +869,7 @@ Renderer::Impl::create_imageviews()
             nullptr,
             &view
         ));
-        if (0 == i)
-        {
-            this->_swapchain_imageView1 = { view, this->_function_table.destroy_imageview_wrapper };
-        }
-        else
-        {
-            this->_swapchain_imageView2 = { view, this->_function_table.destroy_imageview_wrapper };
-        }
+        this->_swapchain_imageViews.emplace_back(view, this->_function_table.destroy_imageview_wrapper);
     }
 }
 
@@ -943,7 +935,7 @@ Renderer::Impl::create_framebuffers()
 
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
-        ::VkImageView attachments[] = { (0 == i) ? this->_swapchain_imageView1.get() : this->_swapchain_imageView2.get() };
+        ::VkImageView attachments[] = { this->_swapchain_imageViews[i].get() };
 
         ::VkFramebufferCreateInfo createInfo;
         memset(&createInfo, 0, sizeof(createInfo));
