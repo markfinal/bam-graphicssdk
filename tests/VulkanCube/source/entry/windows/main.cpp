@@ -42,7 +42,8 @@ namespace
 {
 
 int
-event_loop()
+event_loop(
+    Renderer *inRenderer)
 {
 #if defined(D_BAM_PLATFORM_WINDOWS)
     ::MSG msg;
@@ -52,6 +53,8 @@ event_loop()
     {
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
+
+        inRenderer->draw_frame();
     }
 
     return static_cast<int>(msg.wParam);
@@ -89,7 +92,7 @@ main()
         window->show();
 
         Log().get() << "Vulkan cube test finished successfully" << std::endl;
-        return event_loop();
+        return event_loop(renderer.get());
     }
     catch (const std::exception &inEx)
     {
