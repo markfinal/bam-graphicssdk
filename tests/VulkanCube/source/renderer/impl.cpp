@@ -997,7 +997,7 @@ Renderer::Impl::create_commandbuffers()
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocateInfo.commandPool = this->_commandPool.get();
     allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocateInfo.commandBufferCount = this->_commandBuffers.size();
+    allocateInfo.commandBufferCount = static_cast<uint32_t>(this->_commandBuffers.size());
 
     auto allocateCommandBuffersFn = GETIFN(this->_instance.get(), vkAllocateCommandBuffers);
     VK_ERR_CHECK(allocateCommandBuffersFn(
