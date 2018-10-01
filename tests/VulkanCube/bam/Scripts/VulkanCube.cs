@@ -138,7 +138,7 @@ namespace VulkanCube
         }
     }
 
-    sealed class RuntimePackage :
+    sealed class CubeRuntime :
         Publisher.Collation
     {
         protected override void
