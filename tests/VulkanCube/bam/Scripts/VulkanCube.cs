@@ -149,7 +149,16 @@ namespace VulkanCube
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
 
-            this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
+            var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
+
+            var app = appAnchor.SourceModule as Cube;
+            if (this.BuildEnvironment.Configuration != EConfiguration.Debug &&
+                app.Linker is VisualCCommon.LinkerBase)
+            {
+                var runtimeLibrary = Bam.Core.Graph.Instance.PackageMetaData<VisualCCommon.IRuntimeLibraryPathMeta>("VisualC");
+                this.IncludeFiles(runtimeLibrary.CRuntimePaths(app.BitDepth), this.ExecutableDir, appAnchor);
+                this.IncludeFiles(runtimeLibrary.CxxRuntimePaths(app.BitDepth), this.ExecutableDir, appAnchor);
+            }
         }
     }
 }
