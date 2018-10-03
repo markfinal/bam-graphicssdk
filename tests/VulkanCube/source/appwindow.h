@@ -32,6 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "windowlibrary/graphicswindow.h"
 
+class Renderer;
+
 class AppWindow :
     public WindowLibrary::GraphicsWindow
 {
@@ -44,6 +46,12 @@ public:
 
     void
     onClose() override;
+
+    Renderer *
+    renderer() const;
+
+private:
+    std::unique_ptr<Renderer> _renderer;
 };
 
 #endif // APPWINDOW_H

@@ -28,10 +28,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "appwindow.h"
+#include "renderer/renderer.h"
 
 void
 AppWindow::onCreate()
 {
+    this->_renderer.reset(new Renderer(this));
+    this->_renderer->init();
 }
 
 void
@@ -45,4 +48,11 @@ AppWindow::onDestroy()
 void
 AppWindow::onClose()
 {
+    this->_renderer.reset();
+}
+
+Renderer *
+AppWindow::renderer() const
+{
+    return this->_renderer.get();
 }

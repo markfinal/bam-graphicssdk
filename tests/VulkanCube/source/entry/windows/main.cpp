@@ -54,8 +54,6 @@ event_loop(
         {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
-
-            inRenderer->draw_frame();
         }
 
         if (WM_QUIT == msg.message)
@@ -96,13 +94,11 @@ main()
         window->win32SetInstanceHandle(hInstance);
 #endif
         window->init(256, 256, "Vulkan Cube");
-        std::unique_ptr<Renderer> renderer(new Renderer(window.get()));
-        renderer->init();
 
         window->show();
 
         Log().get() << "Vulkan cube test finished successfully" << std::endl;
-        return event_loop(renderer.get());
+        return event_loop(window->renderer());
     }
     catch (const std::exception &inEx)
     {
