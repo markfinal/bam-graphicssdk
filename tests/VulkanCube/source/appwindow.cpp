@@ -37,12 +37,12 @@ AppWindow::onCreate()
 void
 AppWindow::onDestroy()
 {
+#ifdef D_BAM_PLATFORM_WINDOWS
+    ::PostQuitMessage(0);
+#endif
 }
 
 void
 AppWindow::onClose()
 {
-#ifdef D_BAM_PLATFORM_WINDOWS
-    ::PostQuitMessage(0);
-#endif
 }

@@ -52,6 +52,11 @@ AppWindow::onDestroy()
         delete renderer;
         application->SetRenderer(0);
     }
+
+#ifdef D_BAM_PLATFORM_WINDOWS
+    REPORTERROR("Sending quit message");
+    ::PostQuitMessage(0);
+#endif
 }
 
 void
@@ -63,9 +68,4 @@ AppWindow::onClose()
     {
         renderer->Exit();
     }
-
-#ifdef D_BAM_PLATFORM_WINDOWS
-    REPORTERROR("Sending quit message");
-    ::PostQuitMessage(0);
-#endif
 }

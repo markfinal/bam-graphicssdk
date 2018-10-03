@@ -79,8 +79,11 @@ GraphicsWindow::win32MessageProc(
         break;
 
     case WM_CLOSE:
-        this->onClose();
-        return 0;
+        {
+            this->onClose();
+            ::DestroyWindow(hWnd);
+        }
+        break;
     }
     return ::DefWindowProc(hWnd, Msg, wParam, lParam);
 }
