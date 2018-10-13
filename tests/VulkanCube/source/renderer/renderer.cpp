@@ -49,6 +49,7 @@ Renderer::init()
     impl->create_window_surface();
     impl->enumerate_physical_devices();
     impl->create_logical_device();
+#if 0
     impl->create_swapchain();
     impl->create_imageviews();
     impl->create_renderpass();
@@ -56,11 +57,13 @@ Renderer::init()
     impl->create_commandpool();
     impl->create_commandbuffers();
     impl->create_semaphores();
+#endif
 }
 
 void
 Renderer::draw_frame() const
 {
+#if 0
     auto impl = this->_impl.get();
     auto waitForFencesFn = GETIFN(impl->_instance.get(), vkWaitForFences);
     auto resetFencesFn = GETIFN(impl->_instance.get(), vkResetFences);
@@ -137,5 +140,6 @@ Renderer::draw_frame() const
     VK_ERR_CHECK(waitIdleFn(
         impl->_logical_device.get()
     ));
+#endif
 #endif
 }
