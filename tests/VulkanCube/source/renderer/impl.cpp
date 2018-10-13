@@ -226,7 +226,7 @@ Renderer::Impl::create_instance()
         &num_extensions,
         extensions.data()
     ));
-    Log().get() << "Instance extensions:" << std::endl;
+    Log().get() << "Found the following INSTANCE extensions:" << std::endl;
     for (const auto &ext : extensions)
     {
         Log().get() << "\t" << ext.extensionName << ", v" << ext.specVersion << std::endl;
@@ -244,7 +244,7 @@ Renderer::Impl::create_instance()
         &num_layers,
         layers.data()
     ));
-    Log().get() << "Instance layers:" << std::endl;
+    Log().get() << "Found the following INSTANCE layers:" << std::endl;
     for (const auto &layer : layers)
     {
         Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
@@ -339,6 +339,17 @@ Renderer::Impl::create_instance()
     }
 #endif
 
+    Log().get() << "Creating an INSTANCE with the following layers:" << std::endl;
+    for (const auto &layer : instanceLayerNames)
+    {
+        Log().get() << "\t" << layer << std::endl;
+    }
+    Log().get() << "and with the following extensions:" << std::endl;
+    for (const auto &ext : instanceExtensionNames)
+    {
+        Log().get() << "\t" << ext << std::endl;
+    }
+
     ::VkInstanceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO; // required
@@ -361,8 +372,8 @@ Renderer::Impl::init_debug_callback()
 {
     auto instance = this->_instance.get();
 
-    auto fn = GETIFN(instance, vkCreateDebugReportCallbackEXT);
-    if (nullptr == fn)
+    auto create_debug_report_cb_fn = GETIFN(instance, vkCreateDebugReportCallbackEXT);
+    if (nullptr == create_debug_report_cb_fn)
     {
         return;
     }
@@ -378,7 +389,7 @@ Renderer::Impl::init_debug_callback()
         VK_DEBUG_REPORT_DEBUG_BIT_EXT;
     createInfo.pfnCallback = debug_callback;
     ::VkDebugReportCallbackEXT callback;
-    VK_ERR_CHECK(fn(
+    VK_ERR_CHECK(create_debug_report_cb_fn(
         instance,
         &createInfo,
         nullptr,
