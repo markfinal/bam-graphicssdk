@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "impl.h"
 #include "exception.h"
+#include "log.h"
 
 #include "../appwindow.h"
 
@@ -61,7 +62,9 @@ Renderer::init()
 void
 Renderer::draw_frame() const
 {
-#if 0
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto impl = this->_impl.get();
     auto waitForFencesFn = GETIFN(impl->_instance.get(), vkWaitForFences);
     auto resetFencesFn = GETIFN(impl->_instance.get(), vkResetFences);
@@ -138,6 +141,5 @@ Renderer::draw_frame() const
     VK_ERR_CHECK(waitIdleFn(
         impl->_logical_device.get()
     ));
-#endif
 #endif
 }

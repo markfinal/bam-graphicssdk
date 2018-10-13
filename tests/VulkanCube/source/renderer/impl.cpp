@@ -203,6 +203,9 @@ Renderer::Impl::VkFunctionTable::destroy_fence_wrapper(
 void
 Renderer::Impl::create_instance()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     ::VkApplicationInfo appInfo;
     memset(&appInfo, 0, sizeof(appInfo));
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -370,6 +373,10 @@ Renderer::Impl::create_instance()
 void
 Renderer::Impl::init_debug_callback()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
+
     auto instance = this->_instance.get();
 
     auto create_debug_report_cb_fn = GETIFN(instance, vkCreateDebugReportCallbackEXT);
@@ -426,6 +433,9 @@ Renderer::Impl::debug_callback(
 void
 Renderer::Impl::create_window_surface()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto instance = this->_instance.get();
 
 #if defined(D_BAM_PLATFORM_WINDOWS)
@@ -469,6 +479,9 @@ Renderer::Impl::create_window_surface()
 void
 Renderer::Impl::enumerate_physical_devices()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto instance = this->_instance.get();
 
     // enumerate physical devices
@@ -605,6 +618,9 @@ Renderer::Impl::enumerate_physical_devices()
 void
 Renderer::Impl::create_logical_device()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto instance = this->_instance.get();
     auto pDevice = this->_physical_devices[this->_physical_device_index];
     auto surface = this->_surface.get();
@@ -779,6 +795,9 @@ Renderer::Impl::create_logical_device()
 void
 Renderer::Impl::create_swapchain()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto instance = this->_instance.get();
     auto pDevice = this->_physical_devices[this->_physical_device_index];
     auto surface = this->_surface.get();
@@ -889,6 +908,9 @@ Renderer::Impl::create_swapchain()
 void
 Renderer::Impl::create_imageviews()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto logical_device = this->_logical_device.get();
 
     // no resize of this->_swapchain_imageViews, since there is no valid
@@ -926,6 +948,9 @@ Renderer::Impl::create_imageviews()
 void
 Renderer::Impl::create_renderpass()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     ::VkAttachmentDescription colorAttachment;
     memset(&colorAttachment, 0, sizeof(colorAttachment));
     colorAttachment.format = this->_swapchain_imageFormat;
@@ -982,6 +1007,9 @@ Renderer::Impl::create_renderpass()
 void
 Renderer::Impl::create_framebuffers()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto logical_device = this->_logical_device.get();
     // no resize of this->_framebuffers since there is no default constructor for
     // std::unique_ptr with a custom deleter
@@ -1014,6 +1042,9 @@ Renderer::Impl::create_framebuffers()
 void
 Renderer::Impl::create_commandpool()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     ::VkCommandPoolCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -1035,6 +1066,9 @@ Renderer::Impl::create_commandpool()
 void
 Renderer::Impl::create_commandbuffers()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     this->_commandBuffers.resize(this->_swapchain_images.size());
 
     ::VkCommandBufferAllocateInfo allocateInfo;
@@ -1109,6 +1143,9 @@ Renderer::Impl::create_commandbuffers()
 void
 Renderer::Impl::create_semaphores()
 {
+    Log().get() << "==================================================" << std::endl;
+    Log().get() << "## " << __FUNCTION__ << std::endl;
+    Log().get() << "==================================================" << std::endl;
     auto logical_device = this->_logical_device.get();
 
     ::VkSemaphoreCreateInfo semaphoreCreateInfo;
