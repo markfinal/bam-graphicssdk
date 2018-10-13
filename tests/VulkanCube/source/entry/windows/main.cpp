@@ -104,8 +104,9 @@ main(
 
         window->show();
 
+        const auto result = event_loop(window->renderer());
         Log().get() << "Vulkan cube test finished successfully" << std::endl;
-        return event_loop(window->renderer());
+        return result;
     }
     catch (const std::exception &inEx)
     {
