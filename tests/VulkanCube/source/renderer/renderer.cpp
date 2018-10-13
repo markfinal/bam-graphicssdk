@@ -50,14 +50,12 @@ Renderer::init()
     impl->enumerate_physical_devices();
     impl->create_logical_device();
     impl->create_swapchain();
-#if 0
     impl->create_imageviews();
     impl->create_renderpass();
     impl->create_framebuffers();
     impl->create_commandpool();
     impl->create_commandbuffers();
     impl->create_semaphores();
-#endif
 }
 
 void
