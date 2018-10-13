@@ -50,6 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VK_ERR_CHECK(_fn_call) \
 do{\
 auto result = _fn_call;\
+if (VK_SUCCESS != result) { Log().get() << "FAILED (" << result << "): " <<  #_fn_call << std::endl; } \
+else { Log().get() << "SUCCESS: " << #_fn_call << std::endl; } \
 assert(VK_SUCCESS == result);\
 } while(0)
 #endif
