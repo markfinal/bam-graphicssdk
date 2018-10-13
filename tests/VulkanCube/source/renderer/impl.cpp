@@ -682,7 +682,6 @@ Renderer::Impl::create_logical_device()
     {
         throw Exception("Device does not support extension " VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     }
-    Log().get() << "Device extension " << VK_KHR_SWAPCHAIN_EXTENSION_NAME << " requested" << std::endl;
     deviceExtensionsRequired.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
     std::vector<const char *> deviceLayersRequired;
@@ -726,6 +725,17 @@ Renderer::Impl::create_logical_device()
     queue_info.queueCount = 1;
     float queuePriority = 1.0f;
     queue_info.pQueuePriorities = &queuePriority; // Note: this is essential for at least MoltenVK, which does not check whether this is null or not
+
+    Log().get() << "Creating a LOGICAL DEVICE with the following layers:" << std::endl;
+    for (const auto &layer : deviceLayersRequired)
+    {
+        Log().get() << "\t" << layer << std::endl;
+    }
+    Log().get() << "and with the following extensions:" << std::endl;
+    for (const auto &ext : deviceExtensionsRequired)
+    {
+        Log().get() << "\t" << ext << std::endl;
+    }
 
     // create a logical device
     auto createDeviceFn = GETIFN(instance, vkCreateDevice);
