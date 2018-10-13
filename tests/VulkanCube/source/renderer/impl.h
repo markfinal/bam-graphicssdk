@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GETPFN(_name) PFN_##_name
 #define GETFN(_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(nullptr, #_name))
 #define GETIFN(_instance,_name) reinterpret_cast<GETPFN(_name)>(vkGetInstanceProcAddr(_instance, #_name))
+#define GETDFN(_logical_device,_name) reinterpret_cast<GETPFN(_name)>(vkGetDeviceProcAddr(_logical_device, #_name))
 
 #ifdef NDEBUG
 #define VK_ERR_CHECK(_fn_call) _fn_call
@@ -112,7 +113,6 @@ struct Renderer::Impl
 
         static void
         get_device_functions(
-            ::VkInstance inInstance,
             ::VkDevice inDevice);
 
         static void

@@ -93,22 +93,21 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
 
 void
 Renderer::Impl::VkFunctionTable::get_device_functions(
-    ::VkInstance inInstance,
     ::VkDevice inDevice)
 {
-    _destroy_swapchain_khr = GETIFN(inInstance, vkDestroySwapchainKHR);
+    _destroy_swapchain_khr = GETDFN(inDevice, vkDestroySwapchainKHR);
     _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_imageview = GETIFN(inInstance, vkDestroyImageView);
+    _destroy_imageview = GETDFN(inDevice, vkDestroyImageView);
     _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_renderpass = GETIFN(inInstance, vkDestroyRenderPass);
+    _destroy_renderpass = GETDFN(inDevice, vkDestroyRenderPass);
     _destroy_renderpass_bounddevice = std::bind(_destroy_renderpass, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_framebuffer = GETIFN(inInstance, vkDestroyFramebuffer);
+    _destroy_framebuffer = GETDFN(inDevice, vkDestroyFramebuffer);
     _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_commandpool = GETIFN(inInstance, vkDestroyCommandPool);
+    _destroy_commandpool = GETDFN(inDevice, vkDestroyCommandPool);
     _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_semaphore = GETIFN(inInstance, vkDestroySemaphore);
+    _destroy_semaphore = GETDFN(inDevice, vkDestroySemaphore);
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_fence = GETIFN(inInstance, vkDestroyFence);
+    _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -360,7 +359,9 @@ Renderer::Impl::create_instance()
 void
 Renderer::Impl::init_debug_callback()
 {
-    auto fn = GETIFN(this->_instance.get(), vkCreateDebugReportCallbackEXT);
+    auto instance = this->_instance.get();
+
+    auto fn = GETIFN(instance, vkCreateDebugReportCallbackEXT);
     if (nullptr == fn)
     {
         return;
@@ -378,7 +379,7 @@ Renderer::Impl::init_debug_callback()
     createInfo.pfnCallback = debug_callback;
     ::VkDebugReportCallbackEXT callback;
     VK_ERR_CHECK(fn(
-        this->_instance.get(),
+        instance,
         &createInfo,
         nullptr,
         &callback
@@ -410,6 +411,8 @@ Renderer::Impl::debug_callback(
 void
 Renderer::Impl::create_window_surface()
 {
+    auto instance = this->_instance.get();
+
 #if defined(D_BAM_PLATFORM_WINDOWS)
     ::VkWin32SurfaceCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
@@ -417,10 +420,10 @@ Renderer::Impl::create_window_surface()
     createInfo.hwnd = this->_window->getNativeWindowHandle();
     createInfo.hinstance = ::GetModuleHandle(nullptr);
 
-    auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateWin32SurfaceKHR);
+    auto createWindowSurfaceFn = GETIFN(instance, vkCreateWin32SurfaceKHR);
     ::VkSurfaceKHR surface;
     VK_ERR_CHECK(createWindowSurfaceFn(
-        this->_instance.get(),
+        instance,
         &createInfo,
         nullptr,
         &surface
@@ -433,10 +436,10 @@ Renderer::Impl::create_window_surface()
     createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
     createInfo.pView = this->_window->macosGetViewHandle();
 
-    auto createWindowSurfaceFn = GETIFN(this->_instance.get(), vkCreateMacOSSurfaceMVK);
+    auto createWindowSurfaceFn = GETIFN(instance, vkCreateMacOSSurfaceMVK);
     ::VkSurfaceKHR surface;
     VK_ERR_CHECK(createWindowSurfaceFn(
-        this->_instance.get(),
+        instance,
         &createInfo,
         nullptr,
         &surface
@@ -451,22 +454,24 @@ Renderer::Impl::create_window_surface()
 void
 Renderer::Impl::enumerate_physical_devices()
 {
+    auto instance = this->_instance.get();
+
     // enumerate physical devices
-    auto enumPhysDevicesFn = GETIFN(this->_instance.get(), vkEnumeratePhysicalDevices);
+    auto enumPhysDevicesFn = GETIFN(instance, vkEnumeratePhysicalDevices);
     uint32_t numPhysicalDevices = 0;
 
     // get number of physical devices
-    VK_ERR_CHECK(enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, nullptr));
+    VK_ERR_CHECK(enumPhysDevicesFn(instance, &numPhysicalDevices, nullptr));
     if (0 == numPhysicalDevices)
     {
         throw Exception("There are no physical devices available on this hardware");
     }
     Log().get() << "Found " << numPhysicalDevices << " physical devices" << std::endl;
     this->_physical_devices.resize(numPhysicalDevices);
-    VK_ERR_CHECK(enumPhysDevicesFn(this->_instance.get(), &numPhysicalDevices, this->_physical_devices.data()));
+    VK_ERR_CHECK(enumPhysDevicesFn(instance, &numPhysicalDevices, this->_physical_devices.data()));
 
     // enumerate physical device properties
-    auto enumeratePhysicalDevicePropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceProperties);
+    auto enumeratePhysicalDevicePropsFn = GETIFN(instance, vkGetPhysicalDeviceProperties);
     for (auto i = 0u; i < numPhysicalDevices; ++i)
     {
         auto device = this->_physical_devices[i];
@@ -484,7 +489,7 @@ Renderer::Impl::enumerate_physical_devices()
     }
 
     // enumerate physical device memory properties
-    auto enumeratePhysicalMemoryDeviceFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceMemoryProperties);
+    auto enumeratePhysicalMemoryDeviceFn = GETIFN(instance, vkGetPhysicalDeviceMemoryProperties);
     for (auto device : this->_physical_devices)
     {
         ::VkPhysicalDeviceMemoryProperties memProps;
@@ -507,7 +512,7 @@ Renderer::Impl::enumerate_physical_devices()
     }
 
     // enumerate physical device features
-    auto getPhysDeviceFeaturesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceFeatures);
+    auto getPhysDeviceFeaturesFn = GETIFN(instance, vkGetPhysicalDeviceFeatures);
     for (auto i = 0u; i < numPhysicalDevices; ++i)
     {
         auto device = this->_physical_devices[i];
@@ -582,10 +587,12 @@ Renderer::Impl::enumerate_physical_devices()
 void
 Renderer::Impl::create_logical_device()
 {
+    auto instance = this->_instance.get();
     auto pDevice = this->_physical_devices[this->_physical_device_index];
+    auto surface = this->_surface.get();
 
     // enumerate physical device extensions
-    auto enumDeviceExtensionPropertiesFn = GETIFN(this->_instance.get(), vkEnumerateDeviceExtensionProperties);
+    auto enumDeviceExtensionPropertiesFn = GETIFN(instance, vkEnumerateDeviceExtensionProperties);
     uint32_t numDeviceExtensions = 0;
     VK_ERR_CHECK(enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, nullptr));
     Log().get() << "Found " << numDeviceExtensions << " device extensions" << std::endl;
@@ -598,7 +605,7 @@ Renderer::Impl::create_logical_device()
     }
 
     // enumerate physical device layers
-    auto enumDeviceLayerPropertiesFn = GETIFN(this->_instance.get(), vkEnumerateDeviceLayerProperties);
+    auto enumDeviceLayerPropertiesFn = GETIFN(instance, vkEnumerateDeviceLayerProperties);
     uint32_t numDeviceLayers = 0;
     VK_ERR_CHECK(enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, nullptr));
     Log().get() << "Found " << numDeviceLayers << " device layers" << std::endl;
@@ -611,7 +618,7 @@ Renderer::Impl::create_logical_device()
     }
 
     // query the family of queues available
-    auto getPDeviceQueueFamilyPropsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceQueueFamilyProperties);
+    auto getPDeviceQueueFamilyPropsFn = GETIFN(instance, vkGetPhysicalDeviceQueueFamilyProperties);
     uint32_t numQueueFamilyProperties = 0;
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, nullptr);
     if (0 == numQueueFamilyProperties)
@@ -642,11 +649,11 @@ Renderer::Impl::create_logical_device()
     }
 
     ::VkBool32 presentSupport = false;
-    auto getPDeviceSurfaceSupportFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceSupportKHR);
+    auto getPDeviceSurfaceSupportFn = GETIFN(instance, vkGetPhysicalDeviceSurfaceSupportKHR);
     VK_ERR_CHECK(getPDeviceSurfaceSupportFn(
         pDevice,
         present_family_queue_index,
-        this->_surface.get(),
+        surface,
         &presentSupport
     ));
     if (!presentSupport)
@@ -709,7 +716,7 @@ Renderer::Impl::create_logical_device()
     queue_info.pQueuePriorities = &queuePriority; // Note: this is essential for at least MoltenVK, which does not check whether this is null or not
 
     // create a logical device
-    auto createDeviceFn = GETIFN(this->_instance.get(), vkCreateDevice);
+    auto createDeviceFn = GETIFN(instance, vkCreateDevice);
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -722,19 +729,21 @@ Renderer::Impl::create_logical_device()
     ::VkDevice device;
     VK_ERR_CHECK(createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device));
     this->_logical_device = { device, this->_function_table.destroy_device_wrapper };
-    this->_function_table.get_device_functions(this->_instance.get(), this->_logical_device.get());
 
-    auto getQueueFn = GETIFN(this->_instance.get(), vkGetDeviceQueue);
+    auto logical_device = this->_logical_device.get();
+    this->_function_table.get_device_functions(logical_device);
+
+    auto getQueueFn = GETDFN(logical_device, vkGetDeviceQueue);
     auto graphics_queue_index = 0;
     getQueueFn(
-        this->_logical_device.get(),
+        logical_device,
         graphics_family_queue_index,
         graphics_queue_index,
         &this->_graphics_queue
     );
     auto present_queue_index = 0;
     getQueueFn(
-        this->_logical_device.get(),
+        logical_device,
         present_family_queue_index,
         present_queue_index,
         &this->_present_queue
@@ -744,13 +753,16 @@ Renderer::Impl::create_logical_device()
 void
 Renderer::Impl::create_swapchain()
 {
+    auto instance = this->_instance.get();
     auto pDevice = this->_physical_devices[this->_physical_device_index];
+    auto surface = this->_surface.get();
+    auto logical_device = this->_logical_device.get();
 
-    auto getSurfaceCapsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+    auto getSurfaceCapsFn = GETIFN(instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     ::VkSurfaceCapabilitiesKHR surfaceCaps;
     VK_ERR_CHECK(getSurfaceCapsFn(
         pDevice,
-        this->_surface.get(),
+        surface,
         &surfaceCaps
     ));
     Log().get() << "Surface capabilities" << std::endl;
@@ -758,17 +770,17 @@ Renderer::Impl::create_swapchain()
     Log().get() << "Image extent: [(" << surfaceCaps.minImageExtent.width << "x" << surfaceCaps.minImageExtent.height << "), (" << surfaceCaps.maxImageExtent.width << "x" << surfaceCaps.maxImageExtent.height << ")]" << std::endl;
 
     uint32_t surfaceFormatCount = 0;
-    auto getSurfaceFormatsFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfaceFormatsKHR);
+    auto getSurfaceFormatsFn = GETIFN(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
     VK_ERR_CHECK(getSurfaceFormatsFn(
         pDevice,
-        this->_surface.get(),
+        surface,
         &surfaceFormatCount,
         nullptr
     ));
     std::vector<::VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
     VK_ERR_CHECK(getSurfaceFormatsFn(
         pDevice,
-        this->_surface.get(),
+        surface,
         &surfaceFormatCount,
         surfaceFormats.data()
     ));
@@ -779,17 +791,17 @@ Renderer::Impl::create_swapchain()
     }
 
     uint32_t presentModeCount = 0;
-    auto getPresentModesFn = GETIFN(this->_instance.get(), vkGetPhysicalDeviceSurfacePresentModesKHR);
+    auto getPresentModesFn = GETIFN(instance, vkGetPhysicalDeviceSurfacePresentModesKHR);
     VK_ERR_CHECK(getPresentModesFn(
         pDevice,
-        this->_surface.get(),
+        surface,
         &presentModeCount,
         nullptr
     ));
     std::vector<::VkPresentModeKHR> presentModes(presentModeCount);
     VK_ERR_CHECK(getPresentModesFn(
         pDevice,
-        this->_surface.get(),
+        surface,
         &presentModeCount,
         presentModes.data()
     ));
@@ -805,7 +817,7 @@ Renderer::Impl::create_swapchain()
     ::VkSwapchainCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = this->_surface.get();
+    createInfo.surface = surface;
     createInfo.minImageCount = surfaceCaps.minImageCount;
     createInfo.imageFormat = this->_swapchain_imageFormat;
     createInfo.imageColorSpace = surfaceFormats[0].colorSpace;
@@ -820,26 +832,26 @@ Renderer::Impl::create_swapchain()
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
     ::VkSwapchainKHR swapchain;
-    auto createSwapchainFn = GETIFN(this->_instance.get(), vkCreateSwapchainKHR);
+    auto createSwapchainFn = GETDFN(logical_device, vkCreateSwapchainKHR);
     VK_ERR_CHECK(createSwapchainFn(
-        this->_logical_device.get(),
+        logical_device,
         &createInfo,
         nullptr,
         &swapchain
     ));
     this->_swapchain = { swapchain, this->_function_table.destroy_swapchain_khr_wrapper };
 
-    auto getswapchainimagesFn = GETIFN(this->_instance.get(), vkGetSwapchainImagesKHR);
+    auto getswapchainimagesFn = GETDFN(logical_device, vkGetSwapchainImagesKHR);
     uint32_t swapchain_imagecount = 0;
     VK_ERR_CHECK(getswapchainimagesFn(
-        this->_logical_device.get(),
+        logical_device,
         this->_swapchain.get(),
         &swapchain_imagecount,
         nullptr
     ));
     this->_swapchain_images.resize(swapchain_imagecount);
     VK_ERR_CHECK(getswapchainimagesFn(
-        this->_logical_device.get(),
+        logical_device,
         this->_swapchain.get(),
         &swapchain_imagecount,
         this->_swapchain_images.data()
@@ -849,9 +861,11 @@ Renderer::Impl::create_swapchain()
 void
 Renderer::Impl::create_imageviews()
 {
+    auto logical_device = this->_logical_device.get();
+
     // no resize of this->_swapchain_imageViews, since there is no valid
     // default constructor of a std::unique_ptr with a custom deleter
-    auto createImageViewFn = GETIFN(this->_instance.get(), vkCreateImageView);
+    auto createImageViewFn = GETDFN(logical_device, vkCreateImageView);
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageViewCreateInfo createInfo;
@@ -872,7 +886,7 @@ Renderer::Impl::create_imageviews()
 
         ::VkImageView view;
         VK_ERR_CHECK(createImageViewFn(
-            this->_logical_device.get(),
+            logical_device,
             &createInfo,
             nullptr,
             &view
@@ -925,10 +939,11 @@ Renderer::Impl::create_renderpass()
     createInfo.dependencyCount = 1;
     createInfo.pDependencies = &dependency;
 
-    auto createRenderPassFn = GETIFN(this->_instance.get(), vkCreateRenderPass);
+    auto logical_device = this->_logical_device.get();
+    auto createRenderPassFn = GETDFN(logical_device , vkCreateRenderPass);
     ::VkRenderPass renderPass;
     VK_ERR_CHECK(createRenderPassFn(
-        this->_logical_device.get(),
+        logical_device,
         &createInfo,
         nullptr,
         &renderPass
@@ -939,9 +954,10 @@ Renderer::Impl::create_renderpass()
 void
 Renderer::Impl::create_framebuffers()
 {
+    auto logical_device = this->_logical_device.get();
     // no resize of this->_framebuffers since there is no default constructor for
     // std::unique_ptr with a custom deleter
-    auto createFrameBufferFn = GETIFN(this->_instance.get(), vkCreateFramebuffer);
+    auto createFrameBufferFn = GETDFN(logical_device, vkCreateFramebuffer);
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageView attachments[] = { this->_swapchain_imageViews[i].get() };
@@ -958,7 +974,7 @@ Renderer::Impl::create_framebuffers()
 
         ::VkFramebuffer frameBuffer;
         VK_ERR_CHECK(createFrameBufferFn(
-            this->_logical_device.get(),
+            logical_device,
             &createInfo,
             nullptr,
             &frameBuffer
@@ -976,10 +992,11 @@ Renderer::Impl::create_commandpool()
     createInfo.queueFamilyIndex = 0; // TODO: hook up
     createInfo.flags = 0;
 
-    auto createCommandPoolFn = GETIFN(this->_instance.get(), vkCreateCommandPool);
+    auto logical_device = this->_logical_device.get();
+    auto createCommandPoolFn = GETDFN(logical_device, vkCreateCommandPool);
     ::VkCommandPool commandPool;
     VK_ERR_CHECK(createCommandPoolFn(
-        this->_logical_device.get(),
+        logical_device,
         &createInfo,
         nullptr,
         &commandPool
@@ -999,17 +1016,18 @@ Renderer::Impl::create_commandbuffers()
     allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocateInfo.commandBufferCount = static_cast<uint32_t>(this->_commandBuffers.size());
 
-    auto allocateCommandBuffersFn = GETIFN(this->_instance.get(), vkAllocateCommandBuffers);
+    auto logical_device = this->_logical_device.get();
+    auto allocateCommandBuffersFn = GETDFN(logical_device, vkAllocateCommandBuffers);
     VK_ERR_CHECK(allocateCommandBuffersFn(
-        this->_logical_device.get(),
+        logical_device,
         &allocateInfo,
         this->_commandBuffers.data()
     ));
 
-    auto beginCommandBufferFn = GETIFN(this->_instance.get(), vkBeginCommandBuffer);
-    auto cmdBeginRenderPassFn = GETIFN(this->_instance.get(), vkCmdBeginRenderPass);
-    auto cmdEndRenderPassFn = GETIFN(this->_instance.get(), vkCmdEndRenderPass);
-    auto endCommandBufferFn = GETIFN(this->_instance.get(), vkEndCommandBuffer);
+    auto beginCommandBufferFn = GETDFN(logical_device , vkBeginCommandBuffer);
+    auto cmdBeginRenderPassFn = GETDFN(logical_device, vkCmdBeginRenderPass);
+    auto cmdEndRenderPassFn = GETDFN(logical_device, vkCmdEndRenderPass);
+    auto endCommandBufferFn = GETDFN(logical_device, vkEndCommandBuffer);
     for (auto i = 0u; i < this->_commandBuffers.size(); ++i)
     {
         ::VkCommandBufferBeginInfo beginInfo;
@@ -1063,6 +1081,8 @@ Renderer::Impl::create_commandbuffers()
 void
 Renderer::Impl::create_semaphores()
 {
+    auto logical_device = this->_logical_device.get();
+
     ::VkSemaphoreCreateInfo semaphoreCreateInfo;
     memset(&semaphoreCreateInfo, 0, sizeof(semaphoreCreateInfo));
     semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -1072,16 +1092,16 @@ Renderer::Impl::create_semaphores()
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    auto createSemaphoreFn = GETIFN(this->_instance.get(), vkCreateSemaphore);
+    auto createSemaphoreFn = GETDFN(logical_device, vkCreateSemaphore);
     ::VkSemaphore sem;
 
-    auto createFenceFn = GETIFN(this->_instance.get(), vkCreateFence);
+    auto createFenceFn = GETDFN(logical_device, vkCreateFence);
     ::VkFence fence;
 
     for (auto i = 0u; i < this->MAX_FRAMES_IN_FLIGHT; ++i)
     {
         VK_ERR_CHECK(createSemaphoreFn(
-            this->_logical_device.get(),
+            logical_device,
             &semaphoreCreateInfo,
             nullptr,
             &sem
@@ -1089,7 +1109,7 @@ Renderer::Impl::create_semaphores()
         this->_image_available.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
 
         VK_ERR_CHECK(createSemaphoreFn(
-            this->_logical_device.get(),
+            logical_device,
             &semaphoreCreateInfo,
             nullptr,
             &sem
@@ -1097,7 +1117,7 @@ Renderer::Impl::create_semaphores()
         this->_render_finished.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
 
         VK_ERR_CHECK(createFenceFn(
-            this->_logical_device.get(),
+            logical_device,
             &fenceCreateInfo,
             nullptr,
             &fence
