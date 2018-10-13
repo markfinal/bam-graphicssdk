@@ -481,114 +481,116 @@ Renderer::Impl::enumerate_physical_devices()
     this->_physical_devices.resize(numPhysicalDevices);
     VK_ERR_CHECK(enumPhysDevicesFn(instance, &numPhysicalDevices, this->_physical_devices.data()));
 
-    // enumerate physical device properties
     auto enumeratePhysicalDevicePropsFn = GETIFN(instance, vkGetPhysicalDeviceProperties);
-    for (auto i = 0u; i < numPhysicalDevices; ++i)
-    {
-        auto device = this->_physical_devices[i];
-        ::VkPhysicalDeviceProperties props;
-        enumeratePhysicalDevicePropsFn(device, &props);
-        Log().get() << "Properties of physical device " << i << std::endl;
-        Log().get() << "\tAPI version : " << props.apiVersion << std::endl;
-        Log().get() << "\tDevice ID : " << props.deviceID << std::endl;
-        Log().get() << "\tDevice name : " << props.deviceName << std::endl;
-        Log().get() << "\tDevice type : " << props.deviceType << std::endl;
-        Log().get() << "\tDriver version : " << props.driverVersion << std::endl;
-        Log().get() << "\tPipeline Cache UUID : " << props.pipelineCacheUUID << std::endl;
-        Log().get() << "\tLimits..." << std::endl;
-        Log().get() << "\tSparse properties..." << std::endl;
-    }
-
-    // enumerate physical device memory properties
     auto enumeratePhysicalMemoryDeviceFn = GETIFN(instance, vkGetPhysicalDeviceMemoryProperties);
-    for (auto device : this->_physical_devices)
-    {
-        ::VkPhysicalDeviceMemoryProperties memProps;
-        enumeratePhysicalMemoryDeviceFn(device, &memProps);
-        Log().get() << "Memory properties of physical device " << std::endl;
-        Log().get() << "\tMemory heap count : " << memProps.memoryHeapCount << std::endl;
-        for (auto i = 0u; i < memProps.memoryHeapCount; ++i)
-        {
-            Log().get() << "\tHeap " << i << std::endl;
-            Log().get() << "\t\tFlags : " << to_string(static_cast<::VkMemoryHeapFlagBits>(memProps.memoryHeaps[i].flags)) << std::endl;
-            Log().get() << "\t\tSize : " << memProps.memoryHeaps[i].size << std::endl;
-        }
-        Log().get() << "\tMemory type count : " << memProps.memoryTypeCount << std::endl;
-        for (auto i = 0u; i < memProps.memoryTypeCount; ++i)
-        {
-            Log().get() << "\tMemory type " << i << std::endl;
-            Log().get() << "\t\tHeap index : " << memProps.memoryTypes[i].heapIndex << std::endl;
-            Log().get() << "\t\tProperties : " << to_string(static_cast<::VkMemoryPropertyFlagBits>(memProps.memoryTypes[i].propertyFlags)) << std::endl;
-        }
-    }
-
-    // enumerate physical device features
     auto getPhysDeviceFeaturesFn = GETIFN(instance, vkGetPhysicalDeviceFeatures);
-    for (auto i = 0u; i < numPhysicalDevices; ++i)
+    for (auto pdevice_index = 0u; pdevice_index < numPhysicalDevices; ++pdevice_index)
     {
-        auto device = this->_physical_devices[i];
-        VkPhysicalDeviceFeatures features;
-        getPhysDeviceFeaturesFn(device, &features);
-        Log().get() << "Features of physical device " << i << std::endl;
+        auto device = this->_physical_devices[pdevice_index];
+        Log().get() << "PHYSICAL DEVICE " << pdevice_index << std::endl;
+        // enumerate physical device properties
+        {
+            ::VkPhysicalDeviceProperties props;
+            enumeratePhysicalDevicePropsFn(device, &props);
+            Log().get() << "\tProperties of physical device" << std::endl;
+            Log().get() << "\t\tAPI version : " << props.apiVersion << std::endl;
+            Log().get() << "\t\tDevice ID : " << props.deviceID << std::endl;
+            Log().get() << "\t\tDevice name : " << props.deviceName << std::endl;
+            Log().get() << "\t\tDevice type : " << props.deviceType << std::endl;
+            Log().get() << "\t\tDriver version : " << props.driverVersion << std::endl;
+            Log().get() << "\t\tPipeline Cache UUID : " << props.pipelineCacheUUID << std::endl;
+            Log().get() << "\t\tLimits... TODO" << std::endl;
+            Log().get() << "\t\tSparse properties... TODO" << std::endl;
+        }
+        // enumerate physical device memory properties
+        {
+            ::VkPhysicalDeviceMemoryProperties memProps;
+            enumeratePhysicalMemoryDeviceFn(device, &memProps);
+            Log().get() << "\tMemory properties of physical device" << std::endl;
+            Log().get() << "\t\tMemory heap count : " << memProps.memoryHeapCount << std::endl;
+            for (auto i = 0u; i < memProps.memoryHeapCount; ++i)
+            {
+                Log().get() << "\t\t\tHeap " << i << std::endl;
+                Log().get() << "\t\t\t\tFlags : " << to_string(static_cast<::VkMemoryHeapFlagBits>(memProps.memoryHeaps[i].flags)) << std::endl;
+                const auto bytes = memProps.memoryHeaps[i].size;
+                const auto kbytes = bytes / 1024;
+                const auto mbytes = kbytes / 1024;
+                const auto gbytes = mbytes / 1024;
+                Log().get() << "\t\t\t\tSize : " << bytes << " bytes / " << kbytes << " KB / " << mbytes << " MB / " << gbytes << " GB" << std::endl;
+            }
+            Log().get() << "\t\tMemory type count : " << memProps.memoryTypeCount << std::endl;
+            for (auto i = 0u; i < memProps.memoryTypeCount; ++i)
+            {
+                Log().get() << "\t\t\tMemory type " << i << std::endl;
+                Log().get() << "\t\t\t\tHeap index : " << memProps.memoryTypes[i].heapIndex << std::endl;
+                Log().get() << "\t\t\t\tProperties : " << to_string(static_cast<::VkMemoryPropertyFlagBits>(memProps.memoryTypes[i].propertyFlags)) << std::endl;
+            }
+        }
+        // enumerate physical device features
+        {
+            VkPhysicalDeviceFeatures features;
+            getPhysDeviceFeaturesFn(device, &features);
+            Log().get() << "\tFeatures of physical device" << std::endl;
 
-#define LOG_FEATURE(_feature) Log().get() << "\t"#_feature << ": " << features._feature << std::endl
+#define LOG_FEATURE(_feature) Log().get() << "\t\t"#_feature << ": " << features._feature << std::endl
 
-        LOG_FEATURE(alphaToOne);
-        LOG_FEATURE(depthBiasClamp);
-        LOG_FEATURE(depthBounds);
-        LOG_FEATURE(depthClamp);
-        LOG_FEATURE(drawIndirectFirstInstance);
-        LOG_FEATURE(dualSrcBlend);
-        LOG_FEATURE(fillModeNonSolid);
-        LOG_FEATURE(fragmentStoresAndAtomics);
-        LOG_FEATURE(fullDrawIndexUint32);
-        LOG_FEATURE(geometryShader);
-        LOG_FEATURE(imageCubeArray);
-        LOG_FEATURE(independentBlend);
-        LOG_FEATURE(inheritedQueries);
-        LOG_FEATURE(largePoints);
-        LOG_FEATURE(logicOp);
-        LOG_FEATURE(multiDrawIndirect);
-        LOG_FEATURE(multiViewport);
-        LOG_FEATURE(occlusionQueryPrecise);
-        LOG_FEATURE(pipelineStatisticsQuery);
-        LOG_FEATURE(robustBufferAccess);
-        LOG_FEATURE(samplerAnisotropy);
-        LOG_FEATURE(sampleRateShading);
-        LOG_FEATURE(shaderClipDistance);
-        LOG_FEATURE(shaderCullDistance);
-        LOG_FEATURE(shaderFloat64);
-        LOG_FEATURE(shaderImageGatherExtended);
-        LOG_FEATURE(shaderInt16);
-        LOG_FEATURE(shaderInt64);
-        LOG_FEATURE(shaderResourceMinLod);
-        LOG_FEATURE(shaderResourceResidency);
-        LOG_FEATURE(shaderSampledImageArrayDynamicIndexing);
-        LOG_FEATURE(shaderStorageBufferArrayDynamicIndexing);
-        LOG_FEATURE(shaderStorageImageArrayDynamicIndexing);
-        LOG_FEATURE(shaderStorageImageExtendedFormats);
-        LOG_FEATURE(shaderStorageImageMultisample);
-        LOG_FEATURE(shaderStorageImageReadWithoutFormat);
-        LOG_FEATURE(shaderStorageImageWriteWithoutFormat);
-        LOG_FEATURE(shaderTessellationAndGeometryPointSize);
-        LOG_FEATURE(shaderUniformBufferArrayDynamicIndexing);
-        LOG_FEATURE(sparseBinding);
-        LOG_FEATURE(sparseResidency16Samples);
-        LOG_FEATURE(sparseResidency2Samples);
-        LOG_FEATURE(sparseResidency4Samples);
-        LOG_FEATURE(sparseResidency8Samples);
-        LOG_FEATURE(sparseResidencyAliased);
-        LOG_FEATURE(sparseResidencyBuffer);
-        LOG_FEATURE(sparseResidencyImage2D);
-        LOG_FEATURE(sparseResidencyImage3D);
-        LOG_FEATURE(tessellationShader);
-        LOG_FEATURE(textureCompressionASTC_LDR);
-        LOG_FEATURE(textureCompressionBC);
-        LOG_FEATURE(textureCompressionETC2);
-        LOG_FEATURE(variableMultisampleRate);
-        LOG_FEATURE(vertexPipelineStoresAndAtomics);
+            LOG_FEATURE(alphaToOne);
+            LOG_FEATURE(depthBiasClamp);
+            LOG_FEATURE(depthBounds);
+            LOG_FEATURE(depthClamp);
+            LOG_FEATURE(drawIndirectFirstInstance);
+            LOG_FEATURE(dualSrcBlend);
+            LOG_FEATURE(fillModeNonSolid);
+            LOG_FEATURE(fragmentStoresAndAtomics);
+            LOG_FEATURE(fullDrawIndexUint32);
+            LOG_FEATURE(geometryShader);
+            LOG_FEATURE(imageCubeArray);
+            LOG_FEATURE(independentBlend);
+            LOG_FEATURE(inheritedQueries);
+            LOG_FEATURE(largePoints);
+            LOG_FEATURE(logicOp);
+            LOG_FEATURE(multiDrawIndirect);
+            LOG_FEATURE(multiViewport);
+            LOG_FEATURE(occlusionQueryPrecise);
+            LOG_FEATURE(pipelineStatisticsQuery);
+            LOG_FEATURE(robustBufferAccess);
+            LOG_FEATURE(samplerAnisotropy);
+            LOG_FEATURE(sampleRateShading);
+            LOG_FEATURE(shaderClipDistance);
+            LOG_FEATURE(shaderCullDistance);
+            LOG_FEATURE(shaderFloat64);
+            LOG_FEATURE(shaderImageGatherExtended);
+            LOG_FEATURE(shaderInt16);
+            LOG_FEATURE(shaderInt64);
+            LOG_FEATURE(shaderResourceMinLod);
+            LOG_FEATURE(shaderResourceResidency);
+            LOG_FEATURE(shaderSampledImageArrayDynamicIndexing);
+            LOG_FEATURE(shaderStorageBufferArrayDynamicIndexing);
+            LOG_FEATURE(shaderStorageImageArrayDynamicIndexing);
+            LOG_FEATURE(shaderStorageImageExtendedFormats);
+            LOG_FEATURE(shaderStorageImageMultisample);
+            LOG_FEATURE(shaderStorageImageReadWithoutFormat);
+            LOG_FEATURE(shaderStorageImageWriteWithoutFormat);
+            LOG_FEATURE(shaderTessellationAndGeometryPointSize);
+            LOG_FEATURE(shaderUniformBufferArrayDynamicIndexing);
+            LOG_FEATURE(sparseBinding);
+            LOG_FEATURE(sparseResidency16Samples);
+            LOG_FEATURE(sparseResidency2Samples);
+            LOG_FEATURE(sparseResidency4Samples);
+            LOG_FEATURE(sparseResidency8Samples);
+            LOG_FEATURE(sparseResidencyAliased);
+            LOG_FEATURE(sparseResidencyBuffer);
+            LOG_FEATURE(sparseResidencyImage2D);
+            LOG_FEATURE(sparseResidencyImage3D);
+            LOG_FEATURE(tessellationShader);
+            LOG_FEATURE(textureCompressionASTC_LDR);
+            LOG_FEATURE(textureCompressionBC);
+            LOG_FEATURE(textureCompressionETC2);
+            LOG_FEATURE(variableMultisampleRate);
+            LOG_FEATURE(vertexPipelineStoresAndAtomics);
 
 #undef LOG_FEATURE
+        }
     }
 
     // arbitrary choice
