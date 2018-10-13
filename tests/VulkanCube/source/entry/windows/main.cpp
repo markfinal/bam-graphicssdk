@@ -80,9 +80,16 @@ WinMain(
     int nCmdShow)
 #else
 int
-main()
+main(
+    int argc,
+    char *argv[])
 #endif
 {
+#ifdef D_BAM_PLATFORM_WINDOWS
+    Log::set_path(std::string(__argv[0]) + "\\..\\log.txt");
+#else
+    Log::set_path(std::string(argv[0]) + "/../log.txt");
+#endif
     Log().get() << "Vulkan cube test starting up..." << std::endl;
     try
     {

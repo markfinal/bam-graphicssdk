@@ -35,13 +35,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #endif
 
+#include <fstream>
+#include <stdexcept>
+
+std::string   Log::_filelog_path;
+std::ofstream Log::_filelog;
+
 Log::~Log()
 {
+    auto message = this->_stream.str();
 #ifdef D_BAM_PLATFORM_WINDOWS
-    OutputDebugString(this->_stream.str().c_str());
+    OutputDebugString(message.c_str());
 #else
-    std::cout << this->_stream.str();
+    std::cout << message;
 #endif
+    _filelog.open(_filelog_path.c_str(), std::ios_base::out | std::ios_base::app);
+    if (_filelog)
+    {
+        _filelog << message;
+        _filelog.close();
+    }
+}
+
+void
+Log::set_path(
+    const std::string &inPath)
+{
+    _filelog_path = inPath;
+    _filelog.open(_filelog_path.c_str(), std::ios_base::out);
+    if (!_filelog)
+    {
+        throw std::runtime_error("Unable to open log file");
+    }
+    _filelog.close();
 }
 
 std::ostringstream &Log::get()

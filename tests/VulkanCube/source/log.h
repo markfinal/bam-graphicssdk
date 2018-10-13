@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LOG_H
 #define LOG_H
 
+#include <string>
 #include <sstream>
 
 class Log
@@ -37,9 +38,16 @@ class Log
 public:
     ~Log();
 
-    std::ostringstream &get();
+    static void
+    set_path(
+        const std::string &inPath);
+
+    std::ostringstream &
+    get();
 
 private:
+    static std::string   _filelog_path;
+    static std::ofstream _filelog;
     std::ostringstream _stream;
 };
 
