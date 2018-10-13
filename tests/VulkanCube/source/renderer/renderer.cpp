@@ -49,8 +49,8 @@ Renderer::init()
     impl->create_window_surface();
     impl->enumerate_physical_devices();
     impl->create_logical_device();
-#if 0
     impl->create_swapchain();
+#if 0
     impl->create_imageviews();
     impl->create_renderpass();
     impl->create_framebuffers();

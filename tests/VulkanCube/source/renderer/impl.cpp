@@ -782,7 +782,6 @@ Renderer::Impl::create_swapchain()
     auto instance = this->_instance.get();
     auto pDevice = this->_physical_devices[this->_physical_device_index];
     auto surface = this->_surface.get();
-    auto logical_device = this->_logical_device.get();
 
     auto getSurfaceCapsFn = GETIFN(instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     ::VkSurfaceCapabilitiesKHR surfaceCaps;
@@ -792,8 +791,8 @@ Renderer::Impl::create_swapchain()
         &surfaceCaps
     ));
     Log().get() << "Surface capabilities" << std::endl;
-    Log().get() << "Image count: [" << surfaceCaps.minImageCount << ", " << surfaceCaps.maxImageCount << "]" << std::endl;
-    Log().get() << "Image extent: [(" << surfaceCaps.minImageExtent.width << "x" << surfaceCaps.minImageExtent.height << "), (" << surfaceCaps.maxImageExtent.width << "x" << surfaceCaps.maxImageExtent.height << ")]" << std::endl;
+    Log().get() << "\tImage count: [" << surfaceCaps.minImageCount << ", " << surfaceCaps.maxImageCount << "]" << std::endl;
+    Log().get() << "\tImage extent: [(" << surfaceCaps.minImageExtent.width << "x" << surfaceCaps.minImageExtent.height << "), (" << surfaceCaps.maxImageExtent.width << "x" << surfaceCaps.maxImageExtent.height << ")]" << std::endl;
 
     uint32_t surfaceFormatCount = 0;
     auto getSurfaceFormatsFn = GETIFN(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
@@ -810,10 +809,10 @@ Renderer::Impl::create_swapchain()
         &surfaceFormatCount,
         surfaceFormats.data()
     ));
-    Log().get() << surfaceFormatCount << " surface formats" << std::endl;
+    Log().get() << "Found " << surfaceFormatCount << " SURFACE FORMATS:" << std::endl;
     for (const auto format : surfaceFormats)
     {
-        Log().get() << format.format << " " << format.colorSpace << std::endl;
+        Log().get() << "\t" << format.format << " " << format.colorSpace << std::endl;
     }
 
     uint32_t presentModeCount = 0;
@@ -831,15 +830,17 @@ Renderer::Impl::create_swapchain()
         &presentModeCount,
         presentModes.data()
     ));
-    Log().get() << presentModeCount << " present modes" << std::endl;
+    Log().get() << "Found " << presentModeCount << " PRESENT MODES:" << std::endl;
     for (const auto pMode : presentModes)
     {
-        Log().get() << pMode << std::endl;
+        Log().get() << "\t" << pMode << std::endl;
     }
 
     this->_swapchain_imageFormat = surfaceFormats[0].format;
     this->_swapchain_extent = surfaceCaps.maxImageExtent;
 
+#if 0
+    auto logical_device = this->_logical_device.get();
     ::VkSwapchainCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -882,6 +883,7 @@ Renderer::Impl::create_swapchain()
         &swapchain_imagecount,
         this->_swapchain_images.data()
     ));
+#endif
 }
 
 void
