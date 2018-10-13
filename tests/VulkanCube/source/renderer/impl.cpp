@@ -416,6 +416,10 @@ Renderer::Impl::debug_callback(
     (void)messageCode;
     (void)pUserData;
     Log().get() << pLayerPrefix << ": " << pMessage << std::endl;
+    if (VK_DEBUG_REPORT_ERROR_BIT_EXT == (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT))
+    {
+        return VK_TRUE;
+    }
     return VK_FALSE;
 }
 
