@@ -226,7 +226,7 @@ Renderer::Impl::create_instance()
         &num_extensions,
         extensions.data()
     ));
-    Log().get() << "Found the following INSTANCE extensions:" << std::endl;
+    Log().get() << "Found the following " << extensions.size() << " INSTANCE extensions:" << std::endl;
     for (const auto &ext : extensions)
     {
         Log().get() << "\t" << ext.extensionName << ", v" << ext.specVersion << std::endl;
@@ -244,7 +244,7 @@ Renderer::Impl::create_instance()
         &num_layers,
         layers.data()
     ));
-    Log().get() << "Found the following INSTANCE layers:" << std::endl;
+    Log().get() << "Found the following " << layers.size() << " INSTANCE layers:" << std::endl;
     for (const auto &layer : layers)
     {
         Log().get() << "\t" << layer.layerName << ", " << layer.description << ", " << layer.implementationVersion << ", " << layer.specVersion << std::endl;
@@ -595,6 +595,7 @@ Renderer::Impl::enumerate_physical_devices()
 
     // arbitrary choice
     this->_physical_device_index = 0;
+    Log().get() << "Choosing PHYSICAL device " << this->_physical_device_index << std::endl;
 }
 
 void
@@ -608,9 +609,9 @@ Renderer::Impl::create_logical_device()
     auto enumDeviceExtensionPropertiesFn = GETIFN(instance, vkEnumerateDeviceExtensionProperties);
     uint32_t numDeviceExtensions = 0;
     VK_ERR_CHECK(enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, nullptr));
-    Log().get() << "Found " << numDeviceExtensions << " device extensions" << std::endl;
     std::vector<::VkExtensionProperties> deviceExtensions(numDeviceExtensions);
     VK_ERR_CHECK(enumDeviceExtensionPropertiesFn(pDevice, nullptr, &numDeviceExtensions, deviceExtensions.data()));
+    Log().get() << "Found the following " << numDeviceExtensions << " DEVICE extensions:" << std::endl;
     for (auto i = 0u; i < numDeviceExtensions; ++i)
     {
         const auto &ext = deviceExtensions[i];
@@ -621,9 +622,9 @@ Renderer::Impl::create_logical_device()
     auto enumDeviceLayerPropertiesFn = GETIFN(instance, vkEnumerateDeviceLayerProperties);
     uint32_t numDeviceLayers = 0;
     VK_ERR_CHECK(enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, nullptr));
-    Log().get() << "Found " << numDeviceLayers << " device layers" << std::endl;
     std::vector<::VkLayerProperties> deviceLayers(numDeviceLayers);
     VK_ERR_CHECK(enumDeviceLayerPropertiesFn(pDevice, &numDeviceLayers, deviceLayers.data()));
+    Log().get() << "Found the following " << numDeviceLayers << " DEVICE layers:" << std::endl;
     for (auto i = 0u; i < numDeviceLayers; ++i)
     {
         const auto &layer = deviceLayers[i];
@@ -638,17 +639,15 @@ Renderer::Impl::create_logical_device()
     {
         throw Exception("Unable to find any queue families on this physical device");
     }
-    Log().get() << "Found " << numQueueFamilyProperties << " queue families on this physical device" << std::endl;
-
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(numQueueFamilyProperties);
     getPDeviceQueueFamilyPropsFn(pDevice, &numQueueFamilyProperties, queueFamilyProperties.data());
-
+    Log().get() << "Found the following " << numQueueFamilyProperties << " QUEUE FAMILIES on physical device " << this->_physical_device_index << std::endl;
     for (auto i = 0u; i < numQueueFamilyProperties; ++i)
     {
-        Log().get() << "Queue family " << i << std::endl;
-        Log().get() << "\tFlags : " << to_string(static_cast<::VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)) << std::endl;
-        Log().get() << "\tCount : " << queueFamilyProperties[i].queueCount << std::endl;
-        Log().get() << "\tTimestampValidBits : " << queueFamilyProperties[i].timestampValidBits << std::endl;
+        Log().get() << "\tQueue family " << i << std::endl;
+        Log().get() << "\t\tFlags : " << to_string(static_cast<::VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)) << std::endl;
+        Log().get() << "\t\tCount : " << queueFamilyProperties[i].queueCount << std::endl;
+        Log().get() << "\t\tTimestampValidBits : " << queueFamilyProperties[i].timestampValidBits << std::endl;
     }
 
     // assume that the first queue family is capable of graphics
