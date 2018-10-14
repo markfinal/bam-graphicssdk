@@ -858,7 +858,6 @@ Renderer::Impl::create_swapchain()
     this->_swapchain_imageFormat = surfaceFormats[0].format;
     this->_swapchain_extent = surfaceCaps.maxImageExtent;
 
-#if 0
     auto logical_device = this->_logical_device.get();
     ::VkSwapchainCreateInfoKHR createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
@@ -902,7 +901,6 @@ Renderer::Impl::create_swapchain()
         &swapchain_imagecount,
         this->_swapchain_images.data()
     ));
-#endif
 }
 
 void
