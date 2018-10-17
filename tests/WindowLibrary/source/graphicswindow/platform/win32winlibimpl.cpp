@@ -142,7 +142,6 @@ GraphicsWindow::Impl::createWindow(
         throw Win32FailedToCreateWindow();
     }
 
-    this->_parent->onCreate();
     this->_width = inWidth;
     this->_height = inHeight;
 }
