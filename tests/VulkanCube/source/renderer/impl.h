@@ -60,8 +60,8 @@ struct Renderer::Impl
 {
     const uint32_t MAX_FRAMES_IN_FLIGHT = 2u;
 
-    std::unique_ptr< ::VkInstance_T, std::function<void(::VkInstance)>>                  _instance;
-    std::unique_ptr< ::VkDebugReportCallbackEXT_T, void(*)(::VkDebugReportCallbackEXT)>  _debug_callback;
+    std::unique_ptr<::VkInstance_T, std::function<void(::VkInstance)>>                             _instance;
+    std::unique_ptr<::VkDebugReportCallbackEXT_T, std::function<void(::VkDebugReportCallbackEXT)>> _debug_callback;
     AppWindow                                                                           *_window = nullptr;
     std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>              _surface;
     std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
@@ -86,8 +86,6 @@ struct Renderer::Impl
     class VkFunctionTable
     {
     private:
-        static PFN_vkDestroyDebugReportCallbackEXT _destroy_debug_callback;
-        static std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> _destroy_debug_callback_boundinstance;
         static PFN_vkDeviceWaitIdle    _device_waitidle;
         static PFN_vkDestroyDevice     _destroy_device;
         static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
@@ -113,10 +111,6 @@ struct Renderer::Impl
         static void
         get_device_functions(
             ::VkDevice inDevice);
-
-        static void
-        destroy_debug_callback_wrapper(
-            ::VkDebugReportCallbackEXT inDebugCallback);
 
         static void
         destroy_device_wrapper(

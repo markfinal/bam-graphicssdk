@@ -56,8 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_debug_callback = nullptr;
-std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_debug_callback_boundinstance;
 PFN_vkDeviceWaitIdle Renderer::Impl::VkFunctionTable::_device_waitidle = nullptr;
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
@@ -79,8 +77,6 @@ void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
     ::VkInstance inInstance)
 {
-    _destroy_debug_callback = GETIFN(inInstance, vkDestroyDebugReportCallbackEXT);
-    _destroy_debug_callback_boundinstance = std::bind(_destroy_debug_callback, inInstance, std::placeholders::_1, std::placeholders::_2);
     _device_waitidle = GETIFN(inInstance, vkDeviceWaitIdle);
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
 }
@@ -103,14 +99,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_debug_callback_wrapper(
-    ::VkDebugReportCallbackEXT inDebugCallback)
-{
-    Log().get() << "Destroying VkDebugReportCallbackEXT 0x" << std::hex << inDebugCallback << std::endl;
-    _destroy_debug_callback_boundinstance(inDebugCallback, nullptr);
 }
 
 void
@@ -387,7 +375,14 @@ Renderer::Impl::init_debug_callback()
         nullptr,
         &callback
     ));
-    this->_debug_callback = { callback, this->_function_table.destroy_debug_callback_wrapper };
+
+    auto debug_callback_deleter = [instance](::VkDebugReportCallbackEXT inDebugReportCB)
+    {
+        auto deleter = GETIFN(instance, vkDestroyDebugReportCallbackEXT);
+        Log().get() << "Destroying VkDebugReportCallbackEXT 0x" << std::hex << inDebugReportCB << std::endl;
+        deleter(instance, inDebugReportCB, nullptr);
+    };
+    this->_debug_callback = { callback, debug_callback_deleter };
 }
 
 VkBool32
