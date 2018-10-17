@@ -47,6 +47,7 @@ event_loop(
 {
 #if defined(D_BAM_PLATFORM_WINDOWS)
     ::MSG msg;
+    auto run = true;
     for (;;)
     {
         // get all messages
@@ -54,9 +55,14 @@ event_loop(
         {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
+
+            if (WM_QUIT == msg.message)
+            {
+                run = false;
+            }
         }
 
-        if (WM_QUIT == msg.message)
+        if (!run)
         {
             break;
         }
