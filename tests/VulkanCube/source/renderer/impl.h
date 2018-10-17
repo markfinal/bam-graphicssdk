@@ -63,7 +63,7 @@ struct Renderer::Impl
     std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>                              _instance;
     std::unique_ptr< ::VkDebugReportCallbackEXT_T, void(*)(::VkDebugReportCallbackEXT)>  _debug_callback;
     AppWindow                                                                           *_window = nullptr;
-    std::unique_ptr< ::VkSurfaceKHR_T, void(*)(::VkSurfaceKHR)>                          _surface;
+    std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>              _surface;
     std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
     size_t                                                                               _physical_device_index = static_cast<size_t>(-1);
     std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;
@@ -91,8 +91,6 @@ struct Renderer::Impl
         static std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> _destroy_debug_callback_boundinstance;
         static PFN_vkDeviceWaitIdle    _device_waitidle;
         static PFN_vkDestroyDevice     _destroy_device;
-        static PFN_vkDestroySurfaceKHR _destroy_surface_khr;
-        static std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> _destroy_surface_khr_boundinstance;
         static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
         static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
         static PFN_vkDestroyImageView _destroy_imageview;
@@ -128,10 +126,6 @@ struct Renderer::Impl
         static void
         destroy_device_wrapper(
             ::VkDevice inDevice);
-
-        static void
-        destroy_surface_khr_wrapper(
-            ::VkSurfaceKHR inSurface);
 
         static void
         destroy_swapchain_khr_wrapper(

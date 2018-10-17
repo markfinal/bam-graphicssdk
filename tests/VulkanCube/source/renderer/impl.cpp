@@ -61,8 +61,6 @@ PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_de
 std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_debug_callback_boundinstance;
 PFN_vkDeviceWaitIdle Renderer::Impl::VkFunctionTable::_device_waitidle = nullptr;
 PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
-PFN_vkDestroySurfaceKHR Renderer::Impl::VkFunctionTable::_destroy_surface_khr = nullptr;
-std::function<void(::VkSurfaceKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_surface_khr_boundinstance;
 PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
 std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
@@ -87,8 +85,6 @@ Renderer::Impl::VkFunctionTable::get_instance_functions(
     _destroy_debug_callback_boundinstance = std::bind(_destroy_debug_callback, inInstance, std::placeholders::_1, std::placeholders::_2);
     _device_waitidle = GETIFN(inInstance, vkDeviceWaitIdle);
     _destroy_device = GETIFN(inInstance, vkDestroyDevice);
-    _destroy_surface_khr = GETIFN(inInstance, vkDestroySurfaceKHR);
-    _destroy_surface_khr_boundinstance = std::bind(_destroy_surface_khr, inInstance, std::placeholders::_1, std::placeholders::_2);
 }
 
 void
@@ -134,14 +130,6 @@ Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
     Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
     _device_waitidle(inDevice);
     _destroy_device(inDevice, nullptr);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_surface_khr_wrapper(
-    ::VkSurfaceKHR inSurface)
-{
-    Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
-    _destroy_surface_khr_boundinstance(inSurface, nullptr);
 }
 
 void
@@ -454,7 +442,13 @@ Renderer::Impl::create_window_surface()
         &surface
     ));
 
-    this->_surface = { surface, this->_function_table.destroy_surface_khr_wrapper };
+    auto surfaceDeleter = [instance](::VkSurfaceKHR inSurface)
+    {
+        auto destroy = GETIFN(instance, vkDestroySurfaceKHR);
+        Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
+        destroy(instance, inSurface, nullptr);
+    };
+    this->_surface = std::unique_ptr<::VkSurfaceKHR_T, decltype(surfaceDeleter)>(surface, surfaceDeleter);
 #elif defined(D_BAM_PLATFORM_OSX)
     ::VkMacOSSurfaceCreateInfoMVK createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
