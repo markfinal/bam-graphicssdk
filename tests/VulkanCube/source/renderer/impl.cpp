@@ -56,7 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroyInstance Renderer::Impl::VkFunctionTable::_destroy_instance = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT Renderer::Impl::VkFunctionTable::_destroy_debug_callback = nullptr;
 std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_debug_callback_boundinstance;
 PFN_vkDeviceWaitIdle Renderer::Impl::VkFunctionTable::_device_waitidle = nullptr;
@@ -80,7 +79,6 @@ void
 Renderer::Impl::VkFunctionTable::get_instance_functions(
     ::VkInstance inInstance)
 {
-    _destroy_instance = GETIFN(inInstance, vkDestroyInstance);
     _destroy_debug_callback = GETIFN(inInstance, vkDestroyDebugReportCallbackEXT);
     _destroy_debug_callback_boundinstance = std::bind(_destroy_debug_callback, inInstance, std::placeholders::_1, std::placeholders::_2);
     _device_waitidle = GETIFN(inInstance, vkDeviceWaitIdle);
@@ -105,14 +103,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_instance_wrapper(
-    ::VkInstance inInstance)
-{
-    Log().get() << "Destroying VkInstance 0x" << std::hex << inInstance << std::endl;
-    _destroy_instance(inInstance, nullptr);
 }
 
 void
@@ -355,7 +345,14 @@ Renderer::Impl::create_instance()
     auto createInstanceFn = GETFN(vkCreateInstance);
     VK_ERR_CHECK(createInstanceFn(&createInfo, nullptr, &instance));
     this->_function_table.get_instance_functions(instance);
-    this->_instance = { instance, this->_function_table.destroy_instance_wrapper };
+
+    auto instance_deleter = [](::VkInstance inInstance)
+    {
+        auto deleter = GETIFN(inInstance, vkDestroyInstance);
+        Log().get() << "Destroying VkInstance 0x" << std::hex << inInstance << std::endl;
+        deleter(inInstance, nullptr);
+    };
+    this->_instance = { instance, instance_deleter };
 }
 
 void

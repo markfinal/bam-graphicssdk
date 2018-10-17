@@ -60,7 +60,7 @@ struct Renderer::Impl
 {
     const uint32_t MAX_FRAMES_IN_FLIGHT = 2u;
 
-    std::unique_ptr< ::VkInstance_T, void(*)(::VkInstance)>                              _instance;
+    std::unique_ptr< ::VkInstance_T, std::function<void(::VkInstance)>>                  _instance;
     std::unique_ptr< ::VkDebugReportCallbackEXT_T, void(*)(::VkDebugReportCallbackEXT)>  _debug_callback;
     AppWindow                                                                           *_window = nullptr;
     std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>              _surface;
@@ -86,7 +86,6 @@ struct Renderer::Impl
     class VkFunctionTable
     {
     private:
-        static PFN_vkDestroyInstance   _destroy_instance;
         static PFN_vkDestroyDebugReportCallbackEXT _destroy_debug_callback;
         static std::function<void(::VkDebugReportCallbackEXT, const ::VkAllocationCallbacks*)> _destroy_debug_callback_boundinstance;
         static PFN_vkDeviceWaitIdle    _device_waitidle;
@@ -114,10 +113,6 @@ struct Renderer::Impl
         static void
         get_device_functions(
             ::VkDevice inDevice);
-
-        static void
-        destroy_instance_wrapper(
-            ::VkInstance inInstance);
 
         static void
         destroy_debug_callback_wrapper(
