@@ -441,14 +441,6 @@ Renderer::Impl::create_window_surface()
         nullptr,
         &surface
     ));
-
-    auto surfaceDeleter = [instance](::VkSurfaceKHR inSurface)
-    {
-        auto destroy = GETIFN(instance, vkDestroySurfaceKHR);
-        Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
-        destroy(instance, inSurface, nullptr);
-    };
-    this->_surface = std::unique_ptr<::VkSurfaceKHR_T, decltype(surfaceDeleter)>(surface, surfaceDeleter);
 #elif defined(D_BAM_PLATFORM_OSX)
     ::VkMacOSSurfaceCreateInfoMVK createInfo;
     memset(&createInfo, 0, sizeof(createInfo));
@@ -463,11 +455,17 @@ Renderer::Impl::create_window_surface()
         nullptr,
         &surface
     ));
-
-    this->_surface = { surface, this->_function_table.destroy_surface_khr_wrapper };
 #else
 #error Unsupported platform
 #endif
+
+    auto surfaceDeleter = [instance](::VkSurfaceKHR inSurface)
+    {
+        auto destroy = GETIFN(instance, vkDestroySurfaceKHR);
+        Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
+        destroy(instance, inSurface, nullptr);
+    };
+    this->_surface = std::unique_ptr<::VkSurfaceKHR_T, decltype(surfaceDeleter)>(surface, surfaceDeleter);
 }
 
 void
