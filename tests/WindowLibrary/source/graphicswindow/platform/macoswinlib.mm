@@ -44,6 +44,12 @@ GraphicsWindow::init(
 }
 
 void
+GraphicsWindow::finalise()
+{
+    this->onCreate();
+}
+
+void
 GraphicsWindow::show()
 {
     auto impl = this->_impl.get();

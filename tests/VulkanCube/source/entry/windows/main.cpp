@@ -101,6 +101,7 @@ main(
         window->win32SetInstanceHandle(hInstance);
 #endif
         window->init(256, 256, "Vulkan Cube");
+        window->finalise();
 
         window->show();
 

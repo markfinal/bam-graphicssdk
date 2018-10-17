@@ -89,8 +89,6 @@ GraphicsWindow::Impl::createWindow(
 
     auto wndDelegate = [[WindowDelegate alloc] initWithWindow:this->_parent];
     [window setDelegate: wndDelegate];
-
-    this->_parent->onCreate();
 }
 
 void

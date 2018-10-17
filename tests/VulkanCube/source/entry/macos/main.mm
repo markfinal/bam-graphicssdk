@@ -13,7 +13,6 @@
 /* ---------------------------------------------------------------------- */
 
 std::unique_ptr<AppWindow> metalWindow;
-std::unique_ptr<Renderer> renderer;
 
 /* ---------------------------------------------------------------------- */
 
@@ -48,11 +47,6 @@ std::unique_ptr<Renderer> renderer;
 {
     [super viewDidAppear];
     NSLog((@"%s [Line %d] "), __PRETTY_FUNCTION__, __LINE__);
-
-    metalWindow->macosSetViewHandle([self view]);
-
-    renderer.reset(new Renderer(metalWindow.get()));
-    renderer->init();
 
     CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
     CVDisplayLinkSetOutputCallback(_displayLink, &DisplayLinkCallback, NULL);
@@ -100,7 +94,7 @@ DisplayLinkCallback(
     (void)flagsIn;
     (void)flagsOut;
     (void)target;
-    renderer->draw_frame();
+    metalWindow->renderer()->draw_frame();
     return kCVReturnSuccess;
 }
 
@@ -144,7 +138,9 @@ main()
     view_controller.view = metal_view;
 
     [[metalWindow->getNativeWindowHandle() contentView] addSubview:metal_view];
+    metalWindow->macosSetViewHandle(metal_view);
 
+    metalWindow->finalise();
     metalWindow->show();
 
     /* -- go... -- */

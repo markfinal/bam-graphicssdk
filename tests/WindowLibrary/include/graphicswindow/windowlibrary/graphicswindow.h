@@ -59,6 +59,9 @@ public:
         const std::string &inTitle);
 
     void
+    finalise();
+
+    void
     show();
 
     WindowHandle
