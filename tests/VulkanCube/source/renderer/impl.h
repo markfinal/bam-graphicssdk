@@ -62,8 +62,8 @@ struct Renderer::Impl
 
     std::unique_ptr<::VkInstance_T, std::function<void(::VkInstance)>>                             _instance;
     std::unique_ptr<::VkDebugReportCallbackEXT_T, std::function<void(::VkDebugReportCallbackEXT)>> _debug_callback;
-    AppWindow                                                                           *_window = nullptr;
-    std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>              _surface;
+    AppWindow                                                                                     *_window = nullptr;
+    std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>                        _surface;
     std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
     size_t                                                                               _physical_device_index = static_cast<size_t>(-1);
     std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;

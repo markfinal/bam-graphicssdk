@@ -457,7 +457,7 @@ Renderer::Impl::create_window_surface()
         Log().get() << "Destroying VkSurfaceKHR 0x" << std::hex << inSurface << std::endl;
         destroy(instance, inSurface, nullptr);
     };
-    this->_surface = std::unique_ptr<::VkSurfaceKHR_T, decltype(surfaceDeleter)>(surface, surfaceDeleter);
+    this->_surface = { surface, surfaceDeleter };
 }
 
 void
