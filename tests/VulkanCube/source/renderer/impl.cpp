@@ -64,8 +64,6 @@ Renderer::Impl::~Impl()
     }
 }
 
-PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
-std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_imageview_bounddevice;
 PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = nullptr;
 std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_renderpass_bounddevice;
 PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
@@ -81,8 +79,6 @@ void
 Renderer::Impl::VkFunctionTable::get_device_functions(
     ::VkDevice inDevice)
 {
-    _destroy_imageview = GETDFN(inDevice, vkDestroyImageView);
-    _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_renderpass = GETDFN(inDevice, vkDestroyRenderPass);
     _destroy_renderpass_bounddevice = std::bind(_destroy_renderpass, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_framebuffer = GETDFN(inDevice, vkDestroyFramebuffer);
@@ -93,14 +89,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_imageview_wrapper(
-    ::VkImageView inImageView)
-{
-    Log().get() << "Destroying VkImageView 0x" << std::hex << inImageView << std::endl;
-    _destroy_imageview_bounddevice(inImageView, nullptr);
 }
 
 void
@@ -889,6 +877,14 @@ Renderer::Impl::create_imageviews()
     // no resize of this->_swapchain_imageViews, since there is no valid
     // default constructor of a std::unique_ptr with a custom deleter
     auto createImageViewFn = GETDFN(logical_device, vkCreateImageView);
+
+    auto destroy_imageview = [logical_device](::VkImageView inImageView)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroyImageView);
+        Log().get() << "Destroying VkImageView 0x" << std::hex << inImageView << std::endl;
+        deleter(logical_device, inImageView, nullptr);
+    };
+
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageViewCreateInfo createInfo;
@@ -914,7 +910,7 @@ Renderer::Impl::create_imageviews()
             nullptr,
             &view
         ));
-        this->_swapchain_imageViews.emplace_back(view, this->_function_table.destroy_imageview_wrapper);
+        this->_swapchain_imageViews.emplace_back(view, destroy_imageview);
     }
 }
 
