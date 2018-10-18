@@ -75,7 +75,7 @@ struct Renderer::Impl
     std::vector<::VkImage>                                                                         _swapchain_images;
     std::vector<std::unique_ptr<::VkImageView_T, std::function<void(::VkImageView)>>>              _swapchain_imageViews;
     std::unique_ptr<::VkRenderPass_T, std::function<void(::VkRenderPass)>>                         _renderPass;
-    std::vector<std::unique_ptr<::VkFramebuffer_T, void(*)(::VkFramebuffer)>>            _framebuffers;
+    std::vector<std::unique_ptr<::VkFramebuffer_T, std::function<void(::VkFramebuffer)>>>          _framebuffers;
     std::unique_ptr<::VkCommandPool_T, void(*)(::VkCommandPool)>                         _commandPool;
     std::vector<::VkCommandBuffer>                                                       _commandBuffers;
     std::vector<std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>>                _image_available;
@@ -86,8 +86,6 @@ struct Renderer::Impl
     class VkFunctionTable
     {
     private:
-        static PFN_vkDestroyFramebuffer _destroy_framebuffer;
-        static std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> _destroy_framebuffer_bounddevice;
         static PFN_vkDestroyCommandPool _destroy_commandpool;
         static std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> _destroy_commandpool_bounddevice;
         static PFN_vkDestroySemaphore _destroy_semaphore;
@@ -99,10 +97,6 @@ struct Renderer::Impl
         static void
         get_device_functions(
             ::VkDevice inDevice);
-
-        static void
-        destroy_framebuffer_wrapper(
-            ::VkFramebuffer inFrameBuffer);
 
         static void
         destroy_commandpool_wrapper(

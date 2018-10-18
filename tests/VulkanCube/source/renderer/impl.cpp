@@ -56,8 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
-std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
 PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool = nullptr;
 std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_commandpool_bounddevice;
 PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nullptr;
@@ -69,22 +67,12 @@ void
 Renderer::Impl::VkFunctionTable::get_device_functions(
     ::VkDevice inDevice)
 {
-    _destroy_framebuffer = GETDFN(inDevice, vkDestroyFramebuffer);
-    _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_commandpool = GETDFN(inDevice, vkDestroyCommandPool);
     _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_semaphore = GETDFN(inDevice, vkDestroySemaphore);
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_framebuffer_wrapper(
-    ::VkFramebuffer inFrameBuffer)
-{
-    Log().get() << "Destroying VkFrameBuffer 0x" << std::hex << inFrameBuffer << std::endl;
-    _destroy_framebuffer_bounddevice(inFrameBuffer, nullptr);
 }
 
 void
@@ -975,6 +963,14 @@ Renderer::Impl::create_framebuffers()
     // no resize of this->_framebuffers since there is no default constructor for
     // std::unique_ptr with a custom deleter
     auto createFrameBufferFn = GETDFN(logical_device, vkCreateFramebuffer);
+
+    auto destroy_framebuffer = [logical_device](::VkFramebuffer inFrameBuffer)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroyFramebuffer);
+        Log().get() << "Destroying VkFramebuffer 0x" << std::hex << inFrameBuffer << std::endl;
+        deleter(logical_device, inFrameBuffer, nullptr);
+    };
+
     for (auto i = 0u; i < this->_swapchain_images.size(); ++i)
     {
         ::VkImageView attachments[] = { this->_swapchain_imageViews[i].get() };
@@ -996,7 +992,7 @@ Renderer::Impl::create_framebuffers()
             nullptr,
             &frameBuffer
         ));
-        this->_framebuffers.emplace_back(frameBuffer, this->_function_table.destroy_framebuffer_wrapper);
+        this->_framebuffers.emplace_back(frameBuffer, destroy_framebuffer);
     }
 }
 
