@@ -77,34 +77,11 @@ struct Renderer::Impl
     std::unique_ptr<::VkRenderPass_T, std::function<void(::VkRenderPass)>>                         _renderPass;
     std::vector<std::unique_ptr<::VkFramebuffer_T, std::function<void(::VkFramebuffer)>>>          _framebuffers;
     std::unique_ptr<::VkCommandPool_T, std::function<void(::VkCommandPool)>>                       _commandPool;
-    std::vector<::VkCommandBuffer>                                                       _commandBuffers;
-    std::vector<std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>>                _image_available;
-    std::vector<std::unique_ptr<::VkSemaphore_T, void(*)(::VkSemaphore)>>                _render_finished;
-    std::vector<std::unique_ptr<::VkFence_T, void(*)(::VkFence)>>                        _inflight_fence;
-    uint32_t                                                                             _current_frame = 0;
-
-    class VkFunctionTable
-    {
-    private:
-        static PFN_vkDestroySemaphore _destroy_semaphore;
-        static std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> _destroy_semaphore_bounddevice;
-        static PFN_vkDestroyFence _destroy_fence;
-        static std::function<void(::VkFence, const ::VkAllocationCallbacks*)> _destroy_fence_bounddevice;
-
-    public:
-        static void
-        get_device_functions(
-            ::VkDevice inDevice);
-
-        static void
-        destroy_semaphore_wrapper(
-            ::VkSemaphore inSemaphore);
-
-        static void
-        destroy_fence_wrapper(
-            ::VkFence inFence);
-    };
-    VkFunctionTable                                        _function_table;
+    std::vector<::VkCommandBuffer>                                                                 _commandBuffers;
+    std::vector<std::unique_ptr<::VkSemaphore_T, std::function<void(::VkSemaphore)>>>              _image_available;
+    std::vector<std::unique_ptr<::VkSemaphore_T, std::function<void(::VkSemaphore)>>>              _render_finished;
+    std::vector<std::unique_ptr<::VkFence_T, std::function<void(::VkFence)>>>                      _inflight_fence;
+    uint32_t                                                                                       _current_frame = 0;
 
     Impl(
         AppWindow *inWindow);

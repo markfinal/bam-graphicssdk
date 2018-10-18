@@ -56,37 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nullptr;
-std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_semaphore_bounddevice;
-PFN_vkDestroyFence Renderer::Impl::VkFunctionTable::_destroy_fence = nullptr;
-std::function<void(::VkFence, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_fence_bounddevice;
-
-void
-Renderer::Impl::VkFunctionTable::get_device_functions(
-    ::VkDevice inDevice)
-{
-    _destroy_semaphore = GETDFN(inDevice, vkDestroySemaphore);
-    _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
-    _destroy_fence = GETDFN(inDevice, vkDestroyFence);
-    _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_semaphore_wrapper(
-    ::VkSemaphore inSemaphore)
-{
-    Log().get() << "Destroying VkSemaphore 0x" << std::hex << inSemaphore << std::endl;
-    _destroy_semaphore_bounddevice(inSemaphore, nullptr);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_fence_wrapper(
-    ::VkFence inFence)
-{
-    Log().get() << "Destroying VkFence 0x" << std::hex << inFence << std::endl;
-    _destroy_fence_bounddevice(inFence, nullptr);
-}
-
 void
 Renderer::Impl::create_instance()
 {
@@ -689,7 +658,6 @@ Renderer::Impl::create_logical_device()
     this->_logical_device = { device, destroy_device };
 
     auto logical_device = this->_logical_device.get();
-    this->_function_table.get_device_functions(logical_device);
 
     auto getQueueFn = GETDFN(logical_device, vkGetDeviceQueue);
     auto graphics_queue_index = 0;
@@ -1113,8 +1081,22 @@ Renderer::Impl::create_semaphores()
     auto createSemaphoreFn = GETDFN(logical_device, vkCreateSemaphore);
     ::VkSemaphore sem;
 
+    auto destroy_semaphore = [logical_device](::VkSemaphore inSemaphore)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroySemaphore);
+        Log().get() << "Destroying VkSemaphore 0x" << std::hex << inSemaphore << std::endl;
+        deleter(logical_device, inSemaphore, nullptr);
+    };
+
     auto createFenceFn = GETDFN(logical_device, vkCreateFence);
     ::VkFence fence;
+
+    auto destroy_fence = [logical_device](::VkFence inFence)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroyFence);
+        Log().get() << "Destroying VkFence 0x" << std::hex << inFence << std::endl;
+        deleter(logical_device, inFence, nullptr);
+    };
 
     for (auto i = 0u; i < this->MAX_FRAMES_IN_FLIGHT; ++i)
     {
@@ -1124,7 +1106,7 @@ Renderer::Impl::create_semaphores()
             nullptr,
             &sem
         ));
-        this->_image_available.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
+        this->_image_available.emplace_back(sem, destroy_semaphore);
 
         VK_ERR_CHECK(createSemaphoreFn(
             logical_device,
@@ -1132,7 +1114,7 @@ Renderer::Impl::create_semaphores()
             nullptr,
             &sem
         ));
-        this->_render_finished.emplace_back(sem, this->_function_table.destroy_semaphore_wrapper);
+        this->_render_finished.emplace_back(sem, destroy_semaphore);
 
         VK_ERR_CHECK(createFenceFn(
             logical_device,
@@ -1140,7 +1122,7 @@ Renderer::Impl::create_semaphores()
             nullptr,
             &fence
         ));
-        this->_inflight_fence.emplace_back(fence, this->_function_table.destroy_fence_wrapper);
+        this->_inflight_fence.emplace_back(fence, destroy_fence);
     }
 }
 
