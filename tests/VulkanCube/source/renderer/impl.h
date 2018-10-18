@@ -67,11 +67,11 @@ struct Renderer::Impl
     std::vector< ::VkPhysicalDevice>                                                               _physical_devices;
     size_t                                                                                         _physical_device_index = static_cast<size_t>(-1);
     std::unique_ptr< ::VkDevice_T, std::function<void(::VkDevice)>>                                _logical_device;
-    ::VkQueue                                                                            _graphics_queue;
-    ::VkQueue                                                                            _present_queue;
-    ::VkFormat                                                                           _swapchain_imageFormat;
-    ::VkExtent2D                                                                         _swapchain_extent;
-    std::unique_ptr<::VkSwapchainKHR_T, void(*)(::VkSwapchainKHR)>                       _swapchain;
+    ::VkQueue                                                                                      _graphics_queue;
+    ::VkQueue                                                                                      _present_queue;
+    ::VkFormat                                                                                     _swapchain_imageFormat;
+    ::VkExtent2D                                                                                   _swapchain_extent;
+    std::unique_ptr<::VkSwapchainKHR_T, std::function<void(::VkSwapchainKHR)>>                     _swapchain;
     std::vector<::VkImage>                                                               _swapchain_images;
     std::vector<std::unique_ptr<::VkImageView_T, void(*)(::VkImageView)>>                _swapchain_imageViews;
     std::unique_ptr<::VkRenderPass_T, void(*)(::VkRenderPass)>                           _renderPass;
@@ -86,8 +86,6 @@ struct Renderer::Impl
     class VkFunctionTable
     {
     private:
-        static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
-        static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
         static PFN_vkDestroyImageView _destroy_imageview;
         static std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> _destroy_imageview_bounddevice;
         static PFN_vkDestroyRenderPass _destroy_renderpass;
@@ -105,10 +103,6 @@ struct Renderer::Impl
         static void
         get_device_functions(
             ::VkDevice inDevice);
-
-        static void
-        destroy_swapchain_khr_wrapper(
-            ::VkSwapchainKHR inSwapchain);
 
         static void
         destroy_imageview_wrapper(

@@ -64,8 +64,6 @@ Renderer::Impl::~Impl()
     }
 }
 
-PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
-std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
 std::function<void(::VkImageView, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_imageview_bounddevice;
 PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = nullptr;
@@ -83,8 +81,6 @@ void
 Renderer::Impl::VkFunctionTable::get_device_functions(
     ::VkDevice inDevice)
 {
-    _destroy_swapchain_khr = GETDFN(inDevice, vkDestroySwapchainKHR);
-    _destroy_swapchain_khr_bounddevice = std::bind(_destroy_swapchain_khr, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_imageview = GETDFN(inDevice, vkDestroyImageView);
     _destroy_imageview_bounddevice = std::bind(_destroy_imageview, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_renderpass = GETDFN(inDevice, vkDestroyRenderPass);
@@ -97,14 +93,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_swapchain_khr_wrapper(
-    ::VkSwapchainKHR inSwapchain)
-{
-    Log().get() << "Destroying VkSwapchainKHR 0x" << std::hex << inSwapchain << std::endl;
-    _destroy_swapchain_khr_bounddevice(inSwapchain, nullptr);
 }
 
 void
@@ -864,7 +852,14 @@ Renderer::Impl::create_swapchain()
         nullptr,
         &swapchain
     ));
-    this->_swapchain = { swapchain, this->_function_table.destroy_swapchain_khr_wrapper };
+
+    auto destroy_swapchain = [logical_device](::VkSwapchainKHR inSwapchain)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroySwapchainKHR);
+        Log().get() << "Destroying VkSwapchainKHR 0x" << std::hex << inSwapchain << std::endl;
+        deleter(logical_device, inSwapchain, nullptr);
+    };
+    this->_swapchain = { swapchain, destroy_swapchain };
 
     auto getswapchainimagesFn = GETDFN(logical_device, vkGetSwapchainImagesKHR);
     uint32_t swapchain_imagecount = 0;
