@@ -56,8 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = nullptr;
-std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_renderpass_bounddevice;
 PFN_vkDestroyFramebuffer Renderer::Impl::VkFunctionTable::_destroy_framebuffer = nullptr;
 std::function<void(::VkFramebuffer, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_framebuffer_bounddevice;
 PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool = nullptr;
@@ -71,8 +69,6 @@ void
 Renderer::Impl::VkFunctionTable::get_device_functions(
     ::VkDevice inDevice)
 {
-    _destroy_renderpass = GETDFN(inDevice, vkDestroyRenderPass);
-    _destroy_renderpass_bounddevice = std::bind(_destroy_renderpass, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_framebuffer = GETDFN(inDevice, vkDestroyFramebuffer);
     _destroy_framebuffer_bounddevice = std::bind(_destroy_framebuffer, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_commandpool = GETDFN(inDevice, vkDestroyCommandPool);
@@ -81,14 +77,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_renderpass_wrapper(
-    ::VkRenderPass inRenderPass)
-{
-    Log().get() << "Destroying VkRenderPass 0x" << std::hex << inRenderPass << std::endl;
-    _destroy_renderpass_bounddevice(inRenderPass, nullptr);
 }
 
 void
@@ -966,7 +954,15 @@ Renderer::Impl::create_renderpass()
         nullptr,
         &renderPass
     ));
-    this->_renderPass = { renderPass, this->_function_table.destroy_renderpass_wrapper };
+
+    auto destroy_renderpass = [logical_device](::VkRenderPass inRenderPass)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroyRenderPass);
+        Log().get() << "Destroying VkRenderPass 0x" << std::hex << inRenderPass << std::endl;
+        deleter(logical_device, inRenderPass, nullptr);
+    };
+
+    this->_renderPass = { renderPass, destroy_renderpass };
 }
 
 void
