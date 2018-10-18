@@ -54,15 +54,7 @@ Renderer::Impl::Impl(
     _commandPool(nullptr, nullptr)
 {}
 
-Renderer::Impl::~Impl()
-{
-    auto logical_device = this->_logical_device.get();
-    if (nullptr != logical_device)
-    {
-        auto wait_idle = GETDFN(logical_device, vkDeviceWaitIdle);
-        wait_idle(logical_device);
-    }
-}
+Renderer::Impl::~Impl() = default;
 
 PFN_vkDestroyRenderPass Renderer::Impl::VkFunctionTable::_destroy_renderpass = nullptr;
 std::function<void(::VkRenderPass, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_renderpass_bounddevice;
@@ -721,6 +713,10 @@ Renderer::Impl::create_logical_device()
 
     auto destroy_device = [device](::VkDevice inDevice)
     {
+        auto wait_idle = GETDFN(device, vkDeviceWaitIdle);
+        Log().get() << "Wait for VkDevice idle 0x" << std::hex << inDevice << std::endl;
+        wait_idle(device);
+
         auto destroy = GETDFN(device, vkDestroyDevice);
         Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
         destroy(inDevice, nullptr);
