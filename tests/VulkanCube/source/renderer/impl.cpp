@@ -56,8 +56,6 @@ Renderer::Impl::Impl(
 
 Renderer::Impl::~Impl() = default;
 
-PFN_vkDestroyCommandPool Renderer::Impl::VkFunctionTable::_destroy_commandpool = nullptr;
-std::function<void(::VkCommandPool, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_commandpool_bounddevice;
 PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nullptr;
 std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_semaphore_bounddevice;
 PFN_vkDestroyFence Renderer::Impl::VkFunctionTable::_destroy_fence = nullptr;
@@ -67,20 +65,10 @@ void
 Renderer::Impl::VkFunctionTable::get_device_functions(
     ::VkDevice inDevice)
 {
-    _destroy_commandpool = GETDFN(inDevice, vkDestroyCommandPool);
-    _destroy_commandpool_bounddevice = std::bind(_destroy_commandpool, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_semaphore = GETDFN(inDevice, vkDestroySemaphore);
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_commandpool_wrapper(
-    ::VkCommandPool inCommandPool)
-{
-    Log().get() << "Destroying VkCommandPool 0x" << std::hex << inCommandPool << std::endl;
-    _destroy_commandpool_bounddevice(inCommandPool, nullptr);
 }
 
 void
@@ -1017,7 +1005,15 @@ Renderer::Impl::create_commandpool()
         nullptr,
         &commandPool
     ));
-    this->_commandPool = { commandPool, this->_function_table.destroy_commandpool_wrapper };
+
+    auto destroy_commandpool = [logical_device](VkCommandPool inCommandPool)
+    {
+        auto deleter = GETDFN(logical_device, vkDestroyCommandPool);
+        Log().get() << "Destroying VkCommandPool 0x" << std::hex << inCommandPool << std::endl;
+        deleter(logical_device, inCommandPool, nullptr);
+    };
+
+    this->_commandPool = { commandPool, destroy_commandpool };
 }
 
 void
