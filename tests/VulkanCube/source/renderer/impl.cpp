@@ -54,10 +54,16 @@ Renderer::Impl::Impl(
     _commandPool(nullptr, nullptr)
 {}
 
-Renderer::Impl::~Impl() = default;
+Renderer::Impl::~Impl()
+{
+    auto logical_device = this->_logical_device.get();
+    if (nullptr != logical_device)
+    {
+        auto wait_idle = GETDFN(logical_device, vkDeviceWaitIdle);
+        wait_idle(logical_device);
+    }
+}
 
-PFN_vkDeviceWaitIdle Renderer::Impl::VkFunctionTable::_device_waitidle = nullptr;
-PFN_vkDestroyDevice Renderer::Impl::VkFunctionTable::_destroy_device = nullptr;
 PFN_vkDestroySwapchainKHR Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr = nullptr;
 std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_swapchain_khr_bounddevice;
 PFN_vkDestroyImageView Renderer::Impl::VkFunctionTable::_destroy_imageview = nullptr;
@@ -72,14 +78,6 @@ PFN_vkDestroySemaphore Renderer::Impl::VkFunctionTable::_destroy_semaphore = nul
 std::function<void(::VkSemaphore, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_semaphore_bounddevice;
 PFN_vkDestroyFence Renderer::Impl::VkFunctionTable::_destroy_fence = nullptr;
 std::function<void(::VkFence, const ::VkAllocationCallbacks*)> Renderer::Impl::VkFunctionTable::_destroy_fence_bounddevice;
-
-void
-Renderer::Impl::VkFunctionTable::get_instance_functions(
-    ::VkInstance inInstance)
-{
-    _device_waitidle = GETIFN(inInstance, vkDeviceWaitIdle);
-    _destroy_device = GETIFN(inInstance, vkDestroyDevice);
-}
 
 void
 Renderer::Impl::VkFunctionTable::get_device_functions(
@@ -99,15 +97,6 @@ Renderer::Impl::VkFunctionTable::get_device_functions(
     _destroy_semaphore_bounddevice = std::bind(_destroy_semaphore, inDevice, std::placeholders::_1, std::placeholders::_2);
     _destroy_fence = GETDFN(inDevice, vkDestroyFence);
     _destroy_fence_bounddevice = std::bind(_destroy_fence, inDevice, std::placeholders::_1, std::placeholders::_2);
-}
-
-void
-Renderer::Impl::VkFunctionTable::destroy_device_wrapper(
-    ::VkDevice inDevice)
-{
-    Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
-    _device_waitidle(inDevice);
-    _destroy_device(inDevice, nullptr);
 }
 
 void
@@ -332,7 +321,6 @@ Renderer::Impl::create_instance()
     ::VkInstance instance;
     auto createInstanceFn = GETFN(vkCreateInstance);
     VK_ERR_CHECK(createInstanceFn(&createInfo, nullptr, &instance));
-    this->_function_table.get_instance_functions(instance);
 
     auto instance_deleter = [](::VkInstance inInstance)
     {
@@ -754,7 +742,15 @@ Renderer::Impl::create_logical_device()
     deviceCreateInfo.ppEnabledLayerNames = deviceLayersRequired.data();
     ::VkDevice device;
     VK_ERR_CHECK(createDeviceFn(pDevice, &deviceCreateInfo, nullptr, &device));
-    this->_logical_device = { device, this->_function_table.destroy_device_wrapper };
+
+    auto destroy_device = [device](::VkDevice inDevice)
+    {
+        auto destroy = GETDFN(device, vkDestroyDevice);
+        Log().get() << "Destroying VkDevice 0x" << std::hex << inDevice << std::endl;
+        destroy(inDevice, nullptr);
+    };
+
+    this->_logical_device = { device, destroy_device };
 
     auto logical_device = this->_logical_device.get();
     this->_function_table.get_device_functions(logical_device);

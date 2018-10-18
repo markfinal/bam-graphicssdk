@@ -64,9 +64,9 @@ struct Renderer::Impl
     std::unique_ptr<::VkDebugReportCallbackEXT_T, std::function<void(::VkDebugReportCallbackEXT)>> _debug_callback;
     AppWindow                                                                                     *_window = nullptr;
     std::unique_ptr< ::VkSurfaceKHR_T, std::function<void(::VkSurfaceKHR)>>                        _surface;
-    std::vector< ::VkPhysicalDevice>                                                     _physical_devices;
-    size_t                                                                               _physical_device_index = static_cast<size_t>(-1);
-    std::unique_ptr< ::VkDevice_T, void(*)(::VkDevice)>                                  _logical_device;
+    std::vector< ::VkPhysicalDevice>                                                               _physical_devices;
+    size_t                                                                                         _physical_device_index = static_cast<size_t>(-1);
+    std::unique_ptr< ::VkDevice_T, std::function<void(::VkDevice)>>                                _logical_device;
     ::VkQueue                                                                            _graphics_queue;
     ::VkQueue                                                                            _present_queue;
     ::VkFormat                                                                           _swapchain_imageFormat;
@@ -86,8 +86,6 @@ struct Renderer::Impl
     class VkFunctionTable
     {
     private:
-        static PFN_vkDeviceWaitIdle    _device_waitidle;
-        static PFN_vkDestroyDevice     _destroy_device;
         static PFN_vkDestroySwapchainKHR _destroy_swapchain_khr;
         static std::function<void(::VkSwapchainKHR, const ::VkAllocationCallbacks*)> _destroy_swapchain_khr_bounddevice;
         static PFN_vkDestroyImageView _destroy_imageview;
@@ -105,15 +103,7 @@ struct Renderer::Impl
 
     public:
         static void
-        get_instance_functions(
-            ::VkInstance inInstance);
-
-        static void
         get_device_functions(
-            ::VkDevice inDevice);
-
-        static void
-        destroy_device_wrapper(
             ::VkDevice inDevice);
 
         static void
