@@ -345,6 +345,17 @@ namespace SPIRVTools
                 }
             });
 
+            source["validate_builtins.cpp"].ForEach(item => item.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.DisableWarnings.AddUnique("switch");
+            }));
+            source["validate_image.cpp"].ForEach(item => item.PrivatePatch(settings =>
+            {
+                var compiler = settings as C.ICommonCompilerSettings;
+                compiler.DisableWarnings.AddUnique("switch");
+            }));
+
             this.PublicPatch((settings, appliedTo) =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;
