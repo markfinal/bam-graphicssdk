@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="MoltenVK" version="1.0.21" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
   <Description>MoltenVK, Vulkan layer 0 over Metal for macOS, version 1.0.21</Description>
+  <Sources>
+    <Source type="http" path="https://github.com/KhronosGroup/MoltenVK/archive/v1.0.21.tar.gz" subdir="MoltenVK-1.0.21" />
+  </Sources>
   <Dependents>
     <Package name="C" />
     <Package name="cereal" version="1.2.2" />
