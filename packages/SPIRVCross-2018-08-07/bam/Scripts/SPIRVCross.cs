@@ -27,10 +27,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace SPIRVCross
 {
-    class SPIRVCross : C.StaticLibrary
+    class SPIRVCross :
+        C.StaticLibrary
     {
         protected override void
         Init(
@@ -48,8 +48,7 @@ namespace SPIRVCross
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                 cxx_compiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
 
-                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clang_compiler)
+                if (settings is ClangCommon.ICommonCompilerSettings clang_compiler)
                 {
                     clang_compiler.AllWarnings = true;
                     clang_compiler.ExtraWarnings = true;
@@ -57,10 +56,9 @@ namespace SPIRVCross
                 }
             });
 
-            this.PublicPatch((Settings, appliedTo) =>
+            this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = Settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)"));
                 }

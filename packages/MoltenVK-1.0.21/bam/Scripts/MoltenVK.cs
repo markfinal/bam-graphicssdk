@@ -27,10 +27,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace MoltenVK
 {
-    class MoltenVK : C.Cxx.DynamicLibrary
+    class MoltenVK :
+        C.Cxx.DynamicLibrary
     {
         protected override void
         Init(
@@ -79,8 +79,7 @@ namespace MoltenVK
 
             cxx_source["Utility/MVKBaseObject.cpp"].ForEach(item => item.PrivatePatch(settings =>
             {
-                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clang_compiler)
+                if (settings is ClangCommon.ICommonCompilerSettings)
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
                     compiler.DisableWarnings.AddUnique("missing-braces");
@@ -89,8 +88,7 @@ namespace MoltenVK
 
             cxx_source["MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/SPIRVToMSLConverter.cpp"].ForEach(item => item.PrivatePatch(settings =>
             {
-                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clang_compiler)
+                if (settings is ClangCommon.ICommonCompilerSettings)
                 {
                     var compiler = settings as C.ICommonCompilerSettings;
                     compiler.DisableWarnings.AddUnique("import-preprocessor-directive-pedantic");
@@ -150,12 +148,11 @@ namespace MoltenVK
                 cxx_compiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clang_compiler)
+                if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                 {
-                    clang_compiler.AllWarnings = false;
-                    clang_compiler.ExtraWarnings = false;
-                    clang_compiler.Pedantic = false;
+                    clangCompiler.AllWarnings = false;
+                    clangCompiler.ExtraWarnings = false;
+                    clangCompiler.Pedantic = false;
                 }
             });
 
