@@ -27,7 +27,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace VulkanHeaders
 {
     class VkHeaders : C.HeaderLibrary
@@ -40,10 +39,9 @@ namespace VulkanHeaders
 
             this.CreateHeaderContainer("$(packagedir)/include/vulkan/*.h");
 
-            this.PublicPatch((Settings, appliedTo) =>
+            this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = Settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                 }

@@ -27,7 +27,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace SPIRVHeaders
 {
     class SPIRVHeaders : C.HeaderLibrary
@@ -43,10 +42,9 @@ namespace SPIRVHeaders
             var headers = this.CreateHeaderContainer("$(packagedir)/include/**.hpp");
             headers.AddFiles("$(packagedir)/include/**.h");
 
-            this.PublicPatch((Settings, appliedTo) =>
+            this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = Settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                 }

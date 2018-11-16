@@ -35,10 +35,7 @@ namespace VulkanCube
     {
         void
         Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>.Configure(
-            Clang.MetaData instance)
-        {
-            instance.MacOSXMinimumVersionSupported = "10.13";
-        }
+            Clang.MetaData instance) => instance.MacOSXMinimumVersionSupported = "10.13";
     }
 
     class Cube :
@@ -66,8 +63,7 @@ namespace VulkanCube
                         var compiler = settings as C.ICommonCompilerSettings;
                         compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
-                        var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                        if (null != clang_compiler)
+                        if (settings is ClangCommon.ICommonCompilerSettings clang_compiler)
                         {
                             clang_compiler.AllWarnings = true;
                             clang_compiler.ExtraWarnings = true;
@@ -129,9 +125,9 @@ namespace VulkanCube
                     linkerOSX.Frameworks.AddUnique("QuartzCore");
                 }
 
-                var linker = settings as C.ICommonLinkerSettings;
                 if (settings is VisualCCommon.ICommonLinkerSettings)
                 {
+                    var linker = settings as C.ICommonLinkerSettings;
                     linker.Libraries.Add("user32.lib");
                 }
             });
@@ -152,7 +148,7 @@ namespace VulkanCube
             var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
 
             var app = appAnchor.SourceModule as Cube;
-            if (this.BuildEnvironment.Configuration != EConfiguration.Debug &&
+            if (this.BuildEnvironment.Configuration != Bam.Core.EConfiguration.Debug &&
                 app.Linker is VisualCCommon.LinkerBase)
             {
                 var runtimeLibrary = Bam.Core.Graph.Instance.PackageMetaData<VisualCCommon.IRuntimeLibraryPathMeta>("VisualC");

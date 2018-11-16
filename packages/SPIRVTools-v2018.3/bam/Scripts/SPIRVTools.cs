@@ -27,7 +27,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 using System.Linq;
 namespace SPIRVTools
 {
@@ -44,8 +43,7 @@ namespace SPIRVTools
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.OutputDirectory);
                 }
@@ -336,8 +334,7 @@ namespace SPIRVTools
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                var clang_compiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clang_compiler)
+                if (settings is ClangCommon.ICommonCompilerSettings clang_compiler)
                 {
                     clang_compiler.AllWarnings = true;
                     clang_compiler.ExtraWarnings = true;
@@ -358,8 +355,7 @@ namespace SPIRVTools
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                 }
