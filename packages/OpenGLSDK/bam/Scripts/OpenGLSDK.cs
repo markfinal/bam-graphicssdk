@@ -42,18 +42,13 @@ namespace OpenGLSDK
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+                    if (settings is C.ICommonLinkerSettingsOSX osxLinker)
                     {
-                        var osxLinker = settings as C.ICommonLinkerSettingsOSX;
-                        if (null != osxLinker)
-                        {
-                            osxLinker.Frameworks.AddUnique("OpenGL");
-                        }
+                        osxLinker.Frameworks.AddUnique("OpenGL");
                     }
                     else
                     {
-                        var linker = settings as C.ICommonLinkerSettings;
-                        if (null != linker)
+                        if (settings is C.ICommonLinkerSettings linker)
                         {
                             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
                             {

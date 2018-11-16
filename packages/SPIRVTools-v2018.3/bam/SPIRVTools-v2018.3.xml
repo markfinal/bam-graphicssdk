@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="SPIRVTools" version="v2018.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
   <Description>A new package called SPIRVTools with version v2018.3</Description>
+  <Sources>
+    <Source type="http" path="https://github.com/KhronosGroup/SPIRV-Tools/archive/v2018.3.tar.gz" subdir="SPIRV-Tools-2018.3" />
+  </Sources>
   <Dependents>
     <Package name="SPIRVHeaders" />
   </Dependents>

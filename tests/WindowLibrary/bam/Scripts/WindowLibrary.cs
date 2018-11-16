@@ -52,20 +52,17 @@ namespace WindowLibrary
                 cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                 cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
-                if (null != vcCompiler)
+                if (settings is VisualCCommon.ICommonCompilerSettings vcCompiler)
                 {
                     vcCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
                 }
-                var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
-                if (null != gccCompiler)
+                if (settings is GccCommon.ICommonCompilerSettings gccCompiler)
                 {
                     gccCompiler.AllWarnings = true;
                     gccCompiler.ExtraWarnings = true;
                     gccCompiler.Pedantic = true;
                 }
-                var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clangCompiler)
+                if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                 {
                     clangCompiler.AllWarnings = true;
                     clangCompiler.ExtraWarnings = true;
@@ -75,8 +72,7 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/common"));
                 }
@@ -121,8 +117,7 @@ namespace WindowLibrary
                         cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                         cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                        var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                        if (null != clangCompiler)
+                        if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                         {
                             clangCompiler.AllWarnings = true;
                             clangCompiler.ExtraWarnings = true;
@@ -141,20 +136,17 @@ namespace WindowLibrary
                     cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                     cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                    var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
-                    if (null != vcCompiler)
+                    if (settings is VisualCCommon.ICommonCompilerSettings vcCompiler)
                     {
                         vcCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
                     }
-                    var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
-                    if (null != gccCompiler)
+                    if (settings is GccCommon.ICommonCompilerSettings gccCompiler)
                     {
                         gccCompiler.AllWarnings = true;
                         gccCompiler.ExtraWarnings = true;
                         gccCompiler.Pedantic = true;
                     }
-                    var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                    if (null != clangCompiler)
+                    if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                     {
                         clangCompiler.AllWarnings = true;
                         clangCompiler.ExtraWarnings = true;
@@ -166,8 +158,7 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    if (null != compiler)
+                    if (settings is C.ICommonCompilerSettings compiler)
                     {
                         compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/graphicswindow"));
                     }
@@ -211,8 +202,7 @@ namespace WindowLibrary
                     cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                     cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                    var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                    if (null != clangCompiler)
+                    if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                     {
                         clangCompiler.AllWarnings = true;
                         clangCompiler.ExtraWarnings = true;
@@ -231,20 +221,17 @@ namespace WindowLibrary
                 cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                 cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                var vcCompiler = settings as VisualCCommon.ICommonCompilerSettings;
-                if (null != vcCompiler)
+                if (settings is VisualCCommon.ICommonCompilerSettings vcCompiler)
                 {
                     vcCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
                 }
-                var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
-                if (null != gccCompiler)
+                if (settings is GccCommon.ICommonCompilerSettings gccCompiler)
                 {
                     gccCompiler.AllWarnings = true;
                     gccCompiler.ExtraWarnings = true;
                     gccCompiler.Pedantic = true;
                 }
-                var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                if (null != clangCompiler)
+                if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                 {
                     clangCompiler.AllWarnings = true;
                     clangCompiler.ExtraWarnings = true;
@@ -257,8 +244,7 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                if (null != compiler)
+                if (settings is C.ICommonCompilerSettings compiler)
                 {
                     compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/openglcontext"));
                 }

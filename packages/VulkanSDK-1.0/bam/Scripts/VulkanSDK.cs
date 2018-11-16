@@ -58,7 +58,7 @@ namespace VulkanSDK
                     {
                         var dir_split = path.Split(new[] { System.IO.Path.DirectorySeparatorChar }, System.StringSplitOptions.RemoveEmptyEntries);
                         var version = dir_split[dir_split.Length - 1];
-                        if (version.StartsWith("1.0"))
+                        if (version.StartsWith("1.0", System.StringComparison.Ordinal))
                         {
                             applicable_paths.Add(version, path);
                         }
@@ -71,9 +71,9 @@ namespace VulkanSDK
             {
                 // TODO: is this compatible with the Linux installer?
                 latest_version_path = System.Environment.ExpandEnvironmentVariables("VK_SDK_PATH");
-                System.Diagnostics.Debug.Assert(latest_version_path.StartsWith("1.0"));
+                System.Diagnostics.Debug.Assert(latest_version_path.StartsWith("1.0", System.StringComparison.Ordinal));
             }
-            Bam.Core.Log.Info("Using VulkanSDK installed at {0}", latest_version_path);
+            Bam.Core.Log.Info($"Using VulkanSDK installed at {latest_version_path}");
             this.Macros["packagedir"].Set(latest_version_path, null);
 
             if (Bam.Core.OSUtilities.Is64Bit(this.BuildEnvironment.Platform))
@@ -105,8 +105,7 @@ namespace VulkanSDK
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    if (null != compiler)
+                    if (settings is C.ICommonCompilerSettings compiler)
                     {
                         compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
 

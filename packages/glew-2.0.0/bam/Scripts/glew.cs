@@ -27,7 +27,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
-using Bam.Core;
 namespace glew
 {
     [Bam.Core.ModuleGroup("Thirdparty/GLEW")]
@@ -49,32 +48,28 @@ namespace glew
                     var cCompiler = settings as C.ICOnlyCompilerSettings;
                     cCompiler.LanguageStandard = C.ELanguageStandard.C89;
 
-                    var visualCCompiler = settings as VisualCCommon.ICommonCompilerSettings;
-                    if (null != visualCCompiler)
+                    if (settings is VisualCCommon.ICommonCompilerSettings visualCCompiler)
                     {
                         visualCCompiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
                         var compiler = settings as C.ICommonCompilerSettings;
                         compiler.DisableWarnings.AddUnique("4456"); // glew-2.0.0\src\glew.c(13538): warning C4456: declaration of 'n' hides previous local declaration
                     }
 
-                    var mingwCompiler = settings as MingwCommon.ICommonCompilerSettings;
-                    if (null != mingwCompiler)
+                    if (settings is MingwCommon.ICommonCompilerSettings mingwCompiler)
                     {
                         mingwCompiler.AllWarnings = true;
                         mingwCompiler.ExtraWarnings = true;
                         mingwCompiler.Pedantic = true;
                     }
 
-                    var gccCompiler = settings as GccCommon.ICommonCompilerSettings;
-                    if (null != gccCompiler)
+                    if (settings is GccCommon.ICommonCompilerSettings gccCompiler)
                     {
                         gccCompiler.AllWarnings = true;
                         gccCompiler.ExtraWarnings = true;
                         gccCompiler.Pedantic = true;
                     }
 
-                    var clangCompiler = settings as ClangCommon.ICommonCompilerSettings;
-                    if (null != clangCompiler)
+                    if (settings is ClangCommon.ICommonCompilerSettings clangCompiler)
                     {
                         clangCompiler.AllWarnings = true;
                         clangCompiler.ExtraWarnings = true;
@@ -84,8 +79,7 @@ namespace glew
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    if (null != compiler)
+                    if (settings is C.ICommonCompilerSettings compiler)
                     {
                         compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                         compiler.PreprocessorDefines.Add("GLEW_STATIC");
