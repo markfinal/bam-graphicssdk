@@ -131,6 +131,28 @@ namespace VulkanCube
                     linker.Libraries.Add("user32.lib");
                 }
             });
+
+            var vertexShaderGLSL = Bam.Core.Module.Create<VulkanSDK.GLSLSource>(preInitCallback: module =>
+                {
+                    module.InputPath = this.CreateTokenizedString("$(packagedir)/shaders/shader.vert");
+                });
+            var vertexShaderSPIRV = Bam.Core.Module.Create<VulkanSDK.SPIRVModule>(preInitCallback: module =>
+                {
+                    module.Source = vertexShaderGLSL;
+                    module.DependsOn(vertexShaderGLSL);
+                });
+            this.Requires(vertexShaderSPIRV);
+
+            var fragmentShaderGLSL = Bam.Core.Module.Create<VulkanSDK.GLSLSource>(preInitCallback: module =>
+            {
+                module.InputPath = this.CreateTokenizedString("$(packagedir)/shaders/shader.frag");
+            });
+            var fragmentShaderSPIRV = Bam.Core.Module.Create<VulkanSDK.SPIRVModule>(preInitCallback: module =>
+            {
+                module.Source = fragmentShaderGLSL;
+                module.DependsOn(fragmentShaderGLSL);
+            });
+            this.Requires(fragmentShaderSPIRV);
         }
     }
 
