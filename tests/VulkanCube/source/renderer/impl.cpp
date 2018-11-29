@@ -63,6 +63,27 @@ readFile(
     return buffer;
 }
 
+::VkShaderModule
+createShaderModule(
+    const std::vector<char> &inCode,
+    ::VkDevice inDevice)
+{
+    ::VkShaderModuleCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = inCode.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(inCode.data());
+
+    ::VkShaderModule shaderModule;
+    VK_ERR_CHECK(::vkCreateShaderModule(
+        inDevice,
+        &createInfo,
+        nullptr,
+        &shaderModule
+    ));
+    return shaderModule;
+}
+
 } // anonymous namespace
 
 Renderer::Impl::Impl(
@@ -871,6 +892,17 @@ Renderer::Impl::create_graphics_pipeline()
 {
     const auto vert_shader_code = readFile("shader_vert.spv");
     const auto frag_shader_code = readFile("shader_frag.spv");
+
+    auto logical_device = this->_logical_device.get();
+    auto destroy_shader_module = [logical_device](::VkShaderModule inShaderModule)
+    {
+        auto destroy = GETDFN(logical_device, vkDestroyShaderModule);
+        Log().get() << "Destroying VkShaderModule 0x" << std::hex << inShaderModule << std::endl;
+        destroy(logical_device, inShaderModule, nullptr);
+    };
+
+    this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
+    this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
 }
 
 void

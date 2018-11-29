@@ -74,6 +74,8 @@ struct Renderer::Impl
     std::unique_ptr<::VkSwapchainKHR_T, std::function<void(::VkSwapchainKHR)>>                     _swapchain;
     std::vector<::VkImage>                                                                         _swapchain_images;
     std::vector<std::unique_ptr<::VkImageView_T, std::function<void(::VkImageView)>>>              _swapchain_imageViews;
+    std::unique_ptr<::VkShaderModule_T, std::function<void(::VkShaderModule)>>                     _vert_shader_module;
+    std::unique_ptr<::VkShaderModule_T, std::function<void(::VkShaderModule)>>                     _frag_shader_module;
     std::unique_ptr<::VkRenderPass_T, std::function<void(::VkRenderPass)>>                         _renderPass;
     std::vector<std::unique_ptr<::VkFramebuffer_T, std::function<void(::VkFramebuffer)>>>          _framebuffers;
     std::unique_ptr<::VkCommandPool_T, std::function<void(::VkCommandPool)>>                       _commandPool;
