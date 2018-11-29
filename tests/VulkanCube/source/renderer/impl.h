@@ -120,6 +120,9 @@ struct Renderer::Impl
     create_imageviews();
 
     void
+    create_graphics_pipeline();
+
+    void
     create_renderpass();
 
     void

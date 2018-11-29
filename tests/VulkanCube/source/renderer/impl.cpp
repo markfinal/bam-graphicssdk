@@ -843,6 +843,11 @@ Renderer::Impl::create_imageviews()
 }
 
 void
+Renderer::Impl::create_graphics_pipeline()
+{
+}
+
+void
 Renderer::Impl::create_renderpass()
 {
     Log().get() << "==================================================" << std::endl;

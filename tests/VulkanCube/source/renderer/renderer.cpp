@@ -52,6 +52,7 @@ Renderer::init()
     impl->create_logical_device();
     impl->create_swapchain();
     impl->create_imageviews();
+    impl->create_graphics_pipeline();
     impl->create_renderpass();
     impl->create_framebuffers();
     impl->create_commandpool();
