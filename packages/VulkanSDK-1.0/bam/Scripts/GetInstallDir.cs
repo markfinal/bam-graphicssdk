@@ -63,7 +63,7 @@ namespace VulkanSDK
                     latest_version_path = applicable_paths.First().Value;
                 }
             }
-            else
+            else if (platform.Includes(Bam.Core.EPlatform.Linux))
             {
                 // TODO: is this compatible with the Linux installer?
                 latest_version_path = System.Environment.ExpandEnvironmentVariables("VK_SDK_PATH");
