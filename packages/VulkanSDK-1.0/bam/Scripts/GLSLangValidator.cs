@@ -203,7 +203,7 @@ namespace VulkanSDK
                             this,
                             out XcodeBuilder.Target target,
                             out XcodeBuilder.Configuration configuration,
-                            XcodeBuilder.FileReference.EFileType.HeaderFile,
+                            XcodeBuilder.FileReference.EFileType.GLSLShaderSource,
                             true,
                             false,
                             outputPaths: new Bam.Core.TokenizedStringArray(this.Source.InputPath)
