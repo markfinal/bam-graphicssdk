@@ -167,9 +167,16 @@ namespace VulkanCube
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
 
-            var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
+            this.Mapping.Register(
+                typeof(VulkanSDK.SPIRVModule),
+                VulkanSDK.SPIRVModule.SPIRVKey,
+                this.CreateTokenizedString(
+                    "$(0)",
+                    new[] { this.ExecutableDir }
+                ),
+                true);
 
-            //this.IncludeFiles(this.CreateTokenizedString("$(packagebuilddir)/*.spv"), this.ExecutableDir, appAnchor);
+            var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
 
             var app = appAnchor.SourceModule as Cube;
             if (this.BuildEnvironment.Configuration != Bam.Core.EConfiguration.Debug &&
