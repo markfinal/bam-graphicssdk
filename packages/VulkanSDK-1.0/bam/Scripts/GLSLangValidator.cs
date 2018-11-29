@@ -171,7 +171,50 @@ namespace VulkanSDK
         ExecuteInternal(
             Bam.Core.ExecutionContext context)
         {
-            NativeBuilder.Support.RunCommandLineTool(this, context);
+            switch (Bam.Core.Graph.Instance.Mode)
+            {
+#if D_PACKAGE_MAKEFILEBUILDER
+                case "MakeFile":
+                    MakeFileBuilder.Support.Add(this);
+                    break;
+#endif
+
+#if D_PACKAGE_NATIVEBUILDER
+                case "Native":
+                    NativeBuilder.Support.RunCommandLineTool(this, context);
+                    break;
+#endif
+
+#if D_PACKAGE_VSSOLUTIONBUILDER
+                case "VSSolution":
+                    VSSolutionBuilder.Support.AddCustomBuildStepForCommandLineTool(
+                        this,
+                        this.Source.InputPath,
+                        "Compiling",
+                        true
+                    );
+                    break;
+#endif
+
+#if D_PACKAGE_XCODEBUILDER
+                case "Xcode":
+                    {
+                        XcodeBuilder.Support.AddPreBuildStepForCommandLineTool(
+                            this,
+                            out XcodeBuilder.Target target,
+                            out XcodeBuilder.Configuration configuration,
+                            XcodeBuilder.FileReference.EFileType.HeaderFile,
+                            true,
+                            false,
+                            outputPaths: new Bam.Core.TokenizedStringArray(this.Source.InputPath)
+                        );
+                    }
+                    break;
+#endif
+
+                default:
+                    throw new System.NotImplementedException();
+            }
         }
 
         public override System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, Bam.Core.Module>> InputModules

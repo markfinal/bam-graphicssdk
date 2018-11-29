@@ -169,7 +169,7 @@ namespace VulkanCube
 
             var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
 
-            this.IncludeFiles(this.CreateTokenizedString("$(packagebuilddir)/*.spv"), this.ExecutableDir, appAnchor);
+            //this.IncludeFiles(this.CreateTokenizedString("$(packagebuilddir)/*.spv"), this.ExecutableDir, appAnchor);
 
             var app = appAnchor.SourceModule as Cube;
             if (this.BuildEnvironment.Configuration != Bam.Core.EConfiguration.Debug &&
