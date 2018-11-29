@@ -903,6 +903,93 @@ Renderer::Impl::create_graphics_pipeline()
 
     this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
     this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
+
+    ::VkPipelineShaderStageCreateInfo vert_shader_stage_info;
+    memset(&vert_shader_stage_info, 0, sizeof(vert_shader_stage_info));
+    vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vert_shader_stage_info.module = this->_vert_shader_module.get();
+    vert_shader_stage_info.pName = "main";
+
+    ::VkPipelineShaderStageCreateInfo frag_shader_stage_info;
+    memset(&frag_shader_stage_info, 0, sizeof(frag_shader_stage_info));
+    frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    frag_shader_stage_info.module = this->_frag_shader_module.get();
+    frag_shader_stage_info.pName = "main";
+
+    ::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+
+    ::VkPipelineVertexInputStateCreateInfo vertex_input_info;
+    memset(&vertex_input_info, 0, sizeof(vertex_input_info));
+    vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertex_input_info.vertexBindingDescriptionCount = 0;
+    vertex_input_info.pVertexBindingDescriptions = nullptr;
+    vertex_input_info.vertexAttributeDescriptionCount = 0;
+    vertex_input_info.pVertexAttributeDescriptions = nullptr;
+
+    ::VkPipelineInputAssemblyStateCreateInfo input_assembly;
+    memset(&input_assembly, 0, sizeof(input_assembly));
+    input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    input_assembly.primitiveRestartEnable = VK_FALSE;
+
+    ::VkViewport viewport;
+    memset(&viewport, 0, sizeof(viewport));
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = static_cast<float>(this->_swapchain_extent.width);
+    viewport.height = static_cast<float>(this->_swapchain_extent.height);
+    viewport.minDepth = 0;
+    viewport.maxDepth = 1;
+
+    ::VkRect2D scissor;
+    memset(&scissor, 0, sizeof(scissor));
+    scissor.offset = { 0, 0 };
+    scissor.extent = this->_swapchain_extent;
+
+    ::VkPipelineViewportStateCreateInfo viewport_state;
+    memset(&viewport_state, 0, sizeof(viewport_state));
+    viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewport_state.viewportCount = 1;
+    viewport_state.pViewports = &viewport;
+    viewport_state.scissorCount = 1;
+    viewport_state.pScissors = &scissor;
+
+    ::VkPipelineRasterizationStateCreateInfo rasterizer;
+    memset(&rasterizer, 0, sizeof(rasterizer));
+    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.lineWidth = 1;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.depthBiasEnable = VK_FALSE;
+    rasterizer.depthBiasConstantFactor = 0;
+    rasterizer.depthBiasClamp = 0;
+    rasterizer.depthBiasSlopeFactor = 0;
+
+    ::VkPipelineMultisampleStateCreateInfo multisampling;
+    memset(&multisampling, 0, sizeof(multisampling));
+    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.minSampleShading = 1;
+    multisampling.pSampleMask = nullptr;
+    multisampling.alphaToCoverageEnable = VK_FALSE;
+    multisampling.alphaToOneEnable = VK_FALSE;
+
+    ::VkPipelineColorBlendAttachmentState  color_blend_attachment;
+    memset(&color_blend_attachment, 0, sizeof(color_blend_attachment));
+    color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    color_blend_attachment.blendEnable = VK_FALSE;
+    color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+    color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
 }
 
 void
