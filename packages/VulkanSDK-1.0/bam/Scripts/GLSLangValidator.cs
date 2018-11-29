@@ -27,6 +27,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
+using Bam.Core;
 namespace VulkanSDK
 {
     static class DefaultGLSLangValidatorSettings
@@ -76,22 +77,34 @@ namespace VulkanSDK
         {
             base.Init(parent);
 
-            var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
-            this.Macros["packagedir"].Set(latest_version_path, null);
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                var glslangValidator = Bam.Core.Graph.Instance.FindReferencedModule<glslang.GLSLangValidator>();
+                this.DependsOn(glslangValidator);
 
-            this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
+                this.Macros.Add("Executable", glslangValidator.GeneratedPaths[C.Cxx.ConsoleApplication.ExecutableKey]);
+            }
+            else
+            {
+                var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
+                this.Macros["packagedir"].Set(latest_version_path, null);
+
+                this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
+            }
         }
 
         protected override void
         EvaluateInternal()
         {
-            this.ReasonToExecute = null; // always execute
+            // is up-to-date
+            this.ReasonToExecute = null;
         }
 
         protected override void
         ExecuteInternal(
             Bam.Core.ExecutionContext context)
         {
+            // do nothing - either prebuilt, or will be built as a dependency
         }
 
         System.Collections.Generic.Dictionary<string, Bam.Core.TokenizedStringArray> Bam.Core.ICommandLineTool.EnvironmentVariables => null;
@@ -132,7 +145,26 @@ namespace VulkanSDK
         protected override void
         EvaluateInternal()
         {
-            throw new System.NotImplementedException();
+            this.ReasonToExecute = null;
+
+            var outputPath = this.GeneratedPaths[SPIRVKey].ToString();
+            if (!System.IO.File.Exists(outputPath))
+            {
+                this.ReasonToExecute = Bam.Core.ExecuteReasoning.FileDoesNotExist(this.GeneratedPaths[SPIRVKey]);
+                return;
+            }
+            var outputPathWriteTime = System.IO.File.GetLastWriteTime(outputPath);
+
+            // is the source file newer than the object file?
+            var sourcePath = this.Source.InputPath.ToString();
+            var sourceWriteTime = System.IO.File.GetLastWriteTime(sourcePath);
+            if (sourceWriteTime > outputPathWriteTime)
+            {
+                this.ReasonToExecute = Bam.Core.ExecuteReasoning.InputFileNewer(
+                    this.GeneratedPaths[SPIRVKey],
+                    this.Source.InputPath
+                );
+            }
         }
 
         protected override void
@@ -174,7 +206,8 @@ namespace VulkanSDK
         protected override void
         EvaluateInternal()
         {
-            throw new System.NotImplementedException();
+            // up-to-date
+            this.ReasonToExecute = null;
         }
 
         protected override void

@@ -3,6 +3,7 @@
   <Description>VulkanSDK v1.0.x</Description>
   <Dependents>
     <Package name="C" />
+    <Package name="glslang" version="7.10.2984" />
   </Dependents>
   <BamAssemblies>
     <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />
