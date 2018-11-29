@@ -40,6 +40,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <array>
 #include <functional>
+#include <vector>
+#include <fstream>
+
+namespace
+{
+
+std::vector<char>
+readFile(
+    const std::string &inFilename)
+{
+    std::ifstream file(inFilename, std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open file!");
+    }
+    const auto file_size = file.tellg();
+    std::vector<char> buffer(file_size);
+    file.seekg(0);
+    file.read(buffer.data(), file_size);
+    file.close();
+    return buffer;
+}
+
+} // anonymous namespace
 
 Renderer::Impl::Impl(
     AppWindow *inWindow)
@@ -845,6 +869,8 @@ Renderer::Impl::create_imageviews()
 void
 Renderer::Impl::create_graphics_pipeline()
 {
+    const auto vert_shader_code = readFile("shader_vert.spv");
+    const auto frag_shader_code = readFile("shader_frag.spv");
 }
 
 void
