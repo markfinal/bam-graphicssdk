@@ -1301,7 +1301,19 @@ Renderer::Impl::create_commandbuffers()
             VK_SUBPASS_CONTENTS_INLINE
         );
 
-        // intentionally empty for now
+        vkCmdBindPipeline(
+            this->_commandBuffers[i],
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            this->_pipeline.get()
+        );
+
+        vkCmdDraw(
+            this->_commandBuffers[i],
+            3,
+            1,
+            0,
+            0
+        );
 
         cmdEndRenderPassFn(
             this->_commandBuffers[i]
