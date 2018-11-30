@@ -910,20 +910,6 @@ Renderer::Impl::create_graphics_pipeline()
 {
     auto logical_device = this->_logical_device.get();
 
-    ::VkPipelineShaderStageCreateInfo vert_shader_stage_info;
-    memset(&vert_shader_stage_info, 0, sizeof(vert_shader_stage_info));
-    vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vert_shader_stage_info.module = this->_vert_shader_module.get();
-    vert_shader_stage_info.pName = "main";
-
-    ::VkPipelineShaderStageCreateInfo frag_shader_stage_info;
-    memset(&frag_shader_stage_info, 0, sizeof(frag_shader_stage_info));
-    frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    frag_shader_stage_info.module = this->_frag_shader_module.get();
-    frag_shader_stage_info.pName = "main";
-
     ::VkPipelineVertexInputStateCreateInfo vertex_input_info;
     memset(&vertex_input_info, 0, sizeof(vertex_input_info));
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1053,6 +1039,20 @@ Renderer::Impl::create_graphics_pipeline()
     this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
     const auto frag_shader_code = readFile("shader_frag.spv");
     this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
+
+    ::VkPipelineShaderStageCreateInfo vert_shader_stage_info;
+    memset(&vert_shader_stage_info, 0, sizeof(vert_shader_stage_info));
+    vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vert_shader_stage_info.module = this->_vert_shader_module.get();
+    vert_shader_stage_info.pName = "main";
+
+    ::VkPipelineShaderStageCreateInfo frag_shader_stage_info;
+    memset(&frag_shader_stage_info, 0, sizeof(frag_shader_stage_info));
+    frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    frag_shader_stage_info.module = this->_frag_shader_module.get();
+    frag_shader_stage_info.pName = "main";
 
     ::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
 
