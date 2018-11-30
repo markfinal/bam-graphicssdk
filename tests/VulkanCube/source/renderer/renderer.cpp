@@ -63,21 +63,18 @@ Renderer::init()
 void
 Renderer::draw_frame() const
 {
-    Log().get() << "==================================================" << std::endl;
-    Log().get() << "## " << __FUNCTION__ << std::endl;
-    Log().get() << "==================================================" << std::endl;
     auto impl = this->_impl.get();
     auto waitForFencesFn = GETIFN(impl->_instance.get(), vkWaitForFences);
     auto resetFencesFn = GETIFN(impl->_instance.get(), vkResetFences);
     auto fence = impl->_inflight_fence[impl->_current_frame].get();
-    VK_ERR_CHECK(waitForFencesFn(
+    VK_ERR_CHECK_QUIET(waitForFencesFn(
         impl->_logical_device.get(),
         1,
         &fence,
         VK_TRUE,
         std::numeric_limits<uint64_t>::max()
     ));
-    VK_ERR_CHECK(resetFencesFn(
+    VK_ERR_CHECK_QUIET(resetFencesFn(
         impl->_logical_device.get(),
         1,
         &fence
@@ -85,7 +82,7 @@ Renderer::draw_frame() const
 
     auto acquireNextImageFn = GETIFN(impl->_instance.get(), vkAcquireNextImageKHR);
     uint32_t imageIndex;
-    VK_ERR_CHECK(acquireNextImageFn(
+    VK_ERR_CHECK_QUIET(acquireNextImageFn(
         impl->_logical_device.get(),
         impl->_swapchain.get(),
         std::numeric_limits<uint64_t>::max(),
@@ -110,7 +107,7 @@ Renderer::draw_frame() const
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     auto queueSubmitFn = GETIFN(impl->_instance.get(), vkQueueSubmit);
-    VK_ERR_CHECK(queueSubmitFn(
+    VK_ERR_CHECK_QUIET(queueSubmitFn(
         impl->_graphics_queue,
         1,
         &submitInfo,
@@ -129,7 +126,7 @@ Renderer::draw_frame() const
     presentInfo.pResults = nullptr;
 
     auto queuePresentFn = GETIFN(impl->_instance.get(), vkQueuePresentKHR);
-    VK_ERR_CHECK(queuePresentFn(
+    VK_ERR_CHECK_QUIET(queuePresentFn(
         impl->_present_queue,
         &presentInfo
     ));
@@ -139,7 +136,7 @@ Renderer::draw_frame() const
 #if 0
     // naive way of not queueing too much work for the GPU
     auto waitIdleFn = GETIFN(impl->_instance.get(), vkDeviceWaitIdle);
-    VK_ERR_CHECK(waitIdleFn(
+    VK_ERR_CHECK_QUIET(waitIdleFn(
         impl->_logical_device.get()
     ));
 #endif

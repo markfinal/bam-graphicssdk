@@ -45,16 +45,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GETDFN(_logical_device,_name) reinterpret_cast<GETPFN(_name)>(vkGetDeviceProcAddr(_logical_device, #_name))
 
 #ifdef NDEBUG
-#define VK_ERR_CHECK(_fn_call) _fn_call
-#else
-#define VK_ERR_CHECK(_fn_call) \
+# define VK_ERR_CHECK(_fn_call) _fn_call
+# define VK_ERR_CHECK_QUIET(_fn_call) _fn_call
+#else // NDEBUG
+# define VK_ERR_CHECK(_fn_call) \
 do{\
 auto result = _fn_call;\
 if (VK_SUCCESS != result) { Log().get() << "FAILED (" << result << "): " <<  #_fn_call << std::endl; } \
 else { Log().get() << "SUCCESS: " << #_fn_call << std::endl; } \
 assert(VK_SUCCESS == result);\
 } while(0)
-#endif
+# define VK_ERR_CHECK_QUIET(_fn_call) \
+do{\
+auto result = _fn_call;\
+assert(VK_SUCCESS == result);\
+} while(0)
+#endif // NDEBUG
 
 struct Renderer::Impl
 {
