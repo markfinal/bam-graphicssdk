@@ -1069,6 +1069,11 @@ Renderer::Impl::create_graphics_pipeline()
     pipelineInfo.pDepthStencilState = nullptr;
     pipelineInfo.pColorBlendState = &color_blending;
     pipelineInfo.pDynamicState = nullptr;
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = this->_renderPass.get();
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.basePipelineIndex = -1;
 
     auto destroy_pipeline = [logical_device](::VkPipeline inPipeline)
     {
