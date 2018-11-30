@@ -890,10 +890,8 @@ Renderer::Impl::create_imageviews()
 void
 Renderer::Impl::create_graphics_pipeline()
 {
-    const auto vert_shader_code = readFile("shader_vert.spv");
-    const auto frag_shader_code = readFile("shader_frag.spv");
-
     auto logical_device = this->_logical_device.get();
+
     auto destroy_shader_module = [logical_device](::VkShaderModule inShaderModule)
     {
         auto destroy = GETDFN(logical_device, vkDestroyShaderModule);
@@ -901,7 +899,9 @@ Renderer::Impl::create_graphics_pipeline()
         destroy(logical_device, inShaderModule, nullptr);
     };
 
+    const auto vert_shader_code = readFile("shader_vert.spv");
     this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
+    const auto frag_shader_code = readFile("shader_frag.spv");
     this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
 
     ::VkPipelineShaderStageCreateInfo vert_shader_stage_info;
@@ -918,7 +918,7 @@ Renderer::Impl::create_graphics_pipeline()
     frag_shader_stage_info.module = this->_frag_shader_module.get();
     frag_shader_stage_info.pName = "main";
 
-    ::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+    //::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
 
     ::VkPipelineVertexInputStateCreateInfo vertex_input_info;
     memset(&vertex_input_info, 0, sizeof(vertex_input_info));
@@ -990,6 +990,41 @@ Renderer::Impl::create_graphics_pipeline()
     color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    ::VkDynamicState dynamicStates[] = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_LINE_WIDTH
+    };
+
+    ::VkPipelineDynamicStateCreateInfo dynamicState;
+    memset(&dynamicState, 0, sizeof(dynamicState));
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = 2;
+    dynamicState.pDynamicStates = dynamicStates;
+
+    ::VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    memset(&pipelineLayoutInfo, 0, sizeof(pipelineLayoutInfo));
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    auto destroy_pipeline_layout = [logical_device](::VkPipelineLayout inPipelineLayout)
+    {
+        auto destroy = GETDFN(logical_device, vkDestroyPipelineLayout);
+        Log().get() << "Destroying VkPipelineLayout 0x" << std::hex << inPipelineLayout << std::endl;
+        destroy(logical_device, inPipelineLayout, nullptr);
+    };
+
+    ::VkPipelineLayout pipelineLayout;
+    VK_ERR_CHECK(::vkCreatePipelineLayout(
+        logical_device,
+        &pipelineLayoutInfo,
+        nullptr,
+        &pipelineLayout
+    ));
+    this->_pipeline_layout = {pipelineLayout, destroy_pipeline_layout};
 }
 
 void
