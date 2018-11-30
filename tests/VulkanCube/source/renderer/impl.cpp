@@ -43,6 +43,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <fstream>
 
+#if defined(D_BAM_PLATFORM_OSX)
+#include <mach-o/dyld.h> // for _NSGetExecutablePath
+#endif
+
 namespace
 {
 
@@ -50,7 +54,21 @@ std::vector<char>
 readFile(
     const std::string &inFilename)
 {
-    std::ifstream file(inFilename, std::ios::ate | std::ios::binary);
+#if defined(D_BAM_PLATFORM_OSX)
+    char executable_path[1024];
+    auto size = 1024u;
+    if (0 != _NSGetExecutablePath(executable_path, &size))
+    {
+        throw std::runtime_error("Buffer too small");
+    }
+    std::string executable_dir(executable_path);
+    executable_dir = executable_dir.substr(0, executable_dir.find_last_of("/") + 1);
+    const std::string path = executable_dir + inFilename;
+#else
+    const auto path = inFilename;
+#endif
+
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
     if (!file.is_open())
     {
         throw std::runtime_error("Failed to open file!");
