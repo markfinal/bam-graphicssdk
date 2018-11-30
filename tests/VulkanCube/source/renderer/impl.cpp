@@ -892,18 +892,6 @@ Renderer::Impl::create_graphics_pipeline()
 {
     auto logical_device = this->_logical_device.get();
 
-    auto destroy_shader_module = [logical_device](::VkShaderModule inShaderModule)
-    {
-        auto destroy = GETDFN(logical_device, vkDestroyShaderModule);
-        Log().get() << "Destroying VkShaderModule 0x" << std::hex << inShaderModule << std::endl;
-        destroy(logical_device, inShaderModule, nullptr);
-    };
-
-    const auto vert_shader_code = readFile("shader_vert.spv");
-    this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
-    const auto frag_shader_code = readFile("shader_frag.spv");
-    this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
-
     ::VkPipelineShaderStageCreateInfo vert_shader_stage_info;
     memset(&vert_shader_stage_info, 0, sizeof(vert_shader_stage_info));
     vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -917,8 +905,6 @@ Renderer::Impl::create_graphics_pipeline()
     frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     frag_shader_stage_info.module = this->_frag_shader_module.get();
     frag_shader_stage_info.pName = "main";
-
-    //::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
 
     ::VkPipelineVertexInputStateCreateInfo vertex_input_info;
     memset(&vertex_input_info, 0, sizeof(vertex_input_info));
@@ -980,7 +966,7 @@ Renderer::Impl::create_graphics_pipeline()
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    ::VkPipelineColorBlendAttachmentState  color_blend_attachment;
+    ::VkPipelineColorBlendAttachmentState color_blend_attachment;
     memset(&color_blend_attachment, 0, sizeof(color_blend_attachment));
     color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     color_blend_attachment.blendEnable = VK_FALSE;
@@ -990,6 +976,18 @@ Renderer::Impl::create_graphics_pipeline()
     color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    VkPipelineColorBlendStateCreateInfo color_blending;
+    memset(&color_blending, 0, sizeof(color_blending));
+    color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    color_blending.logicOpEnable = VK_FALSE;
+    color_blending.logicOp = VK_LOGIC_OP_COPY; // Optional
+    color_blending.attachmentCount = 1;
+    color_blending.pAttachments = &color_blend_attachment;
+    color_blending.blendConstants[0] = 0.0f; // Optional
+    color_blending.blendConstants[1] = 0.0f; // Optional
+    color_blending.blendConstants[2] = 0.0f; // Optional
+    color_blending.blendConstants[3] = 0.0f; // Optional
 
     ::VkDynamicState dynamicStates[] = {
         VK_DYNAMIC_STATE_VIEWPORT,
@@ -1025,6 +1023,52 @@ Renderer::Impl::create_graphics_pipeline()
         &pipelineLayout
     ));
     this->_pipeline_layout = {pipelineLayout, destroy_pipeline_layout};
+
+    auto destroy_shader_module = [logical_device](::VkShaderModule inShaderModule)
+    {
+        auto destroy = GETDFN(logical_device, vkDestroyShaderModule);
+        Log().get() << "Destroying VkShaderModule 0x" << std::hex << inShaderModule << std::endl;
+        destroy(logical_device, inShaderModule, nullptr);
+    };
+
+    const auto vert_shader_code = readFile("shader_vert.spv");
+    this->_vert_shader_module = { createShaderModule(vert_shader_code, logical_device), destroy_shader_module };
+    const auto frag_shader_code = readFile("shader_frag.spv");
+    this->_frag_shader_module = { createShaderModule(frag_shader_code, logical_device), destroy_shader_module };
+
+    ::VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+
+    ::VkGraphicsPipelineCreateInfo pipelineInfo;
+    memset(&pipelineInfo, 0, sizeof(pipelineInfo));
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shader_stages;
+    pipelineInfo.pVertexInputState = &vertex_input_info;
+    pipelineInfo.pInputAssemblyState = &input_assembly;
+    pipelineInfo.pViewportState = &viewport_state;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pDepthStencilState = nullptr;
+    pipelineInfo.pColorBlendState = &color_blending;
+    pipelineInfo.pDynamicState = nullptr;
+
+    auto destroy_pipeline = [logical_device](::VkPipeline inPipeline)
+    {
+        auto destroy = GETDFN(logical_device, vkDestroyPipeline);
+        Log().get() << "Destroying VkPipeline 0x" << std::hex << inPipeline << std::endl;
+        destroy(logical_device, inPipeline, nullptr);
+    };
+
+    ::VkPipeline pipeline;
+    VK_ERR_CHECK(::vkCreateGraphicsPipelines(
+        logical_device,
+        VK_NULL_HANDLE,
+        1,
+        &pipelineInfo,
+        nullptr,
+        &pipeline
+    ));
+    this->_pipeline = {pipeline, destroy_pipeline};
 }
 
 void
