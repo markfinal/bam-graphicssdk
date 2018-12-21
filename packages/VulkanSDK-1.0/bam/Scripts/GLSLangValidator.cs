@@ -163,7 +163,7 @@ namespace VulkanSDK
                 case "VSSolution":
                     VSSolutionBuilder.Support.AddCustomBuildStepForCommandLineTool(
                         this,
-                        this.Source.InputPath,
+                        this.GeneratedPaths[SPIRVKey],
                         "Compiling",
                         true
                     );
@@ -180,7 +180,7 @@ namespace VulkanSDK
                             XcodeBuilder.FileReference.EFileType.GLSLShaderSource,
                             true,
                             false,
-                            outputPaths: new Bam.Core.TokenizedStringArray(this.Source.InputPath)
+                            outputPaths: new Bam.Core.TokenizedStringArray(this.GeneratedPaths[SPIRVKey])
                         );
                     }
                     break;
