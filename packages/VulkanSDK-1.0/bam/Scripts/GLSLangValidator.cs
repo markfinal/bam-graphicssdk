@@ -67,63 +67,28 @@ namespace VulkanSDK
         }
     }
 
-    /*
-    class GLSLangValidatorTool :
-        Bam.Core.Module,
-        Bam.Core.ICommandLineTool
+    [C.Prebuilt]
+    class LunarGGLSLangValidatorTool :
+        Bam.Core.PreBuiltTool
     {
         protected override void
         Init(
             Bam.Core.Module parent)
         {
+            var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
+            this.Macros["packagedir"].Set(latest_version_path, null);
+
+            this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
+
             base.Init(parent);
-
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
-            {
-                var glslangValidator = Bam.Core.Graph.Instance.FindReferencedModule<glslang.GLSLangValidator>();
-                this.DependsOn(glslangValidator);
-
-                this.Macros.Add("Executable", glslangValidator.GeneratedPaths[C.Cxx.ConsoleApplication.ExecutableKey]);
-            }
-            else
-            {
-                var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
-                this.Macros["packagedir"].Set(latest_version_path, null);
-
-                this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
-            }
         }
 
-        protected override void
-        EvaluateInternal()
-        {
-            // is up-to-date
-            this.ReasonToExecute = null;
-        }
+        public override Bam.Core.Settings
+        CreateDefaultSettings<T>(
+            T module) => new GLSLangValidatorSettings(module);
 
-        protected override void
-        ExecuteInternal(
-            Bam.Core.ExecutionContext context)
-        {
-            // do nothing - either prebuilt, or will be built as a dependency
-        }
-
-        System.Collections.Generic.Dictionary<string, Bam.Core.TokenizedStringArray> Bam.Core.ICommandLineTool.EnvironmentVariables => null;
-        Bam.Core.StringArray Bam.Core.ICommandLineTool.InheritedEnvironmentVariables => null;
-        Bam.Core.TokenizedString Bam.Core.ICommandLineTool.Executable => this.Macros["Executable"];
-        Bam.Core.TokenizedStringArray Bam.Core.ICommandLineTool.InitialArguments => null;
-        Bam.Core.TokenizedStringArray Bam.Core.ICommandLineTool.TerminatingArguments => null;
-        string Bam.Core.ICommandLineTool.UseResponseFileOption => null;
-        Bam.Core.Array<int> Bam.Core.ICommandLineTool.SuccessfulExitCodes => new Bam.Core.Array<int> { 0 };
-
-        Bam.Core.Settings
-        Bam.Core.ITool.CreateDefaultSettings<T>(
-            T module)
-        {
-            return new GLSLangValidatorSettings(module);
-        }
+        public override Bam.Core.TokenizedString Executable => this.Macros["Executable"];
     }
-    */
 
     class SPIRVModule :
         Bam.Core.Module
@@ -143,7 +108,7 @@ namespace VulkanSDK
             }
             else
             {
-                // TODO: Windows
+                this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<LunarGGLSLangValidatorTool>();
             }
             this.RegisterGeneratedFile(
                 SPIRVKey,
