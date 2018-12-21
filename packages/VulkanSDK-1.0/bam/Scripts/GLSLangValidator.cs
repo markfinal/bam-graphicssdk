@@ -67,6 +67,7 @@ namespace VulkanSDK
         }
     }
 
+    /*
     class GLSLangValidatorTool :
         Bam.Core.Module,
         Bam.Core.ICommandLineTool
@@ -122,6 +123,7 @@ namespace VulkanSDK
             return new GLSLangValidatorSettings(module);
         }
     }
+    */
 
     class SPIRVModule :
         Bam.Core.Module
@@ -135,7 +137,14 @@ namespace VulkanSDK
             Bam.Core.Module parent)
         {
             base.Init(parent);
-            this.Tool = Bam.Core.Module.Create<GLSLangValidatorTool>();
+            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
+            {
+                this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<glslang.GLSLangValidator>();
+            }
+            else
+            {
+                // TODO: Windows
+            }
             this.RegisterGeneratedFile(
                 SPIRVKey,
                 this.CreateTokenizedString("$(packagebuilddir)/@basename($(0))_@extension($(0)).spv", new[] { this.Source.InputPath })

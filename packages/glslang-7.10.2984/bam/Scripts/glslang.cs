@@ -30,8 +30,9 @@
 using Bam.Core;
 namespace glslang
 {
-    sealed class GLSLangValidator :
-        C.Cxx.ConsoleApplication
+    class GLSLangValidator :
+        C.Cxx.ConsoleApplication,
+        Bam.Core.ICommandLineTool
     {
         protected override void
         Init(
@@ -66,6 +67,21 @@ namespace glslang
             this.CompileAndLinkAgainst<GLSLang>(source);
             this.CompileAndLinkAgainst<OGLCompilersDLL>(source);
             this.CompileAndLinkAgainst<SPIRV>(source);
+        }
+
+        System.Collections.Generic.Dictionary<string, Bam.Core.TokenizedStringArray> Bam.Core.ICommandLineTool.EnvironmentVariables => null;
+        Bam.Core.StringArray Bam.Core.ICommandLineTool.InheritedEnvironmentVariables => null;
+        Bam.Core.TokenizedString Bam.Core.ICommandLineTool.Executable => this.GeneratedPaths[C.Cxx.ConsoleApplication.ExecutableKey];
+        Bam.Core.TokenizedStringArray Bam.Core.ICommandLineTool.InitialArguments => null;
+        Bam.Core.TokenizedStringArray Bam.Core.ICommandLineTool.TerminatingArguments => null;
+        string Bam.Core.ICommandLineTool.UseResponseFileOption => null;
+        Bam.Core.Array<int> Bam.Core.ICommandLineTool.SuccessfulExitCodes => new Bam.Core.Array<int> { 0 };
+
+        Bam.Core.Settings
+        Bam.Core.ITool.CreateDefaultSettings<T>(
+            T module)
+        {
+            return new VulkanSDK.GLSLangValidatorSettings(module);
         }
     }
 
