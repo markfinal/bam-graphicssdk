@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="VulkanSDK" version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
-  <Description>VulkanSDK v1.0.x</Description>
+<PackageDefinition xsi:schemaLocation="http://www.buildamation.com ./Schema/BamPackageDefinitionV1.xsd" name="glslang" version="7.10.2984" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildamation.com">
+  <Description>glslang, including glslangvalidator</Description>
+  <Sources>
+    <Source type="http" path="https://github.com/KhronosGroup/glslang/archive/7.10.2984.tar.gz" subdir="glslang-7.10.2984" />
+  </Sources>
   <Dependents>
     <Package name="C" />
-    <Package name="glslang" version="7.10.2984" />
+    <Package name="Clang" version="Xcode9" />
+    <Package name="NativeBuilder" />
   </Dependents>
   <BamAssemblies>
     <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />

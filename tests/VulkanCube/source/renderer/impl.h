@@ -45,16 +45,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GETDFN(_logical_device,_name) reinterpret_cast<GETPFN(_name)>(vkGetDeviceProcAddr(_logical_device, #_name))
 
 #ifdef NDEBUG
-#define VK_ERR_CHECK(_fn_call) _fn_call
-#else
-#define VK_ERR_CHECK(_fn_call) \
+# define VK_ERR_CHECK(_fn_call) _fn_call
+# define VK_ERR_CHECK_QUIET(_fn_call) _fn_call
+#else // NDEBUG
+# define VK_ERR_CHECK(_fn_call) \
 do{\
 auto result = _fn_call;\
 if (VK_SUCCESS != result) { Log().get() << "FAILED (" << result << "): " <<  #_fn_call << std::endl; } \
 else { Log().get() << "SUCCESS: " << #_fn_call << std::endl; } \
 assert(VK_SUCCESS == result);\
 } while(0)
-#endif
+# define VK_ERR_CHECK_QUIET(_fn_call) \
+do{\
+auto result = _fn_call;\
+assert(VK_SUCCESS == result);\
+} while(0)
+#endif // NDEBUG
 
 struct Renderer::Impl
 {
@@ -74,7 +80,11 @@ struct Renderer::Impl
     std::unique_ptr<::VkSwapchainKHR_T, std::function<void(::VkSwapchainKHR)>>                     _swapchain;
     std::vector<::VkImage>                                                                         _swapchain_images;
     std::vector<std::unique_ptr<::VkImageView_T, std::function<void(::VkImageView)>>>              _swapchain_imageViews;
+    std::unique_ptr<::VkShaderModule_T, std::function<void(::VkShaderModule)>>                     _vert_shader_module;
+    std::unique_ptr<::VkShaderModule_T, std::function<void(::VkShaderModule)>>                     _frag_shader_module;
     std::unique_ptr<::VkRenderPass_T, std::function<void(::VkRenderPass)>>                         _renderPass;
+    std::unique_ptr<::VkPipelineLayout_T, std::function<void(::VkPipelineLayout)>>                 _pipeline_layout;
+    std::unique_ptr<::VkPipeline_T, std::function<void(::VkPipeline)>>                             _pipeline;
     std::vector<std::unique_ptr<::VkFramebuffer_T, std::function<void(::VkFramebuffer)>>>          _framebuffers;
     std::unique_ptr<::VkCommandPool_T, std::function<void(::VkCommandPool)>>                       _commandPool;
     std::vector<::VkCommandBuffer>                                                                 _commandBuffers;
@@ -118,6 +128,9 @@ struct Renderer::Impl
 
     void
     create_imageviews();
+
+    void
+    create_graphics_pipeline();
 
     void
     create_renderpass();

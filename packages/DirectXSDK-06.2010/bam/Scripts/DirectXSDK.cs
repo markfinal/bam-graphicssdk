@@ -54,9 +54,9 @@ namespace DirectXSDK
             {
                 this.PublicPatch((settings, appliedTo) =>
                     {
-                        if (settings is C.ICommonCompilerSettings compiler)
+                        if (settings is C.ICommonPreprocessorSettings preprocessor)
                         {
-                            compiler.IncludePaths.Add(this.Macros["IncludePath"]);
+                            preprocessor.IncludePaths.Add(this.Macros["IncludePath"]);
                         }
 
                         if (settings is C.ICommonLinkerSettings linker)

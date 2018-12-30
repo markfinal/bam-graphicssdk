@@ -43,9 +43,9 @@ namespace SPIRVTools
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                if (settings is C.ICommonCompilerSettings compiler)
+                if (settings is C.ICommonPreprocessorSettings preprocessor)
                 {
-                    compiler.IncludePaths.AddUnique(this.OutputDirectory);
+                    preprocessor.IncludePaths.AddUnique(this.OutputDirectory);
                 }
             });
         }
@@ -328,8 +328,8 @@ namespace SPIRVTools
 
             source.PrivatePatch(settings =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                var preprocessor = settings as C.ICommonPreprocessorSettings;
+                preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
                 cxx_compiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
@@ -355,9 +355,9 @@ namespace SPIRVTools
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                if (settings is C.ICommonCompilerSettings compiler)
+                if (settings is C.ICommonPreprocessorSettings preprocessor)
                 {
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                 }
             });
         }

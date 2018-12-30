@@ -28,7 +28,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
 using Bam.Core;
-using System.Linq;
 namespace VulkanSDK
 {
     [C.Prebuilt]
@@ -41,39 +40,7 @@ namespace VulkanSDK
         {
             base.Init(parent);
 
-            var latest_version_path = System.String.Empty;
-            if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
-            {
-                using (var key = Bam.Core.Win32RegistryUtilities.OpenLMSoftwareKey(@"LunarG\VulkanSDK"))
-                {
-                    if (null == key)
-                    {
-                        throw new Bam.Core.Exception("Unable to locate any Vulkan SDK installations");
-                    }
-                    var linearised_paths = key.GetStringValue("VK_SDK_PATHs");
-                    var paths = new Bam.Core.StringArray(linearised_paths.Split(new[] { ';' }, System.StringSplitOptions.RemoveEmptyEntries));
-                    System.Diagnostics.Debug.Assert(paths.Count > 0);
-                    var applicable_paths = new System.Collections.Generic.SortedDictionary<string, string>();
-                    foreach (var path in paths)
-                    {
-                        var dir_split = path.Split(new[] { System.IO.Path.DirectorySeparatorChar }, System.StringSplitOptions.RemoveEmptyEntries);
-                        var version = dir_split[dir_split.Length - 1];
-                        if (version.StartsWith("1.0", System.StringComparison.Ordinal))
-                        {
-                            applicable_paths.Add(version, path);
-                        }
-                    }
-                    System.Diagnostics.Debug.Assert(applicable_paths.Count > 0);
-                    latest_version_path = applicable_paths.First().Value;
-                }
-            }
-            else
-            {
-                // TODO: is this compatible with the Linux installer?
-                latest_version_path = System.Environment.ExpandEnvironmentVariables("VK_SDK_PATH");
-                System.Diagnostics.Debug.Assert(latest_version_path.StartsWith("1.0", System.StringComparison.Ordinal));
-            }
-            Bam.Core.Log.Info($"Using VulkanSDK installed at {latest_version_path}");
+            var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
             this.Macros["packagedir"].Set(latest_version_path, null);
 
             if (Bam.Core.OSUtilities.Is64Bit(this.BuildEnvironment.Platform))
@@ -105,17 +72,17 @@ namespace VulkanSDK
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    if (settings is C.ICommonCompilerSettings compiler)
+                    if (settings is C.ICommonPreprocessorSettings preprocessor)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
 
                         if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
                         {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
+                            preprocessor.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
                         }
                         else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
                         {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
+                            preprocessor.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
                         }
                     }
                 });

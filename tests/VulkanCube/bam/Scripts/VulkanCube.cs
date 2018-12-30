@@ -60,8 +60,8 @@ namespace VulkanCube
                         cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                         cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                        var compiler = settings as C.ICommonCompilerSettings;
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                        var preprocessor = settings as C.ICommonPreprocessorSettings;
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
                         if (settings is ClangCommon.ICommonCompilerSettings clang_compiler)
                         {
@@ -88,8 +88,8 @@ namespace VulkanCube
                     cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                     cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                    var preprocessor = settings as C.ICommonPreprocessorSettings;
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
                     switch (settings)
                     {
@@ -105,7 +105,7 @@ namespace VulkanCube
                             break;
                         case VisualCCommon.ICommonCompilerSettings vc_compiler:
                             vc_compiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
-                            compiler.PreprocessorDefines.Add("NOMINMAX"); // so std::numeric_limits<type>::max() will work
+                            preprocessor.PreprocessorDefines.Add("NOMINMAX"); // so std::numeric_limits<type>::max() will work
                             break;
                     }
                 });
@@ -131,6 +131,28 @@ namespace VulkanCube
                     linker.Libraries.Add("user32.lib");
                 }
             });
+
+            var vertexShaderGLSL = Bam.Core.Module.Create<VulkanSDK.GLSLSource>(preInitCallback: module =>
+                {
+                    module.InputPath = this.CreateTokenizedString("$(packagedir)/shaders/shader.vert");
+                });
+            var vertexShaderSPIRV = Bam.Core.Module.Create<VulkanSDK.SPIRVModule>(preInitCallback: module =>
+                {
+                    module.Source = vertexShaderGLSL;
+                    module.DependsOn(vertexShaderGLSL);
+                });
+            this.Requires(vertexShaderSPIRV);
+
+            var fragmentShaderGLSL = Bam.Core.Module.Create<VulkanSDK.GLSLSource>(preInitCallback: module =>
+            {
+                module.InputPath = this.CreateTokenizedString("$(packagedir)/shaders/shader.frag");
+            });
+            var fragmentShaderSPIRV = Bam.Core.Module.Create<VulkanSDK.SPIRVModule>(preInitCallback: module =>
+            {
+                module.Source = fragmentShaderGLSL;
+                module.DependsOn(fragmentShaderGLSL);
+            });
+            this.Requires(fragmentShaderSPIRV);
         }
     }
 
@@ -144,6 +166,15 @@ namespace VulkanCube
             base.Init(parent);
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
+
+            this.Mapping.Register(
+                typeof(VulkanSDK.SPIRVModule),
+                VulkanSDK.SPIRVModule.SPIRVKey,
+                this.CreateTokenizedString(
+                    "$(0)",
+                    new[] { this.ExecutableDir }
+                ),
+                true);
 
             var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
 

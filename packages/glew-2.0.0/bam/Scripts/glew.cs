@@ -79,11 +79,11 @@ namespace glew
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    if (settings is C.ICommonCompilerSettings compiler)
+                    if (settings is C.ICommonPreprocessorSettings preprocessor)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
-                        compiler.PreprocessorDefines.Add("GLEW_STATIC");
-                        compiler.PreprocessorDefines.Add("GLEW_NO_GLU");
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
+                        preprocessor.PreprocessorDefines.Add("GLEW_STATIC");
+                        preprocessor.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
                 });
         }
