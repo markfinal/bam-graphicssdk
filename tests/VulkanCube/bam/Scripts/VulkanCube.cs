@@ -60,8 +60,8 @@ namespace VulkanCube
                         cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                         cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                        var compiler = settings as C.ICommonCompilerSettings;
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                        var preprocessor = settings as C.ICommonPreprocessorSettings;
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
                         if (settings is ClangCommon.ICommonCompilerSettings clang_compiler)
                         {
@@ -88,8 +88,8 @@ namespace VulkanCube
                     cxxcompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Asynchronous;
                     cxxcompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
 
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                    var preprocessor = settings as C.ICommonPreprocessorSettings;
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
 
                     switch (settings)
                     {
@@ -105,7 +105,7 @@ namespace VulkanCube
                             break;
                         case VisualCCommon.ICommonCompilerSettings vc_compiler:
                             vc_compiler.WarningLevel = VisualCCommon.EWarningLevel.Level4;
-                            compiler.PreprocessorDefines.Add("NOMINMAX"); // so std::numeric_limits<type>::max() will work
+                            preprocessor.PreprocessorDefines.Add("NOMINMAX"); // so std::numeric_limits<type>::max() will work
                             break;
                     }
                 });

@@ -72,17 +72,17 @@ namespace VulkanSDK
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    if (settings is C.ICommonCompilerSettings compiler)
+                    if (settings is C.ICommonPreprocessorSettings preprocessor)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Include"));
 
                         if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
                         {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
+                            preprocessor.PreprocessorDefines.Add("VK_USE_PLATFORM_WIN32_KHR");
                         }
                         else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Linux))
                         {
-                            compiler.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
+                            preprocessor.PreprocessorDefines.Add("VK_USE_PLATFORM_XLIB_KHR");
                         }
                     }
                 });

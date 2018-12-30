@@ -72,9 +72,9 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                if (settings is C.ICommonCompilerSettings compiler)
+                if (settings is C.ICommonPreprocessorSettings preprocessor)
                 {
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/common"));
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/common"));
                 }
             });
         }
@@ -158,9 +158,9 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
                 {
-                    if (settings is C.ICommonCompilerSettings compiler)
+                    if (settings is C.ICommonPreprocessorSettings preprocessor)
                     {
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/graphicswindow"));
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/graphicswindow"));
                     }
                 });
         }
@@ -244,9 +244,9 @@ namespace WindowLibrary
 
             this.PublicPatch((settings, appliedTo) =>
             {
-                if (settings is C.ICommonCompilerSettings compiler)
+                if (settings is C.ICommonPreprocessorSettings preprocessor)
                 {
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/openglcontext"));
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include/openglcontext"));
                 }
             });
         }

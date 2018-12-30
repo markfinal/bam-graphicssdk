@@ -50,8 +50,8 @@ namespace OpenGLTriangle
                     cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                     cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                    var preprocessor = settings as C.ICommonPreprocessorSettings;
+                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                 });
 
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
@@ -72,8 +72,8 @@ namespace OpenGLTriangle
                         cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
                         cxxCompiler.StandardLibrary = C.Cxx.EStandardLibrary.libcxx;
 
-                        var compiler = settings as C.ICommonCompilerSettings;
-                        compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
+                        var preprocessor = settings as C.ICommonPreprocessorSettings;
+                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/source"));
                     });
             }
 

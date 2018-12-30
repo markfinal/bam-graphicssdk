@@ -49,9 +49,9 @@ namespace glslang
 
             source.PrivatePatch(settings =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                compiler.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)"));
-                compiler.PreprocessorDefines.Add("ENABLE_OPT", "0"); // don't always enable optimisations
+                var preprocessor = settings as C.ICommonPreprocessorSettings;
+                preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)"));
+                preprocessor.PreprocessorDefines.Add("ENABLE_OPT", "0"); // don't always enable optimisations
 
                 var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                 cxxCompiler.LanguageStandard = C.Cxx.ELanguageStandard.Cxx11;
