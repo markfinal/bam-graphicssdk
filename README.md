@@ -8,7 +8,9 @@ This repository contains packages for
   * v2.0.0
   * v1.13.0
   * v1.5.7
+* glslang-7.10.2984
 * MoltenVK-1.0.10
+* MoltenVK-1.0.21
 * OpenGLSDK - wrapper around each platforms headers and libraries/frameworks
 * SPIRVCross
 * SPIRVHeaders
