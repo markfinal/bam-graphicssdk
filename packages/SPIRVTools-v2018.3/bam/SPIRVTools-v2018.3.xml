@@ -5,7 +5,7 @@
     <Source type="http" path="https://github.com/KhronosGroup/SPIRV-Tools/archive/v2018.3.tar.gz" subdir="SPIRV-Tools-2018.3" />
   </Sources>
   <Dependents>
-    <Package name="SPIRVHeaders" />
+    <Package name="SPIRVHeaders" version="8bea0a266ac9b718aa0818d9e3a47c0b77c2cb23" />
   </Dependents>
   <BamAssemblies>
     <BamAssembly name="Bam.Core" major="2" minor="0" patch="0" />
