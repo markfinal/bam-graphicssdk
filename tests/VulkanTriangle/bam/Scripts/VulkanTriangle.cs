@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion // License
 using Bam.Core;
-namespace VulkanCube
+namespace VulkanTriangle
 {
     sealed class ConfigureOSX :
         Bam.Core.IPackageMetaDataConfigure<Clang.MetaData>
@@ -38,7 +38,7 @@ namespace VulkanCube
             Clang.MetaData instance) => instance.MacOSXMinimumVersionSupported = "10.13";
     }
 
-    class Cube :
+    class VulkanTriangle :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -156,7 +156,7 @@ namespace VulkanCube
         }
     }
 
-    sealed class CubeRuntime :
+    sealed class VulkanTriangleRuntime :
         Publisher.Collation
     {
         protected override void
@@ -176,9 +176,9 @@ namespace VulkanCube
                 ),
                 true);
 
-            var appAnchor = this.Include<Cube>(C.Cxx.GUIApplication.ExecutableKey);
+            var appAnchor = this.Include<VulkanTriangle>(C.Cxx.GUIApplication.ExecutableKey);
 
-            var app = appAnchor.SourceModule as Cube;
+            var app = appAnchor.SourceModule as VulkanTriangle;
             if (this.BuildEnvironment.Configuration != Bam.Core.EConfiguration.Debug &&
                 app.Linker is VisualCCommon.LinkerBase)
             {

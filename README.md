@@ -14,6 +14,7 @@ This repository contains packages for
 * OpenGLSDK - wrapper around each platforms headers and libraries/frameworks
 * SPIRVCross
 * SPIRVHeaders
+* SPIRVHeaders-8bea0a266ac9b718aa0818d9e3a47c0b77c2cb23
 * SPIRVTools-v2018.3
 * VulkanHeaders
 * VulkanSDK-1.0 - Windows only wrapper around the Vulkan SDK v1.0
@@ -21,6 +22,6 @@ This repository contains packages for
 Tests exist, on Windows, for
 
 * Rendering a triangle in Direct3D9 and OpenGL
-* Simple setup of Vulkan (WIP)
+* Rendering a triangle in Vulkan
 * Rendering a triangle in Metal (WIP)
 * A simple viewport window library to abstract platform specifics in these tests.
