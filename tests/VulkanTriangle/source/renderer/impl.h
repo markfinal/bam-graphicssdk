@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <functional>
 #include <cassert>
+#include <string>
 
 // these macros avoid repetition between stating the name of the function and the PFN_* type
 #define GETPFN(_name) PFN_##_name
