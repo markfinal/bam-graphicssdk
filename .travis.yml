@@ -15,6 +15,13 @@ before_script:
   - dotnet --version
 matrix:
   include:
+  - os: linux
+    dist: trusty
+    mono: none
+    dotnet: 2.1.401
+    script:
+      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
   - os: osx
     osx_image: xcode8.3
     mono: none
