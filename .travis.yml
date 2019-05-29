@@ -1,0 +1,41 @@
+git:
+  depth: 10
+notifications:
+  email:
+     on_success: always
+     on_failure: always
+language: csharp
+python: '2.7'
+install:
+  - wget 'https://ci.appveyor.com/api/projects/markfinal/buildamation/artifacts/bam.tar?branch=master&job=Image%3A%20Visual%20Studio%202017' -O /tmp/bam.tar
+  - mkdir -p /tmp/BuildAMation
+  - tar xf /tmp/bam.tar -C /tmp/BuildAMation
+  - source /tmp/BuildAMation/env.sh
+before_script:
+  - dotnet --version
+matrix:
+  include:
+  - os: osx
+    osx_image: xcode8.3
+    mono: none
+    dotnet: 2.1.401
+    script:
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
+  - os: osx
+    osx_image: xcode9.4
+    mono: none
+    dotnet: 2.1.401
+    script:
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
+  - os: osx
+    osx_image: xcode10.2
+    mono: none
+    dotnet: 2.1.401
+    script:
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
