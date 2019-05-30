@@ -3,7 +3,9 @@
   <Description>Minimal Vulkan example displaying a triangle</Description>
   <Dependents>
     <Package name="C" />
+    <Package name="Clang" version="Xcode8" />
     <Package name="Clang" version="Xcode9" default="true" />
+    <Package name="Clang" version="Xcode10" />
     <Package name="Gcc" version="4.8" default="true" />
     <Package name="MakeFileBuilder" />
     <Package name="MoltenVK" version="1.0.10" />
@@ -12,6 +14,7 @@
     <Package name="VisualC" version="12.0" />
     <Package name="VisualC" version="14.0" />
     <Package name="VisualC" version="15.0" default="true" />
+    <Package name="VisualC" version="16" />
     <Package name="VSSolutionBuilder" />
     <Package name="VulkanSDK" version="1.0" />
     <Package name="WindowLibrary" />
