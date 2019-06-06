@@ -1,7 +1,7 @@
 using MetalUtilities;
 namespace MetalTriangle
 {
-    class MetalTest :
+    class MetalTriangle :
         C.Cxx.GUIApplication
     {
         protected override void
@@ -77,7 +77,7 @@ namespace MetalTriangle
                 this.registerMetalMappings();
             }
 
-            this.Include<MetalTest>(C.Cxx.GUIApplication.ExecutableKey);
+            this.Include<MetalTriangle>(C.Cxx.GUIApplication.ExecutableKey);
         }
     }
 }
