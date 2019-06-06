@@ -50,8 +50,13 @@ namespace DirectXSDK
             base.Init(parent);
 
             var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
-            if (!meta.UseWindowsSDK)
+            if (meta.UseWindowsSDK)
             {
+                Bam.Core.Log.Info("Using DirectX SDK installed as part of the WindowsSDK");
+            }
+            else
+            {
+                Bam.Core.Log.Info($"Using DirectXSDK installed at {meta.InstallPath}");
                 this.PublicPatch((settings, appliedTo) =>
                     {
                         if (settings is C.ICommonPreprocessorSettings preprocessor)

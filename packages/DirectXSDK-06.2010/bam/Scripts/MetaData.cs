@@ -32,6 +32,7 @@ namespace DirectXSDK
 {
     public interface IDirectXSDKInstallMeta
     {
+        string InstallPath { get; }
         bool UseWindowsSDK { get; }
     }
 
@@ -91,6 +92,8 @@ namespace DirectXSDK
         public override bool
         Contains(
             string index) => this.Meta.ContainsKey(index);
+
+        string IDirectXSDKInstallMeta.InstallPath => this.Meta.ContainsKey("InstallPath") ? this.Meta["InstallPath"] as string : null;
 
         bool IDirectXSDKInstallMeta.UseWindowsSDK => !this.Meta.ContainsKey("InstallPath");
     }
