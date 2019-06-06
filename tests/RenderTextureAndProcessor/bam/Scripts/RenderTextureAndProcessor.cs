@@ -46,8 +46,8 @@ namespace RenderTextureAndProcessor
             source.AddFiles("$(packagedir)/source/rendertexture/*.cpp");
             source.PrivatePatch(settings =>
             {
-                var compiler = settings as C.ICommonCompilerSettings;
-                compiler.IncludePaths.Add(this.CreateTokenizedString("$(packagedir)/source/common"));
+                var preprocessor = settings as C.ICommonPreprocessorSettings;
+                preprocessor.IncludePaths.Add(this.CreateTokenizedString("$(packagedir)/source/common"));
 
                 var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                 cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
@@ -91,8 +91,8 @@ namespace RenderTextureAndProcessor
             source.AddFiles("$(packagedir)/source/textureprocessor/*.cpp");
             source.PrivatePatch(settings =>
                 {
-                    var compiler = settings as C.ICommonCompilerSettings;
-                    compiler.IncludePaths.Add(this.CreateTokenizedString("$(packagedir)/source/common"));
+                    var preprocessor = settings as C.ICommonPreprocessorSettings;
+                    preprocessor.IncludePaths.Add(this.CreateTokenizedString("$(packagedir)/source/common"));
 
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
                     cxxCompiler.ExceptionHandler = C.Cxx.EExceptionHandler.Synchronous;
