@@ -81,7 +81,7 @@ namespace glew
                 {
                     if (settings is C.ICommonPreprocessorSettings preprocessor)
                     {
-                        preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
+                        preprocessor.SystemIncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/include"));
                         preprocessor.PreprocessorDefines.Add("GLEW_STATIC");
                         preprocessor.PreprocessorDefines.Add("GLEW_NO_GLU");
                     }
