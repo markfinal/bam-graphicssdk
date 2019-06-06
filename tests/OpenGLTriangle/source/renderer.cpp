@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <process.h>
 #endif
 
+#include <cstdlib>
+
 //#define USE_UNIFORM_BUFFER
 
 #define GLFN(_call) _call; CheckForGLErrors(__FILE__, __LINE__, true)
