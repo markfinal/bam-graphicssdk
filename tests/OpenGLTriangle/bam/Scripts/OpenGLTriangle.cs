@@ -105,6 +105,7 @@ namespace OpenGLTriangle
                     else if (this.Linker is GccCommon.LinkerBase)
                     {
                         linker.Libraries.Add("-lX11");
+                        linker.Libraries.Add("-lpthread");
                     }
                     else if (this.Linker is ClangCommon.LinkerBase)
                     {
