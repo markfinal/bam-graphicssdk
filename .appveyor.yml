@@ -31,7 +31,7 @@ for:
         VC_PRERELEASE_ARGS: "--VisualC.discoverprereleases"
 install:
   - sh: sudo apt-get -q update
-  - sh: sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib python
+  - sh: sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib python libx11-dev libx11-dev:i386 libgl1-mesa-dev
   - ps: Start-FileDownload 'https://ci.appveyor.com/api/projects/markfinal/buildamation/artifacts/bam.tar?branch=master&job=Image%3A%20Visual%20Studio%202017'
   - cmd: 7z x bam.tar -oc:\BuildAMation
   - sh: mkdir ~/BuildAMation
