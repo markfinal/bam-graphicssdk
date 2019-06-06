@@ -32,12 +32,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowlibrary/exception.h"
 
 @interface OpenGLViewController : NSViewController
-{}
+{
+    WindowLibrary::GLContext *_context;
+}
+
 @property WindowLibrary::GLContext *Context;
+
 -(void)viewDidAppear;
+
 @end
 
 @implementation OpenGLViewController : NSViewController
+
+@synthesize Context = _context;
+
 -(void)viewDidAppear
 {
     [super viewDidAppear];
