@@ -172,7 +172,7 @@ namespace MoltenVK
             {
                 if (settings is C.ICommonPreprocessorSettings preprocessor)
                 {
-                    preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/include"));
+                    preprocessor.SystemIncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/MoltenVK/include"));
                 }
             });
         }
