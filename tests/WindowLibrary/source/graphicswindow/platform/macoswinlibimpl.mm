@@ -33,15 +33,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 @interface WindowDelegate : NSObject<NSWindowDelegate>
 {
+    WindowLibrary::GraphicsWindow *_window;
 }
+
+- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)inWindow;
+
 @property WindowLibrary::GraphicsWindow *Window;
-- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)window;
+
 @end
 
 @implementation WindowDelegate : NSObject
-- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)window
+
+@synthesize Window = _window;
+
+- (id)initWithWindow:(WindowLibrary::GraphicsWindow*)inWindow
 {
-    [self setWindow:window];
+    [self setWindow:inWindow];
     return self;
 }
 

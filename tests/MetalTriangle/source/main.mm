@@ -55,7 +55,7 @@ const MTLIndexType MBEIndexType = MTLIndexTypeUInt16;
     self->_metalLayer = [CAMetalLayer layer];
     self->_metalLayer.device = self->_device;
     self->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    self->_metalLayer.frame = self.view.bounds;
+    self->_metalLayer.frame = NSRectToCGRect(self.view.bounds);
     [self.view.layer addSublayer:self->_metalLayer];
 
     auto pipelineDescriptor = [MTLRenderPipelineDescriptor new];
