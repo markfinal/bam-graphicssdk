@@ -8,6 +8,9 @@ language: csharp
 python: '2.7'
 install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -q update && sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib python libx11-dev libx11-dev:i386 libgl1-mesa-dev; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then wget -O vulkansdk-linux-x86_64-1.0.68.0.run https://vulkan.lunarg.com/sdk/download/1.0.68.0/linux/vulkansdk-linux-x86_64-1.0.68.0.run?Human=true; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then chmod ugo+x vulkansdk-linux-x86_64-1.0.68.0.run; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then ./vulkansdk-linux-x86_64-1.0.68.0.run; fi
   - wget 'https://ci.appveyor.com/api/projects/markfinal/buildamation/artifacts/bam.tar?branch=master&job=Image%3A%20Visual%20Studio%202017' -O /tmp/bam.tar
   - mkdir -p /tmp/BuildAMation
   - tar xf /tmp/bam.tar -C /tmp/BuildAMation
