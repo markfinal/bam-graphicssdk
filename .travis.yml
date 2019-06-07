@@ -20,30 +20,30 @@ matrix:
     dist: trusty
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+    #script:
+    #  - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+    #  - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
   - os: osx
     osx_image: xcode10.2
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
+    #script:
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
   - os: osx
     osx_image: xcode9.4
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
+    #script:
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
   - os: osx
     osx_image: xcode8.3
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -T VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -T VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -T VulkanTriangle
+    #script:
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -T VulkanTriangle
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -T VulkanTriangle
+    #  - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -T VulkanTriangle
