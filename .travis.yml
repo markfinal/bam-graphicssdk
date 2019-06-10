@@ -24,20 +24,19 @@ matrix:
     mono: none
     dotnet: 2.1.401
     name: Ubuntu 14 (GCC 4.8) Native
-    env: BAM_BUILD_MODE=Native
+    env:
+      - BAM_BUILD_MODE=Native
+      - BAM_TOOLCHAIN_NAME=Gcc
+      - BAM_TOOLCHAIN_VERSION=4.8
   - os: linux
     dist: trusty
     mono: none
     dotnet: 2.1.401
     name: Ubuntu 14 (GCC 4.8) MakeFile
-    env: BAM_BUILD_MODE=MakeFile
-  #- os: linux
-  #  dist: trusty
-  #  mono: none
-  #  dotnet: 2.1.401
-  #  script:
-  #    - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-  #    - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+    env:
+      - BAM_BUILD_MODE=MakeFile
+      - BAM_TOOLCHAIN_NAME=Gcc
+      - BAM_TOOLCHAIN_VERSION=4.8
   #- os: osx
   #  osx_image: xcode10.2
   #  mono: none
@@ -46,21 +45,62 @@ matrix:
   #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -v -t VulkanTriangle
   #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -v -t VulkanTriangle
   #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -v -t VulkanTriangle
-  #- os: osx
-  #  osx_image: xcode9.4
-  #  mono: none
-  #  dotnet: 2.1.401
-  #  script:
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
-  #- os: osx
-  #  osx_image: xcode8.3
-  #  mono: none
-  #  dotnet: 2.1.401
-  #  script:
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -T VulkanTriangle
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -T VulkanTriangle
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -T VulkanTriangle
+  - os: osx
+    osx_image: xcode9.4
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 9.4) Native
+    env:
+      - BAM_BUILD_MODE=Native
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode9
+  - os: osx
+    osx_image: xcode9.4
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 9.4) MakeFile
+    env:
+      - BAM_BUILD_MODE=MakeFile
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode9
+  - os: osx
+    osx_image: xcode9.4
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 9.4) Xcode
+    env:
+      - BAM_BUILD_MODE=Xcode
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode9
+  - os: osx
+    osx_image: xcode8.3
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 8.3) Native
+    env:
+      - BAM_BUILD_MODE=Native
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode8
+      - EXTRA_TEST_ARGS=-T VulkanTriangle # Not supported on Xcode older than 9
+  - os: osx
+    osx_image: xcode8.3
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 8.3) MakeFile
+    env:
+      - BAM_BUILD_MODE=MakeFile
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode8
+      - EXTRA_TEST_ARGS=-T VulkanTriangle # Not supported on Xcode older than 9
+  - os: osx
+    osx_image: xcode8.3
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 8.3) Xcode
+    env:
+      - BAM_BUILD_MODE=Xcode
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode8
+      - EXTRA_TEST_ARGS=-T VulkanTriangle # Not supported on Xcode older than 9
 script:
-  - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE
+  - python /tmp/BuildAMation/tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
