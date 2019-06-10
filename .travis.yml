@@ -7,7 +7,7 @@ notifications:
 language: csharp
 python: '2.7'
 install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -q update && sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib python libx11-dev libx11-dev:i386 libgl1-mesa-dev; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -q update && sudo apt-get -q -y --no-install-recommends install g++ g++-multilib libx11-dev libx11-dev:i386 libgl1-mesa-dev; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then wget -O vulkansdk-linux-x86_64-1.0.68.0.run https://vulkan.lunarg.com/sdk/download/1.0.68.0/linux/vulkansdk-linux-x86_64-1.0.68.0.run?Human=true; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then chmod ugo+x vulkansdk-linux-x86_64-1.0.68.0.run; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then ./vulkansdk-linux-x86_64-1.0.68.0.run; fi
@@ -23,30 +23,44 @@ matrix:
     dist: trusty
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-      - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
-  - os: osx
-    osx_image: xcode10.2
+    name: Ubuntu 14 (GCC 4.8) Native
+    env: BAM_BUILD_MODE=Native
+  - os: linux
+    dist: trusty
     mono: none
     dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -v -t VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -v -t VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -v -t VulkanTriangle
-  - os: osx
-    osx_image: xcode9.4
-    mono: none
-    dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
-  - os: osx
-    osx_image: xcode8.3
-    mono: none
-    dotnet: 2.1.401
-    script:
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -T VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -T VulkanTriangle
-      - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -T VulkanTriangle
+    name: Ubuntu 14 (GCC 4.8) MakeFile
+    env: BAM_BUILD_MODE=MakeFile
+  #- os: linux
+  #  dist: trusty
+  #  mono: none
+  #  dotnet: 2.1.401
+  #  script:
+  #    - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+  #    - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+  #- os: osx
+  #  osx_image: xcode10.2
+  #  mono: none
+  #  dotnet: 2.1.401
+  #  script:
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -v -t VulkanTriangle
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -v -t VulkanTriangle
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -v -t VulkanTriangle
+  #- os: osx
+  #  osx_image: xcode9.4
+  #  mono: none
+  #  dotnet: 2.1.401
+  #  script:
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode9 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode
+  #- os: osx
+  #  osx_image: xcode8.3
+  #  mono: none
+  #  dotnet: 2.1.401
+  #  script:
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -T VulkanTriangle
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -T VulkanTriangle
+  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -T VulkanTriangle
+script:
+  - python /tmp/BuildAMation/tests/runtests.py --Gcc.version=4.8 -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE
