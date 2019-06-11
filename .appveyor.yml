@@ -5,7 +5,7 @@ install:
   - cmd: curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/1.0.68.0/windows/VulkanSDK-1.0.68.0-Installer.exe?Human=true
   - cmd: .\VulkanSDK.exe /S
   - sh: sudo apt-get -q update
-  - sh: sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib python libx11-dev libx11-dev:i386 libgl1-mesa-dev
+  - sh: sudo apt-get -q -y --no-install-recommends install g++ gcc-multilib g++-multilib libx11-dev libx11-dev:i386 libgl1-mesa-dev
   - sh: wget -O vulkansdk-linux-x86_64-1.0.68.0.run https://vulkan.lunarg.com/sdk/download/1.0.68.0/linux/vulkansdk-linux-x86_64-1.0.68.0.run?Human=true
   - sh: chmod ugo+x vulkansdk-linux-x86_64-1.0.68.0.run
   - sh: ./vulkansdk-linux-x86_64-1.0.68.0.run
