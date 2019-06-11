@@ -16,6 +16,7 @@ install:
   - sh: tar xf bam.tar -C ~/BuildAMation
   - sh: tar xf ubuntu_install_scripts.tar -C ~
 environment:
+  EXTRA_TEST_ARGS: "-T WindowLibrary"
   matrix:
   - job_name: Ubuntu 18 (GCC 9) Native
     APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
@@ -178,105 +179,93 @@ for:
     environment:
       BAM_BUILD_MODE: Native
       VC_VERSION: 15.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2017 MakeFile
     environment:
       BAM_BUILD_MODE: MakeFile --MakeFile.format=NMAKE
       VC_VERSION: 15.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2017 VSSolution
     environment:
       BAM_BUILD_MODE: VSSolution
       VC_VERSION: 15.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2015 Native
     environment:
       BAM_BUILD_MODE: Native
       VC_VERSION: 14.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2015 MakeFile
     environment:
       BAM_BUILD_MODE: MakeFile --MakeFile.format=NMAKE
       VC_VERSION: 14.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2015 VSSolution
     environment:
       BAM_BUILD_MODE: VSSolution
       VC_VERSION: 14.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2013 Native
     environment:
       BAM_BUILD_MODE: Native
       VC_VERSION: 12.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2013 MakeFile
     environment:
       BAM_BUILD_MODE: MakeFile --MakeFile.format=NMAKE
       VC_VERSION: 12.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2013 VSSolution
     environment:
       BAM_BUILD_MODE: VSSolution
       VC_VERSION: 12.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2012 Native
     environment:
       BAM_BUILD_MODE: Native
       VC_VERSION: 11.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2012 MakeFile
     environment:
       BAM_BUILD_MODE: MakeFile --MakeFile.format=NMAKE
       VC_VERSION: 11.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2012 VSSolution
     environment:
       BAM_BUILD_MODE: VSSolution
       VC_VERSION: 11.0
-      EXTRA_TEST_ARGS:
   - matrix:
       only:
         - job_name: Visual Studio 2010 Native
     environment:
       BAM_BUILD_MODE: Native
       VC_VERSION: 10.0
-      EXTRA_TEST_ARGS: --C.bitdepth=32
+      EXTRA_TEST_ARGS: "-T WindowLibrary --C.bitdepth=32"
   - matrix:
       only:
         - job_name: Visual Studio 2010 MakeFile
     environment:
       BAM_BUILD_MODE: MakeFile --MakeFile.format=NMAKE
       VC_VERSION: 10.0
-      EXTRA_TEST_ARGS: --C.bitdepth=32
+      EXTRA_TEST_ARGS: "-T WindowLibrary --C.bitdepth=32"
   - matrix:
       only:
         - job_name: Visual Studio 2010 VSSolution
     environment:
       BAM_BUILD_MODE: VSSolution
       VC_VERSION: 10.0
-      EXTRA_TEST_ARGS: --C.bitdepth=32
+      EXTRA_TEST_ARGS: "-T WindowLibrary --C.bitdepth=32"
 build: off
 test_script:
   - cmd: c:\BuildAMation\env.bat
