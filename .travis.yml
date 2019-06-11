@@ -37,14 +37,33 @@ matrix:
       - BAM_BUILD_MODE=MakeFile
       - BAM_TOOLCHAIN_NAME=Gcc
       - BAM_TOOLCHAIN_VERSION=4.8
-  #- os: osx
-  #  osx_image: xcode10.2
-  #  mono: none
-  #  dotnet: 2.1.401
-  #  script:
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Native -v -t VulkanTriangle
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b MakeFile -v -t VulkanTriangle
-  #    - python /tmp/BuildAMation/tests/runtests.py --Clang.version=Xcode10 --C.bitdepth=64 -c debug -c profile -j0 -d --nodefaultrepo -r . -b Xcode -v -t VulkanTriangle
+  - os: osx
+    osx_image: xcode10.2
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 10.2) Native
+    env:
+      - BAM_BUILD_MODE=Native
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode10
+  - os: osx
+    osx_image: xcode10.2
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 10.2) MakeFile
+    env:
+      - BAM_BUILD_MODE=MakeFile
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode10
+  - os: osx
+    osx_image: xcode10.2
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 10.2) Xcode
+    env:
+      - BAM_BUILD_MODE=Xcode
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode10
   - os: osx
     osx_image: xcode9.4
     mono: none
