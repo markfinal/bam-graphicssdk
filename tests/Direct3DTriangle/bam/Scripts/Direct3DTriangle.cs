@@ -76,7 +76,7 @@ namespace Direct3DTriangle
                         {
                             linker.Libraries.Add("d3dx9.lib");
                         }
-                        if ((settings.Module.Tool as C.CompilerTool).Version.AtLeast(VisualCCommon.ToolchainVersion.VC2015))
+                        if ((settings.Module.Tool as C.LinkerTool).Version.AtLeast(VisualCCommon.ToolchainVersion.VC2015))
                         {
                             linker.Libraries.Add("legacy_stdio_definitions.lib");
                         }
