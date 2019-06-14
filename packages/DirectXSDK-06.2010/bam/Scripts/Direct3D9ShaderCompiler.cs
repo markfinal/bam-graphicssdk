@@ -69,7 +69,23 @@ namespace DirectXSDK
             }
             else
             {
-                throw new Bam.Core.Exception("DXSDK shader compiler is part of the redist");
+                var winDir = System.Environment.GetEnvironmentVariable("windir");
+                if (this.BitDepth == C.EBit.ThirtyTwo && Bam.Core.OSUtilities.Is64BitHosting)
+                {
+                    var systemDir = System.IO.Path.Combine(winDir, "SysWOW64");
+                    this.RegisterGeneratedFile(
+                        C.DynamicLibrary.ExecutableKey,
+                        this.CreateTokenizedString($"{systemDir}\\d3dcompiler_43$(dynamicext)")
+                    );
+                }
+                else
+                {
+                    var systemDir = System.IO.Path.Combine(winDir, "System32");
+                    this.RegisterGeneratedFile(
+                        C.DynamicLibrary.ExecutableKey,
+                        this.CreateTokenizedString($"{systemDir}\\d3dcompiler_43$(dynamicext)")
+                    );
+                }
             }
         }
     }

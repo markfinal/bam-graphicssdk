@@ -68,6 +68,7 @@ namespace Direct3DTriangle
                     else
                     {
                         linker.Libraries.Add("dxerr.lib");
+                        linker.Libraries.Add("legacy_stdio_definitions.lib");
                         if (this.BuildEnvironment.Configuration == Bam.Core.EConfiguration.Debug)
                         {
                             linker.Libraries.Add("d3dx9d.lib");
