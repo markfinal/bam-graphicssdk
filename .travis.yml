@@ -18,7 +18,8 @@ install:
 before_script:
   - dotnet --version
 env:
-  - EXTRA_TEST_ARGS: "-T WindowLibrary"
+  global:
+    - EXTRA_TEST_ARGS="-T WindowLibrary"
 matrix:
   include:
   - os: linux

@@ -16,7 +16,8 @@ install:
   - sh: tar xf bam.tar -C ~/BuildAMation
   - sh: tar xf ubuntu_install_scripts.tar -C ~
 environment:
-  EXTRA_TEST_ARGS: "-T WindowLibrary"
+  global:
+    EXTRA_TEST_ARGS: "-T WindowLibrary"
   matrix:
   #- job_name: Ubuntu 18 (GCC 9) Native
   #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
