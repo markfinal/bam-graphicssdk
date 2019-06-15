@@ -19,62 +19,62 @@ environment:
   global:
     EXTRA_TEST_ARGS: "-T WindowLibrary"
   matrix:
-  #- job_name: Ubuntu 18 (GCC 9) Native
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 9) MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 8) Native
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 8) MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 7) Native
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 7) MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 6) Native
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 18 (GCC 6) MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-  #- job_name: Ubuntu 16 (GCC 5) Native
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-  #- job_name: Ubuntu 16 (GCC 5) MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+  - job_name: Ubuntu 18 (GCC 9) Native
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 9) MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 8) Native
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 8) MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 7) Native
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 7) MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 6) Native
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 18 (GCC 6) MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+  - job_name: Ubuntu 16 (GCC 5) Native
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+  - job_name: Ubuntu 16 (GCC 5) MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
   - job_name: Visual Studio 2019 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-  #- job_name: Visual Studio 2019 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-  #- job_name: Visual Studio 2019 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - job_name: Visual Studio 2019 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - job_name: Visual Studio 2019 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - job_name: Visual Studio 2017 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  #- job_name: Visual Studio 2017 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  #- job_name: Visual Studio 2017 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - job_name: Visual Studio 2017 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - job_name: Visual Studio 2017 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   - job_name: Visual Studio 2015 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2015 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2015 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2015 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2015 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - job_name: Visual Studio 2013 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2013 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2013 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2013 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2013 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - job_name: Visual Studio 2012 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2012 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2012 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2012 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2012 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - job_name: Visual Studio 2010 Native
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2010 MakeFile
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  #- job_name: Visual Studio 2010 VSSolution
-  #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2010 MakeFile
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - job_name: Visual Studio 2010 VSSolution
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 for:
   - matrix:
       only:
@@ -274,8 +274,6 @@ for:
       EXTRA_TEST_ARGS: "-T WindowLibrary --C.bitdepth=32"
 build: off
 test_script:
-  - cmd: c:\BuildAMation\env.bat
   - cmd: "SET PATH=C:\\Python27-x64;%PATH%"
-  - cmd: python c:\BuildAMation\tests\runtests.py -x Mingw --VisualC.version=%VC_VERSION% -b %BAM_BUILD_MODE% -c debug -c profile -j0 -d --nodefaultrepo -r . %EXTRA_TEST_ARGS%
-  - sh: source ~/BuildAMation/env.sh
-  - sh: python ~/BuildAMation/tests/runtests.py --Gcc.version=$GCC_VERSION -b $BAM_BUILD_MODE -c debug -c profile -j0 -d --nodefaultrepo -r . $EXTRA_TEST_ARGS
+  - cmd: cd c:\BuildAMation && env.bat && python tests\runtests.py -x Mingw --VisualC.version=%VC_VERSION% -b %BAM_BUILD_MODE% -c debug -c profile -j0 -d --nodefaultrepo -r . %EXTRA_TEST_ARGS%
+  - sh: cd ~/BuildAMation && env.sh && python tests/runtests.py --Gcc.version=$GCC_VERSION -b $BAM_BUILD_MODE -c debug -c profile -j0 -d --nodefaultrepo -r . $EXTRA_TEST_ARGS
