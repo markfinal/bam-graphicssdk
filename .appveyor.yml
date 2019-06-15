@@ -14,7 +14,6 @@ install:
   - cmd: 7z x bam.tar -oc:\BuildAMation
   - sh: mkdir ~/BuildAMation
   - sh: tar xf bam.tar -C ~/BuildAMation
-  - sh: ls ~/BuildAMation
   - sh: tar xf ubuntu_install_scripts.tar -C ~
 environment:
   global:
@@ -277,4 +276,4 @@ build: off
 test_script:
   - cmd: "SET PATH=C:\\Python27-x64;%PATH%"
   - cmd: cd c:\BuildAMation && env.bat && python tests\runtests.py -x Mingw --VisualC.version=%VC_VERSION% -b %BAM_BUILD_MODE% -c debug -c profile -j0 -d --nodefaultrepo -r . %EXTRA_TEST_ARGS%
-  - sh: cd ~/BuildAMation && env.sh && python tests/runtests.py --Gcc.version=$GCC_VERSION -b $BAM_BUILD_MODE -c debug -c profile -j0 -d --nodefaultrepo -r . $EXTRA_TEST_ARGS
+  - sh: cd ~/BuildAMation && source env.sh && python tests/runtests.py --Gcc.version=$GCC_VERSION -b $BAM_BUILD_MODE -c debug -c profile -j0 -d --nodefaultrepo -r . $EXTRA_TEST_ARGS

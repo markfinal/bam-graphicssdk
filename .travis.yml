@@ -14,7 +14,6 @@ install:
   - wget 'https://ci.appveyor.com/api/projects/markfinal/buildamation/artifacts/bam.tar?branch=master&job=Image%3A%20Visual%20Studio%202017' -O /tmp/bam.tar
   - mkdir -p /tmp/BuildAMation
   - tar xf /tmp/bam.tar -C /tmp/BuildAMation
-  - ls /tmp/BuildAMation
 before_script:
   - dotnet --version
 env:
@@ -73,15 +72,15 @@ matrix:
   #    - BAM_TOOLCHAIN_VERSION=Xcode10
   #    - EXTRA_TEST_ARGS="-T WindowLibrary --C.bitdepth=64" # 32-bit support removed
   #    - TRAVIS_PREFIX=travis_wait # because the VulkanTriangle test seems to cause travis to appear to stop responding
-  #- os: osx
-  #  osx_image: xcode9.4
-  #  mono: none
-  #  dotnet: 2.1.401
-  #  name: MacOS (Xcode 9.4) Native
-  #  env:
-  #    - BAM_BUILD_MODE=Native
-  #    - BAM_TOOLCHAIN_NAME=Clang
-  #    - BAM_TOOLCHAIN_VERSION=Xcode9
+  - os: osx
+    osx_image: xcode9.4
+    mono: none
+    dotnet: 2.1.401
+    name: MacOS (Xcode 9.4) Native
+    env:
+      - BAM_BUILD_MODE=Native
+      - BAM_TOOLCHAIN_NAME=Clang
+      - BAM_TOOLCHAIN_VERSION=Xcode9
   #- os: osx
   #  osx_image: xcode9.4
   #  mono: none
@@ -131,4 +130,4 @@ matrix:
   #    - BAM_TOOLCHAIN_VERSION=Xcode8
   #    - EXTRA_TEST_ARGS="-T WindowLibrary -T VulkanTriangle" # Not supported on Xcode older than 9
 script:
-  - cd /tmp/BuildAMation && env.sh && $TRAVIS_PREFIX python tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
+  - cd /tmp/BuildAMation && source env.sh && $TRAVIS_PREFIX python tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
