@@ -130,4 +130,4 @@ matrix:
   #    - BAM_TOOLCHAIN_VERSION=Xcode8
   #    - EXTRA_TEST_ARGS="-T WindowLibrary -T VulkanTriangle" # Not supported on Xcode older than 9
 script:
-  - cd /tmp/BuildAMation && source env.sh && $TRAVIS_PREFIX python tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
+  - source /tmp/BuildAMation/env.sh && $TRAVIS_PREFIX python /tmp/BuildAMation/tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
