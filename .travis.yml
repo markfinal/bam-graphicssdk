@@ -49,7 +49,7 @@ matrix:
       - BAM_TOOLCHAIN_NAME=Clang
       - BAM_TOOLCHAIN_VERSION=Xcode10
       - EXTRA_TEST_ARGS="-T WindowLibrary --C.bitdepth=64" # 32-bit support removed
-      - TRAVIS_PREFIX=travis_wait # because the VulkanTriangle test seems to cause travis to appear to stop responding
+      - TEST_PREFIX="--prefix travis_wait" # because the VulkanTriangle test seems to cause travis to appear to stop responding
   - os: osx
     osx_image: xcode10.2
     mono: none
@@ -60,7 +60,7 @@ matrix:
       - BAM_TOOLCHAIN_NAME=Clang
       - BAM_TOOLCHAIN_VERSION=Xcode10
       - EXTRA_TEST_ARGS="-T WindowLibrary --C.bitdepth=64" # 32-bit support removed
-      - TRAVIS_PREFIX=travis_wait # because the VulkanTriangle test seems to cause travis to appear to stop responding
+      - TEST_PREFIX="--prefix travis_wait" # because the VulkanTriangle test seems to cause travis to appear to stop responding
   - os: osx
     osx_image: xcode10.2
     mono: none
@@ -71,7 +71,7 @@ matrix:
       - BAM_TOOLCHAIN_NAME=Clang
       - BAM_TOOLCHAIN_VERSION=Xcode10
       - EXTRA_TEST_ARGS="-T WindowLibrary --C.bitdepth=64" # 32-bit support removed
-      - TRAVIS_PREFIX=travis_wait # because the VulkanTriangle test seems to cause travis to appear to stop responding
+      - TEST_PREFIX="--prefix travis_wait" # because the VulkanTriangle test seems to cause travis to appear to stop responding
   - os: osx
     osx_image: xcode9.4
     mono: none
@@ -130,4 +130,4 @@ matrix:
       - BAM_TOOLCHAIN_VERSION=Xcode8
       - EXTRA_TEST_ARGS="-T WindowLibrary -T VulkanTriangle" # Not supported on Xcode older than 9
 script:
-  - source /tmp/BuildAMation/env.sh && $TRAVIS_PREFIX python /tmp/BuildAMation/tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS
+  - source /tmp/BuildAMation/env.sh && python /tmp/BuildAMation/tests/runtests.py --${BAM_TOOLCHAIN_NAME}.version=${BAM_TOOLCHAIN_VERSION} -c debug -c profile -j0 -d --nodefaultrepo -r . -b $BAM_BUILD_MODE $EXTRA_TEST_ARGS $TEST_PREFIX
