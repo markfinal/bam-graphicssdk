@@ -3,9 +3,10 @@
   <Description>Example of macos Metal to render a triangle</Description>
   <Dependents>
     <Package name="C" />
+    <Package name="Clang" version="Xcode10" />
+    <Package name="Clang" version="Xcode11" />
     <Package name="Clang" version="Xcode8" />
     <Package name="Clang" version="Xcode9" default="true" />
-    <Package name="Clang" version="Xcode10" />
     <Package name="Gcc" version="4.8" default="true" />
     <Package name="MakeFileBuilder" />
     <Package name="MetalUtilities" />
