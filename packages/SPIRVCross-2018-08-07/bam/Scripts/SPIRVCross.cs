@@ -33,10 +33,9 @@ namespace SPIRVCross
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var header = this.CreateHeaderContainer("$(packagedir)/**.h");
             header.AddFiles("$(packagedir)/**.hpp");

@@ -42,10 +42,9 @@ namespace VulkanTriangle
         C.Cxx.GUIApplication
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.CreateHeaderContainer("$(packagedir)/source/**.h");
             var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
@@ -160,10 +159,9 @@ namespace VulkanTriangle
         Publisher.Collation
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
 

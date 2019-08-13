@@ -35,10 +35,9 @@ namespace VulkanSDK
         C.DynamicLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
             this.Macros["packagedir"].Set(latest_version_path, null);

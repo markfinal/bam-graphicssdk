@@ -37,10 +37,9 @@ namespace MetalUtilities
         public const string ShaderLibraryKey = "Metal shader library";
 
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             // for consistency with what Xcode will generate
             this.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");

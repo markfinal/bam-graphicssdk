@@ -34,10 +34,9 @@ namespace RenderTextureAndProcessor
         C.Cxx.GUIApplication
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var headers = this.CreateHeaderContainer("$(packagedir)/source/common/*.h");
             headers.AddFiles("$(packagedir)/source/rendertexture/*.h");
@@ -80,10 +79,9 @@ namespace RenderTextureAndProcessor
         C.Cxx.ConsoleApplication
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.CreateHeaderContainer("$(packagedir)/source/common/*.h");
 
@@ -117,10 +115,9 @@ namespace RenderTextureAndProcessor
         Publisher.Collation
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
             this.Include<RenderTexture>(C.GUIApplication.ExecutableKey);

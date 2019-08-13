@@ -34,10 +34,9 @@ namespace WindowLibrary
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.CreateHeaderContainer("$(packagedir)/include/common/windowlibrary/*.h");
 
@@ -84,10 +83,9 @@ namespace WindowLibrary
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var headers = this.CreateHeaderContainer("$(packagedir)/include/graphicswindow/windowlibrary/**.h");
 
@@ -170,10 +168,9 @@ namespace WindowLibrary
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var headers = this.CreateHeaderContainer("$(packagedir)/include/openglcontext/windowlibrary/*.h");
 

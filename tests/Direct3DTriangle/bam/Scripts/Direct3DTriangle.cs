@@ -35,10 +35,9 @@ namespace Direct3DTriangle
         C.Cxx.GUIApplication
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.CreateHeaderContainer("$(packagedir)/source/*.h");
 
@@ -91,10 +90,9 @@ namespace Direct3DTriangle
         Publisher.Collation
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
             this.Include<D3D9TriangleTest>(C.ConsoleApplication.ExecutableKey);

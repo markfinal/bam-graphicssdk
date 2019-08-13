@@ -32,10 +32,9 @@ namespace SPIRVHeaders
     class SPIRVHeaders : C.HeaderLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.Macros.Add("IncludeDir", this.CreateTokenizedString("$(packagedir)/include"));
 

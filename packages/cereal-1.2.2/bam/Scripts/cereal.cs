@@ -33,10 +33,9 @@ namespace cereal
         C.HeaderLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.CreateHeaderContainer("$(packagedir)/include/**.hpp");
 

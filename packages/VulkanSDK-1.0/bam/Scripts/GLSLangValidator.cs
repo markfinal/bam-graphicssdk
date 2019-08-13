@@ -72,15 +72,14 @@ namespace VulkanSDK
         Bam.Core.PreBuiltTool
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
             var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
             this.Macros["packagedir"].Set(latest_version_path, null);
 
             this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
 
-            base.Init(parent);
+            base.Init();
         }
 
         public override Bam.Core.Settings
@@ -98,10 +97,9 @@ namespace VulkanSDK
         public GLSLSource Source { get; set; }
 
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
                 this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<glslang.GLSLangValidator>();
@@ -209,10 +207,9 @@ namespace VulkanSDK
         public Bam.Core.TokenizedString InputPath { get; set; }
 
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
             // TODO: this seems a little backward
             this.RegisterGeneratedFile(
                 GLSLKey,

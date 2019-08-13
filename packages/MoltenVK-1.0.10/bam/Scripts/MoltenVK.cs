@@ -33,10 +33,9 @@ namespace MoltenVK
     class MoltenVK : C.Cxx.DynamicLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.SetSemanticVersion(1, 0, 10);
 

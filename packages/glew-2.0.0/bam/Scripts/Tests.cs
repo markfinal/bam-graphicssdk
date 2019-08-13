@@ -37,10 +37,9 @@ namespace glew
             C.ConsoleApplication
         {
             protected override void
-            Init(
-                Bam.Core.Module parent)
+            Init()
             {
-                base.Init(parent);
+                base.Init();
 
                 var source = this.CreateCSourceContainer("$(packagedir)/src/glewinfo.c");
                 this.CompileAndLinkAgainst<GLEWStatic>(source);
@@ -70,10 +69,9 @@ namespace glew
             Publisher.Collation
         {
             protected override void
-            Init(
-                Bam.Core.Module parent)
+            Init()
             {
-                base.Init(parent);
+                base.Init();
 
                 this.SetDefaultMacrosAndMappings(EPublishingType.ConsoleApplication);
                 this.IncludeAllModulesInNamespace("glew.tests", C.ConsoleApplication.ExecutableKey);

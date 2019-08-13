@@ -35,10 +35,9 @@ namespace glslang
         Bam.Core.ICommandLineTool
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var headers = this.CreateHeaderContainer();
             headers.AddFiles("$(packagedir)/glslang/**.h");
@@ -89,10 +88,9 @@ namespace glslang
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var source = this.CreateCxxSourceContainer("$(packagedir)/glslang/MachineIndependent/*.cpp");
             source.AddFiles("$(packagedir)/glslang/MachineIndependent/preprocessor/*.cpp");
@@ -118,10 +116,9 @@ namespace glslang
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
             var source = this.CreateCxxSourceContainer("$(packagedir)/OGLCompilersDLL/*.cpp");
             source.PrivatePatch(settings =>
             {
@@ -136,10 +133,9 @@ namespace glslang
         C.StaticLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var source = this.CreateCxxSourceContainer();
             source.AddFiles("$(packagedir)/SPIRV/GlslangToSpv.cpp");

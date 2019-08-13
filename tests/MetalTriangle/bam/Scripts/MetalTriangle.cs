@@ -34,10 +34,9 @@ namespace MetalTriangle
         C.Cxx.GUIApplication
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var shaderSource = Bam.Core.Module.Create<MetalUtilities.MetalShaderSource>(
                 preInitCallback: module =>
@@ -94,10 +93,9 @@ namespace MetalTriangle
         Publisher.Collation
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.SetDefaultMacrosAndMappings(EPublishingType.WindowedApplication);
             if (Bam.Core.Graph.Instance.Mode != "Xcode")

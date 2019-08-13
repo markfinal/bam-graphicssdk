@@ -36,10 +36,9 @@ namespace MetalUtilities
         public const string CompiledMetalShaderKey = "Compiled Metal shader";
 
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<MetalShaderCompilerTool>();
 

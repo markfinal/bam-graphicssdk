@@ -34,10 +34,9 @@ namespace DirectXSDK
         C.Cxx.DynamicLibrary
     {
         protected override void
-        Init(
-            Bam.Core.Module parent)
+        Init()
         {
-            base.Init(parent);
+            base.Init();
 
             var meta = this.PackageDefinition.MetaData as IDirectXSDKInstallMeta;
             if (meta.UseWindowsSDK)
