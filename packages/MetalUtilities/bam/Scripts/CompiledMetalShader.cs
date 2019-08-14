@@ -77,7 +77,7 @@ namespace MetalUtilities
 #if D_PACKAGE_XCODEBUILDER
                 case "Xcode":
                     {
-                        var encapsulating = this.GetEncapsulatingReferencedModule();
+                        var encapsulating = this.EncapsulatingModule;
                         var workspace = Bam.Core.Graph.Instance.MetaData as XcodeBuilder.WorkspaceMeta;
                         var target = workspace.EnsureTargetExists(encapsulating);
                         var configuration = target.GetConfiguration(encapsulating);
