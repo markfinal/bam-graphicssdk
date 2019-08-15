@@ -75,7 +75,7 @@ namespace VulkanSDK
         Init()
         {
             var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
-            this.Macros["packagedir"].Set(latest_version_path, null);
+            this.Macros[Bam.Core.ModuleMacroNames.PackageDirectory].Set(latest_version_path, null);
 
             this.Macros.Add("Executable", this.CreateTokenizedString("$(packagedir)/Bin/glslangValidator.exe"));
 

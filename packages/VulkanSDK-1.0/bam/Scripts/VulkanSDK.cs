@@ -40,7 +40,7 @@ namespace VulkanSDK
             base.Init();
 
             var latest_version_path = GetInstallDir.Find(this.BuildEnvironment.Platform);
-            this.Macros["packagedir"].Set(latest_version_path, null);
+            this.Macros[Bam.Core.ModuleMacroNames.PackageDirectory].Set(latest_version_path, null);
 
             if (Bam.Core.OSUtilities.Is64Bit(this.BuildEnvironment.Platform))
             {
@@ -51,7 +51,7 @@ namespace VulkanSDK
                 this.Macros["VulkanLibDir"] = this.CreateTokenizedString("$(packagedir)/Source/Lib32");
             }
 
-            this.Macros["OutputName"] = this.CreateTokenizedString("vulkan-1");
+            this.Macros[Bam.Core.ModuleMacroNames.OutputName] = this.CreateTokenizedString("vulkan-1");
             this.RegisterGeneratedFile(
                 ExecutableKey,
                 this.CreateTokenizedString("$(VulkanLibDir)/$(dynamicprefix)$(OutputName)$(dynamicext)") // note: 64-bit
@@ -65,7 +65,7 @@ namespace VulkanSDK
             }
 
             var headers = this.CreateHeaderContainer();
-            headers.Macros["packagedir"].Set(latest_version_path, null); // must set this as well as on this, since it doesn't inherit
+            headers.Macros[Bam.Core.ModuleMacroNames.PackageDirectory].Set(latest_version_path, null); // must set this as well as on this, since it doesn't inherit
             headers.AddFiles("$(packagedir)/Include/vulkan/*.h");
             headers.AddFiles("$(packagedir)/Include/vulkan/*.hpp");
 

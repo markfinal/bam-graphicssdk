@@ -42,7 +42,7 @@ namespace MetalUtilities
             base.Init();
 
             // for consistency with what Xcode will generate
-            this.Macros["OutputName"] = Bam.Core.TokenizedString.CreateVerbatim("default");
+            this.Macros[Bam.Core.ModuleMacroNames.OutputName] = Bam.Core.TokenizedString.CreateVerbatim("default");
 
             this.Tool = Bam.Core.Graph.Instance.FindReferencedModule<MetalShaderLinkerTool>();
             this.RegisterGeneratedFile(
