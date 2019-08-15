@@ -76,12 +76,7 @@ namespace glslang
         string Bam.Core.ICommandLineTool.UseResponseFileOption => null;
         Bam.Core.Array<int> Bam.Core.ICommandLineTool.SuccessfulExitCodes => new Bam.Core.Array<int> { 0 };
 
-        Bam.Core.Settings
-        Bam.Core.ITool.CreateDefaultSettings<T>(
-            T module)
-        {
-            return new VulkanSDK.GLSLangValidatorSettings(module);
-        }
+        System.Type Bam.Core.ITool.SettingsType => typeof(VulkanSDK.GLSLangValidatorSettings);
     }
 
     class GLSLang :

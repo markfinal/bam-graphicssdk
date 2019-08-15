@@ -149,10 +149,10 @@ namespace MetalUtilities
             this.arguments.Add(Bam.Core.TokenizedString.CreateVerbatim("metal"));
         }
 
-        public override Bam.Core.Settings CreateDefaultSettings<T>(T module)
-        {
-            return new MetalShaderCompilerSettings(module);
-        }
+        /// <summary>
+        /// \copydoc Bam.Core.ITool.SettingsType
+        /// </summary>
+        public override System.Type SettingsType => typeof(MetalShaderCompilerSettings);
 
         public override Bam.Core.TokenizedString Executable
         {

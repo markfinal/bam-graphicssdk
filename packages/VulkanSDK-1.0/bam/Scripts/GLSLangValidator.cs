@@ -82,9 +82,10 @@ namespace VulkanSDK
             base.Init();
         }
 
-        public override Bam.Core.Settings
-        CreateDefaultSettings<T>(
-            T module) => new GLSLangValidatorSettings(module);
+        /// <summary>
+        /// \copydoc Bam.Core.ITool.SettingsType
+        /// </summary>
+        public override System.Type SettingsType => typeof(GLSLangValidatorSettings);
 
         public override Bam.Core.TokenizedString Executable => this.Macros["Executable"];
     }
