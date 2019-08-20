@@ -48,6 +48,8 @@ namespace SPIRVTools
                 }
             });
         }
+
+        public override System.Collections.Generic.IEnumerable<(Bam.Core.Module module, string pathKey)> InputModulePaths => System.Linq.Enumerable.Empty<(Bam.Core.Module,string)>();
     }
 
     class ExtensionEnumInc :
