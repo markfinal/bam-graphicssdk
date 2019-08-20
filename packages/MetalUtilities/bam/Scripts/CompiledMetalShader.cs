@@ -98,14 +98,11 @@ namespace MetalUtilities
             set;
         }
 
-        public override System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, Bam.Core.Module>> InputModules
+        public override System.Collections.Generic.IEnumerable<(Bam.Core.Module module, string pathKey)> InputModulePaths
         {
             get
             {
-                yield return new System.Collections.Generic.KeyValuePair<string, Bam.Core.Module>(
-                    MetalShaderSource.ShaderSourceKey,
-                    this.ShaderSource
-                );
+                yield return (this.ShaderSource, MetalShaderSource.ShaderSourceKey);
             }
         }
     }
