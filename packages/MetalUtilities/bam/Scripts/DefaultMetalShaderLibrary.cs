@@ -107,14 +107,10 @@ namespace MetalUtilities
     {
         public MetalShaderLinkerSettings(
             Bam.Core.Module module)
+            :
+            base(ELayout.Cmds_Inputs_Outputs)
         {
             this.InitializeAllInterfaces(module, false, true);
-        }
-
-        public override void
-        AssignFileLayout()
-        {
-            this.FileLayout = ELayout.Cmds_Inputs_Outputs;
         }
     }
 
