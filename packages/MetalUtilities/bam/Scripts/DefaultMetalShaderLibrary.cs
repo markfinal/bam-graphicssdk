@@ -105,13 +105,10 @@ namespace MetalUtilities
     class MetalShaderLinkerSettings :
         Bam.Core.Settings
     {
-        public MetalShaderLinkerSettings(
-            Bam.Core.Module module)
+        public MetalShaderLinkerSettings()
             :
             base(ELayout.Cmds_Inputs_Outputs)
-        {
-            this.InitializeAllInterfaces(module, false, true);
-        }
+        {}
     }
 
     class MetalShaderLinkerTool :

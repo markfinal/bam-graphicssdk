@@ -112,13 +112,10 @@ namespace MetalUtilities
     class MetalShaderCompilerSettings :
         Bam.Core.Settings
     {
-        public MetalShaderCompilerSettings(
-            Bam.Core.Module module)
+        public MetalShaderCompilerSettings()
             :
             base(ELayout.Cmds_Inputs_Outputs)
-        {
-            this.InitializeAllInterfaces(module, false, true);
-        }
+        {}
     }
 
     class MetalShaderCompilerTool :

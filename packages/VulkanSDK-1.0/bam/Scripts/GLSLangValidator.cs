@@ -54,13 +54,10 @@ namespace VulkanSDK
         Bam.Core.Settings,
         IGLSLangValidatorSettings
     {
-        public GLSLangValidatorSettings(
-            Bam.Core.Module module)
+        public GLSLangValidatorSettings()
             :
             base(ELayout.Cmds_Outputs_Inputs)
-        {
-            this.InitializeAllInterfaces(module, false, true);
-        }
+        {}
 
         [CommandLineProcessor.Bool("-V", "")]
         bool IGLSLangValidatorSettings.Binary { get; set; }
