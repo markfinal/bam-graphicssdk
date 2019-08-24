@@ -34,8 +34,7 @@ namespace VulkanSDK
     {
         public static void
         Defaults(
-            this IGLSLangValidatorSettings settings,
-            Bam.Core.Module module)
+            this IGLSLangValidatorSettings settings)
         {
             settings.Binary = true;
         }
