@@ -133,7 +133,7 @@ namespace MetalUtilities
         {
             var clangMeta = Bam.Core.Graph.Instance.PackageMetaData<Bam.Core.PackageMetaData>("Clang");
             var discovery = clangMeta as C.IToolchainDiscovery;
-            discovery.discover(null);
+            discovery.Discover(null);
 
             this.arguments.Add(Bam.Core.TokenizedString.CreateVerbatim(System.String.Format("--sdk {0}", clangMeta["SDK"]))); // could use clangMeta.SDK, but avoids compile-time dependency on the Clang packages
             this.arguments.Add(Bam.Core.TokenizedString.CreateVerbatim("metal"));
