@@ -63,7 +63,7 @@ namespace OpenGLTriangle
             }
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
-                var objCSource = this.CreateObjectiveCxxSourceCollectionr("$(packagedir)/source/**.mm");
+                var objCSource = this.CreateObjectiveCxxSourceCollection("$(packagedir)/source/**.mm");
                 objCSource.PrivatePatch(settings =>
                     {
                         var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
