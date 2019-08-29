@@ -46,13 +46,13 @@ namespace VulkanTriangle
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/source/**.h");
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            this.CreateHeaderCollection("$(packagedir)/source/**.h");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/*.cpp");
             source.AddFiles("$(packagedir)/source/renderer/*.cpp");
 
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
-                var objCxxSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/entry/macos/*.mm");
+                var objCxxSource = this.CreateObjectiveCxxSourceCollection("$(packagedir)/source/entry/macos/*.mm");
                 objCxxSource.PrivatePatch(settings =>
                     {
                         var cxxcompiler = settings as C.ICxxOnlyCompilerSettings;

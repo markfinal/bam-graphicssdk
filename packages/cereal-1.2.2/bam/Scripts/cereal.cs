@@ -37,7 +37,7 @@ namespace cereal
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/include/**.hpp");
+            this.CreateHeaderCollection("$(packagedir)/include/**.hpp");
 
             this.PublicPatch((settings, appliedTo) =>
             {

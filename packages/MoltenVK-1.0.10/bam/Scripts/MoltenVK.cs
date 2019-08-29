@@ -39,7 +39,7 @@ namespace MoltenVK
 
             this.SetSemanticVersion(1, 0, 10);
 
-            var cxx_source = this.CreateCxxSourceContainer();
+            var cxx_source = this.CreateCxxSourceCollection();
             cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.cpp");
             cxx_source.AddFiles("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/*.cpp");
 
@@ -81,7 +81,7 @@ namespace MoltenVK
                 }
             }));
 
-            var objcxx_source = this.CreateObjectiveCxxSourceContainer();
+            var objcxx_source = this.CreateObjectiveCxxSourceCollection();
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Loader/*.mm");

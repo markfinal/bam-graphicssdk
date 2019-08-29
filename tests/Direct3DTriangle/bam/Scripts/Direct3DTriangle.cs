@@ -39,9 +39,9 @@ namespace Direct3DTriangle
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/source/*.h");
+            this.CreateHeaderCollection("$(packagedir)/source/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/*.cpp");
             source.PrivatePatch(settings =>
                 {
                     var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;

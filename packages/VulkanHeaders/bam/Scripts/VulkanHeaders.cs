@@ -36,7 +36,7 @@ namespace VulkanHeaders
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/include/vulkan/*.h");
+            this.CreateHeaderCollection("$(packagedir)/include/vulkan/*.h");
 
             this.PublicPatch((settings, appliedTo) =>
             {

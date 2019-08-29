@@ -38,9 +38,9 @@ namespace WindowLibrary
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/include/common/windowlibrary/*.h");
+            this.CreateHeaderCollection("$(packagedir)/include/common/windowlibrary/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/common/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/common/*.cpp");
             source.PrivatePatch(settings =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;
@@ -87,9 +87,9 @@ namespace WindowLibrary
         {
             base.Init();
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/include/graphicswindow/windowlibrary/**.h");
+            var headers = this.CreateHeaderCollection("$(packagedir)/include/graphicswindow/windowlibrary/**.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/graphicswindow/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/graphicswindow/*.cpp");
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
                 source.AddFiles("$(packagedir)/source/graphicswindow/platform/win32winlib.cpp");
@@ -104,7 +104,7 @@ namespace WindowLibrary
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
                 headers.AddFiles("$(packagedir)/source/graphicswindow/platform/macoswinlibimpl.h");
-                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/graphicswindow/platform/*.mm");
+                var objCSource = this.CreateObjectiveCxxSourceCollection("$(packagedir)/source/graphicswindow/platform/*.mm");
                 objCSource.PrivatePatch(settings =>
                     {
                         var compiler = settings as C.ICommonCompilerSettings;
@@ -172,9 +172,9 @@ namespace WindowLibrary
         {
             base.Init();
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/include/openglcontext/windowlibrary/*.h");
+            var headers = this.CreateHeaderCollection("$(packagedir)/include/openglcontext/windowlibrary/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/openglcontext/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/openglcontext/*.cpp");
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
                 source.AddFiles("$(packagedir)/source/openglcontext/platform/win32glcontextimpl.cpp");
@@ -188,7 +188,7 @@ namespace WindowLibrary
             else if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.OSX))
             {
                 headers.AddFiles("$(packagedir)/source/openglcontext/platform/macosglcontextimpl.h");
-                var objCSource = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/openglcontext/platform/*.mm");
+                var objCSource = this.CreateObjectiveCxxSourceCollection("$(packagedir)/source/openglcontext/platform/*.mm");
                 objCSource.PrivatePatch(settings =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;

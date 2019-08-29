@@ -38,7 +38,7 @@ namespace SPIRVHeaders
 
             this.Macros.Add("IncludeDir", this.CreateTokenizedString("$(packagedir)/include"));
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/include/**.hpp");
+            var headers = this.CreateHeaderCollection("$(packagedir)/include/**.hpp");
             headers.AddFiles("$(packagedir)/include/**.h");
 
             this.PublicPatch((settings, appliedTo) =>

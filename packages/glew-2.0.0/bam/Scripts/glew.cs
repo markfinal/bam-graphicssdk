@@ -38,8 +38,8 @@ namespace glew
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/include/GL/*.h");
-            var source = this.CreateCSourceContainer();
+            this.CreateHeaderCollection("$(packagedir)/include/GL/*.h");
+            var source = this.CreateCSourceCollection();
             source.AddFile("$(packagedir)/src/glew.c");
 
             source.PrivatePatch(settings =>

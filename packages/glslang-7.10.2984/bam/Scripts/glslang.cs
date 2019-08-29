@@ -39,10 +39,10 @@ namespace glslang
         {
             base.Init();
 
-            var headers = this.CreateHeaderContainer();
+            var headers = this.CreateHeaderCollection();
             headers.AddFiles("$(packagedir)/glslang/**.h");
 
-            var source = this.CreateCxxSourceContainer();
+            var source = this.CreateCxxSourceCollection();
             source.AddFiles("$(packagedir)/StandAlone/StandAlone.cpp");
             source.AddFiles("$(packagedir)/StandAlone/ResourceLimits.cpp");
 
@@ -87,7 +87,7 @@ namespace glslang
         {
             base.Init();
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/glslang/MachineIndependent/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/glslang/MachineIndependent/*.cpp");
             source.AddFiles("$(packagedir)/glslang/MachineIndependent/preprocessor/*.cpp");
             source.AddFiles("$(packagedir)/glslang/GenericCodeGen/*.cpp");
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
@@ -114,7 +114,7 @@ namespace glslang
         Init()
         {
             base.Init();
-            var source = this.CreateCxxSourceContainer("$(packagedir)/OGLCompilersDLL/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/OGLCompilersDLL/*.cpp");
             source.PrivatePatch(settings =>
             {
                 var cxxCompiler = settings as C.ICxxOnlyCompilerSettings;
@@ -132,7 +132,7 @@ namespace glslang
         {
             base.Init();
 
-            var source = this.CreateCxxSourceContainer();
+            var source = this.CreateCxxSourceCollection();
             source.AddFiles("$(packagedir)/SPIRV/GlslangToSpv.cpp");
             source.AddFiles("$(packagedir)/SPIRV/InReadableOrder.cpp");
             source.AddFiles("$(packagedir)/SPIRV/Logger.cpp");

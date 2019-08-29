@@ -38,7 +38,7 @@ namespace glew
         {
             base.Init();
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/include/GL/glew.h");
+            var headers = this.CreateHeaderCollection("$(packagedir)/include/GL/glew.h");
             if (this.BuildEnvironment.Platform.Includes(Bam.Core.EPlatform.Windows))
             {
                 headers.AddFile("$(packagedir)/include/GL/wglew.h");
@@ -48,7 +48,7 @@ namespace glew
                 headers.AddFile("$(packagedir)/include/GL/glxew.h");
             }
 
-            var source = this.CreateCSourceContainer("$(packagedir)/src/glew.c");
+            var source = this.CreateCSourceCollection("$(packagedir)/src/glew.c");
             this.PublicPatch((settings, appliedTo) =>
                 {
                     var compiler = settings as C.ICommonCompilerSettings;

@@ -55,7 +55,7 @@ namespace MetalTriangle
             var defaultShaderLibrary = Bam.Core.Graph.Instance.FindReferencedModule<MetalUtilities.DefaultMetalShaderLibrary>();
             defaultShaderLibrary.DependsOn(shaderCompiled);
 
-            var source = this.CreateObjectiveCxxSourceContainer("$(packagedir)/source/*.mm");
+            var source = this.CreateObjectiveCxxSourceCollection("$(packagedir)/source/*.mm");
             source.PrivatePatch(settings =>
             {
                 var compiler = settings as C.ICommonCompilerSettings;

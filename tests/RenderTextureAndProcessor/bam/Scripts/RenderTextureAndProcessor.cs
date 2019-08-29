@@ -38,10 +38,10 @@ namespace RenderTextureAndProcessor
         {
             base.Init();
 
-            var headers = this.CreateHeaderContainer("$(packagedir)/source/common/*.h");
+            var headers = this.CreateHeaderCollection("$(packagedir)/source/common/*.h");
             headers.AddFiles("$(packagedir)/source/rendertexture/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/common/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/common/*.cpp");
             source.AddFiles("$(packagedir)/source/rendertexture/*.cpp");
             source.PrivatePatch(settings =>
             {
@@ -83,9 +83,9 @@ namespace RenderTextureAndProcessor
         {
             base.Init();
 
-            this.CreateHeaderContainer("$(packagedir)/source/common/*.h");
+            this.CreateHeaderCollection("$(packagedir)/source/common/*.h");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/common/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/common/*.cpp");
             source.AddFiles("$(packagedir)/source/textureprocessor/*.cpp");
             source.PrivatePatch(settings =>
                 {

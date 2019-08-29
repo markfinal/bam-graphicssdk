@@ -265,10 +265,10 @@ namespace SPIRVTools
         {
             base.Init();
 
-            var header = this.CreateHeaderContainer("$(packagedir)/include/**.h");
+            var header = this.CreateHeaderCollection("$(packagedir)/include/**.h");
             header.AddFiles("$(packagedir)/include/**.hpp");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/source/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/source/*.cpp");
             source.AddFiles("$(packagedir)/source/util/*.cpp");
 
             this.CompileAgainst<SPIRVHeaders.SPIRVHeaders>(source);

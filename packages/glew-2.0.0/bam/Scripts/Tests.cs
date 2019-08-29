@@ -41,7 +41,7 @@ namespace glew
             {
                 base.Init();
 
-                var source = this.CreateCSourceContainer("$(packagedir)/src/glewinfo.c");
+                var source = this.CreateCSourceCollection("$(packagedir)/src/glewinfo.c");
                 this.CompileAndLinkAgainst<GLEWStatic>(source);
                 this.CompileAndLinkAgainst<OpenGLSDK.OpenGL>(source);
 

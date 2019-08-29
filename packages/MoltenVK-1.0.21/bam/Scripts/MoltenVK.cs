@@ -39,9 +39,9 @@ namespace MoltenVK
 
             this.SetSemanticVersion(1, 0, 21);
 
-            this.CreateHeaderContainer("$(packagedir)/MoltenVK/**.h");
+            this.CreateHeaderCollection("$(packagedir)/MoltenVK/**.h");
 
-            var cxx_source = this.CreateCxxSourceContainer();
+            var cxx_source = this.CreateCxxSourceCollection();
             cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Layers/*.cpp");
             cxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Utility/*.cpp");
             cxx_source.AddFiles("$(packagedir)/MoltenVKShaderConverter/MoltenVKSPIRVToMSLConverter/*.cpp");
@@ -95,7 +95,7 @@ namespace MoltenVK
                 }
             }));
 
-            var objc_source = this.CreateObjectiveCSourceContainer();
+            var objc_source = this.CreateObjectiveCSourceCollection();
             objc_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/OS/*.m");
 
             objc_source.PrivatePatch(settings =>
@@ -108,7 +108,7 @@ namespace MoltenVK
                 preprocessor.IncludePaths.AddUnique(this.CreateTokenizedString("$(packagedir)/Common"));
             });
 
-            var objcxx_source = this.CreateObjectiveCxxSourceContainer();
+            var objcxx_source = this.CreateObjectiveCxxSourceCollection();
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Commands/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/GPUObjects/*.mm");
             objcxx_source.AddFiles("$(packagedir)/MoltenVK/MoltenVK/Layers/*.mm");

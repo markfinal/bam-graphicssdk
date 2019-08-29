@@ -37,10 +37,10 @@ namespace SPIRVCross
         {
             base.Init();
 
-            var header = this.CreateHeaderContainer("$(packagedir)/**.h");
+            var header = this.CreateHeaderCollection("$(packagedir)/**.h");
             header.AddFiles("$(packagedir)/**.hpp");
 
-            var source = this.CreateCxxSourceContainer("$(packagedir)/*.cpp");
+            var source = this.CreateCxxSourceCollection("$(packagedir)/*.cpp");
             source.PrivatePatch(settings =>
             {
                 var cxx_compiler = settings as C.ICxxOnlyCompilerSettings;
