@@ -30,13 +30,13 @@
 using System.Linq;
 namespace DirectXSDK
 {
-    public interface IDirectXSDKInstallMeta
+    interface IDirectXSDKInstallMeta
     {
         string InstallPath { get; }
         bool UseWindowsSDK { get; }
     }
 
-    public sealed class DX9SDKNotInstalledException :
+    sealed class DX9SDKNotInstalledException :
         Bam.Core.Exception
     {
         public DX9SDKNotInstalledException()
@@ -45,7 +45,7 @@ namespace DirectXSDK
         {}
     }
 
-    public class MetaData :
+    class MetaData :
         Bam.Core.PackageMetaData,
         IDirectXSDKInstallMeta
     {

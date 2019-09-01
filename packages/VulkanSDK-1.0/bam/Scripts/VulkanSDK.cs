@@ -31,7 +31,7 @@ using Bam.Core;
 namespace VulkanSDK
 {
     [C.Prebuilt]
-    public class Vulkan :
+    class Vulkan :
         C.DynamicLibrary
     {
         protected override void

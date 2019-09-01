@@ -31,7 +31,7 @@ using Bam.Core;
 namespace OpenGLSDK
 {
     // TODO: this is pretty pointless at the moment
-    public sealed class OpenGL :
+    sealed class OpenGL :
         C.CSDKModule
     {
         protected override void

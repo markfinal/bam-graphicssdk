@@ -29,7 +29,7 @@
 #endregion // License
 namespace MetalUtilities
 {
-    public static class MetalExtensions
+    static class MetalExtensions
     {
         public static void
         registerMetalMappings(
